@@ -1,0 +1,200 @@
+html,
+body {
+  scroll-behavior: smooth;
+  background-color: #f8fcff;
+}
+.wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  height: 720px;
+  max-width: 500px;
+  margin: 20px auto;
+  border: 1px solid #e5e8eb;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+.title {
+  font-size: 1.3em;
+  line-height: 1.1;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  padding: 15px 10px;
+  border-bottom: 1px solid #e5e8eb;
+}
+main {
+  max-width: 800px;
+  margin: auto;
+}
+.content {
+  padding: 20px 20px;
+  height: 545px;
+  overflow: auto;
+  // 设置整个滚动条的宽度和高度
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  // 设置滚动条的轨道背景颜色和边框圆角
+  &::-webkit-scrollbar-track {
+    background: #fff;
+    border-radius: 5px;
+  }
+  // 设置滚动条的拖动块的背景颜色和边框圆角
+  &::-webkit-scrollbar-thumb {
+    background: #e3e3e3;
+    border-radius: 10px;
+  }
+  // 设置鼠标悬停在拖动块上时的背景颜色
+  &::-webkit-scrollbar-thumb:hover {
+    background: #e3e3e3;
+    cursor: pointer;
+  }
+  // 设置滚动条的边角背景颜色
+  &::-webkit-scrollbar-corner {
+    background: #e3e3e3;
+  }
+}
+.content-inner {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
+.chat {
+  display: block;
+  width: 100%;
+  margin: 16px 0;
+  &-user {
+    text-align: right;
+    display: flex;
+    flex-direction: row-reverse;
+
+    &-content {
+      display: inline-block;
+      max-width: 100%;
+      padding: 10px;
+      background-color: #6e819c;
+      color: #fff;
+      display: inline-block;
+      border-radius: 8px 8px 0 8px;
+    }
+  }
+  &-assistant {
+    text-align: left;
+    &-content {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      padding: 10px;
+      background-color: #f6f8fa;
+      display: inline-block;
+      border-radius: 8px 8px 8px 0;
+    }
+  }
+}
+
+.loading {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.hide {
+  visibility: hidden;
+  display: none;
+}
+.loadIcon {
+  width: 24px;
+  height: 24px;
+  animation: rotation 3s linear infinite;
+}
+
+@keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+.input-area {
+  padding: 20px;
+  text-align: center;
+  position: sticky;
+  bottom: 0;
+  background-color: #f4f6f8;
+}
+
+.question-input {
+  width: 100%;
+  height: 80px;
+  border: none;
+  border-radius: 10px;
+  resize: none;
+  padding: 10px 10px 20px;
+  font-size: 1rem;
+  background-color: #ffffff;
+  &:focus {
+    outline: none;
+    background-color: #fff;
+  }
+  // 设置整个滚动条的宽度和高度
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  // 设置滚动条的轨道背景颜色和边框圆角
+  &::-webkit-scrollbar-track {
+    background: #fff;
+    border-radius: 5px;
+  }
+  // 设置滚动条的拖动块的背景颜色和边框圆角
+  &::-webkit-scrollbar-thumb {
+    background: #e3e3e3;
+    border-radius: 10px;
+  }
+  // 设置鼠标悬停在拖动块上时的背景颜色
+  &::-webkit-scrollbar-thumb:hover {
+    background: #e3e3e3;
+    cursor: pointer;
+  }
+  // 设置滚动条的边角背景颜色
+  &::-webkit-scrollbar-corner {
+    background: #e3e3e3;
+  }
+}
+
+.current-response {
+  position: absolute;
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  bottom: 13px;
+  background-color: black;
+  animation: 1s steps(1, start) blink infinite;
+}
+
+@keyframes blink {
+  from {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.textarea-counter {
+  position: absolute;
+  bottom: 0;
+  right: 30px;
+  display: inline-block;
+  color: rgba(144, 147, 153, 0.5);
+}
