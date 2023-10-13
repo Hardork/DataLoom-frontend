@@ -1,12 +1,10 @@
 import {
   genChartByAiAsyncMqUsingPOST,
-  genChartByAiAsyncUsingPOST,
-  genChartByAiUsingPOST
 } from '@/services/hwqbi/chartController';
 import { UploadOutlined } from '@ant-design/icons';
-import {Button, Card, Col, Divider, Form, Input, message, notification, Row, Select, Space, Spin, Upload} from 'antd';
+import {Button, Card, Col, Form, Input, message, Row, Select, Space, Upload} from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React, {MouseEventHandler, useEffect, useState} from 'react';
+import React, { useState} from 'react';
 import {useForm} from "antd/es/form/Form";
 import WebSocketComponent from "@/components/WebSocket";
 import {useModel} from "@@/exports";

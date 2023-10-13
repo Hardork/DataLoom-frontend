@@ -1,17 +1,10 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import '@umijs/max';
 import React, {useEffect, useState} from 'react';
 import {Badge, Button, Card, Drawer, List, message, Space} from "antd";
 import {hasReadMessageUsingPOST, listUnReadMessageUsingPOST} from "@/services/hwqbi/userMessageController";
-import dayjs from "dayjs";
 import moment from "moment";
 import {Link} from "umi";
-import BadgeShow from "@/components/WebSocket/BadgeShow";
 import {useModel} from "@@/exports";
-export type SiderTheme = 'light' | 'dark';
-export const SelectLang = () => {
-  return ;
-};
 
 /**
  * 显示消息
@@ -60,13 +53,20 @@ export const Message = () => {
     setOpen(false);
   };
 
-
+  const queryUnReadMessage = async () => {
+    const res = await listUnReadMessageUsingPOST();
+    if (res.data) {
+      if (res.data.length > 0) {
+        setShow(true)
+      }
+    }
+  }
 
   useEffect(() => {
+    queryUnReadMessage()
     const ws = new WebSocket('ws://localhost:8081/api/websocket/budge/' + currentUser?.id);
 
     ws.onmessage = (event) => {
-      console.log('消息来了')
       setShow(true)
     };
 

@@ -1,15 +1,11 @@
-import {genChartByAiAsyncUsingPOST, genChartByAiUsingPOST} from '@/services/hwqbi/chartController';
-import { UploadOutlined } from '@ant-design/icons';
-import {Button, Card, Col, Divider, Form, Input, message, notification, Row, Select, Space, Spin, Upload} from 'antd';
+import {Button, Card, Col, Form, message, Row, Space} from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React, {MouseEventHandler, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useForm} from "antd/es/form/Form";
 import WebSocketComponent from "@/components/WebSocket";
-import {history, useModel} from "@@/exports";
+import {useModel} from "@@/exports";
 import AiWebSocket from "@/components/WebSocket/AiWebSocket";
-import ReactECharts from "echarts-for-react";
 import {getAiTalkUsingPOST} from "@/services/hwqbi/aiController";
-import ReactMarkdown from "react-markdown";
 import OmsViewMarkdown from "@/components/OmsViewMarkdown";
 
 /**
@@ -44,7 +40,6 @@ const AiTalk: React.FC = () => {
       } else {
         setResult(result => result + res.content)
       }
-
     };
 
     // 假设ws是已经创建好的WebSocket实例

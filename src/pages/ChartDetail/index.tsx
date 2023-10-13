@@ -1,12 +1,13 @@
-import {getChartByIdUsingGET, listMyChartByPageUsingPOST} from '@/services/hwqbi/chartController';
+import {getChartByIdUsingGET} from '@/services/hwqbi/chartController';
 
-import {history, Link, useModel} from '@@/exports';
-import {Avatar, Button, Card, Divider, List, message, Result} from 'antd';
+import { useModel} from '@@/exports';
+import { Card, Divider, message} from 'antd';
 import ReactECharts from 'echarts-for-react';
 import React, { useEffect, useState } from 'react';
-import Search from "antd/es/input/Search";
 import {Params, useParams} from "react-router";
 import WebSocketComponent from "@/components/WebSocket";
+import './index.css';
+import DataTable from "@/pages/ChartDetail/DataTable";
 
 /**
  * 我的图表页面
@@ -24,6 +25,8 @@ const ChartDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { initialState, setInitialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
+  const [csvData, setCsvData] = useState<string>()
+
 
 
   const params = useParams();
@@ -35,9 +38,16 @@ const ChartDetail: React.FC = () => {
       setChart(res.data);
       if (res.data) {
         if (res.data.status === 'succeed') {
-          console.log(res.data)
+          // 构建表格数据
+          const str = res.data.chartData ?? ''
+          const lines = str.split("\n")
+          while(lines[0].split(",").length<lines[1].split(",").length){
+            lines.shift()
+          }
+          // 拼接字符串
+          const tableData = lines.join("\n")
+          setCsvData(tableData)
           res.data.genResult = res.data.genResult?.replace('\\g', "<br>")
-          console.log(res.data.genResult)
           const chartOption = JSON.parse(res.data.genChart ?? '{}');
           res.data.genChart = JSON.stringify(chartOption);
         }
@@ -62,6 +72,11 @@ const ChartDetail: React.FC = () => {
       <div style={{ marginBottom: 16 }} />
       <div style={{width: '100%', height: '400px', padding: '20px'}}>
         <ReactECharts option={chart?.genChart && JSON.parse(chart?.genChart)} />
+      </div>
+      <Divider />
+      <div>
+        <h2>{'原始数据：'}</h2>
+        <DataTable tableData={csvData}></DataTable>
       </div>
       <Divider />
       <h2>{'分析结果：'}</h2>

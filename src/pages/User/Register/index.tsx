@@ -1,16 +1,18 @@
 import Footer from '@/components/Footer';
-import { getFakeCaptcha } from '@/services/ant-design-pro/login';
-import { LockOutlined, MobileOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  LinkOutlined,
+  LockOutlined,
+  MailOutlined,
+  RedditOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { LoginForm, ProFormCaptcha, ProFormText } from '@ant-design/pro-components';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { history, useModel, Helmet } from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useEffect, useState } from 'react';
-import { flushSync } from 'react-dom';
-import { listChartVOByPageUsingPOST } from '@/services/hwqbi/chartController';
-import {getLoginUserUsingGET, userLoginUsingPOST, userRegisterUsingPOST} from '@/services/hwqbi/userController';
-import { Link } from 'umi';
+import { getCaptchaUsingGET, userEmailRegisterUsingPOST } from '@/services/hwqbi/userController';
 
 const Lang = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -65,7 +67,7 @@ const Register: React.FC = () => {
         return;
       }
       // 登录
-      const res = await userRegisterUsingPOST({
+      const res = await userEmailRegisterUsingPOST({
         ...values,
       });
       if (res.code === 0) {
@@ -103,8 +105,8 @@ const Register: React.FC = () => {
           }}
           submitter={{
             searchConfig: {
-              submitText: '注册'
-            }
+              submitText: '注册',
+            },
           }}
           logo={<img alt="logo" src="/logo.svg" />}
           title="Goat BI"
@@ -124,13 +126,21 @@ const Register: React.FC = () => {
             items={[
               {
                 key: 'account',
-                label: '账户注册',
-              }
+                label: '邮箱注册',
+              },
             ]}
           />
 
           {type === 'account' && (
             <>
+              <ProFormText
+                name="userName"
+                fieldProps={{
+                  size: 'large',
+                  prefix: <RedditOutlined />,
+                }}
+                placeholder={'请输入昵称'}
+              />
               <ProFormText
                 name="userAccount"
                 fieldProps={{
@@ -172,6 +182,63 @@ const Register: React.FC = () => {
                     message: '校验密码是必填项！',
                   },
                 ]}
+              />
+              <ProFormText
+                name="invitationCode"
+                fieldProps={{
+                  size: 'large',
+                  prefix: <LinkOutlined />,
+                }}
+                placeholder={'请输入邀请码,没有可不填'}
+              />
+              <ProFormText
+                fieldProps={{
+                  size: 'large',
+                  prefix: <MailOutlined />,
+                }}
+                name="emailAccount"
+                placeholder={'请输入邮箱账号！'}
+                rules={[
+                  {
+                    required: true,
+                    message: '邮箱账号是必填项！',
+                  },
+                  {
+                    pattern: /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
+                    message: '不合法的邮箱账号！',
+                  },
+                ]}
+              />
+              <ProFormCaptcha
+                fieldProps={{
+                  size: 'large',
+                  prefix: <LockOutlined />,
+                }}
+                captchaProps={{
+                  size: 'large',
+                }}
+                placeholder={'请输入验证码！'}
+                captchaTextRender={(timing, count) => {
+                  if (timing) {
+                    return `${count} ${'秒后重新获取'}`;
+                  }
+                  return '获取验证码';
+                }}
+                phoneName={'emailAccount'}
+                name="captcha"
+                rules={[
+                  {
+                    required: true,
+                    message: '验证码是必填项！',
+                  },
+                ]}
+                onGetCaptcha={async (emailAccount) => {
+                  const res = await getCaptchaUsingGET({ emailAccount });
+                  if (res.data && res.code === 0) {
+                    message.success('验证码发送成功,请在邮箱中查看验证码');
+                    return;
+                  }
+                }}
               />
             </>
           )}

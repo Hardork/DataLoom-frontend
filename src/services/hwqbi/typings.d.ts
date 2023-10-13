@@ -1,4 +1,8 @@
 declare namespace API {
+  type AddUserChatHistory = {
+    modelId?: number;
+  };
+
   type AiChatRequest = {
     assistantId?: number;
     text?: string;
@@ -46,6 +50,7 @@ declare namespace API {
     pageSize?: number;
     requirement?: string;
     roleDesign?: string;
+    selectKey?: number;
     sortField?: string;
     sortOrder?: string;
     style?: string;
@@ -64,6 +69,20 @@ declare namespace API {
     roleDesign?: string;
     style?: string;
     targetWork?: string;
+    type?: string;
+  };
+
+  type AiTempChatRequest = {
+    assistantName?: string;
+    functionDes?: string;
+    historyTalk?: boolean;
+    inputModel?: string;
+    otherRequire?: string;
+    requirement?: string;
+    roleDesign?: string;
+    style?: string;
+    targetWork?: string;
+    text?: string;
     type?: string;
   };
 
@@ -97,9 +116,33 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseGetProductPointInfoByTypeVO_ = {
+    code?: number;
+    data?: GetProductPointInfoByTypeVO;
+    message?: string;
+  };
+
+  type BaseResponseGetUserChatHistoryVO_ = {
+    code?: number;
+    data?: GetUserChatHistoryVO;
+    message?: string;
+  };
+
   type BaseResponseInt_ = {
     code?: number;
     data?: number;
+    message?: string;
+  };
+
+  type BaseResponseListChatHistory_ = {
+    code?: number;
+    data?: ChatHistory[];
+    message?: string;
+  };
+
+  type BaseResponseListGetUserChatHistoryVO_ = {
+    code?: number;
+    data?: GetUserChatHistoryVO[];
     message?: string;
   };
 
@@ -139,9 +182,33 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponsePageProductOrder_ = {
+    code?: number;
+    data?: PageProductOrder_;
+    message?: string;
+  };
+
+  type BaseResponsePageProductPoint_ = {
+    code?: number;
+    data?: PageProductPoint_;
+    message?: string;
+  };
+
+  type BaseResponsePageProductVip_ = {
+    code?: number;
+    data?: PageProductVip_;
+    message?: string;
+  };
+
   type BaseResponsePageUser_ = {
     code?: number;
     data?: PageUser_;
+    message?: string;
+  };
+
+  type BaseResponsePageUserCreateAssistant_ = {
+    code?: number;
+    data?: PageUserCreateAssistant_;
     message?: string;
   };
 
@@ -157,6 +224,24 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseProductOrder_ = {
+    code?: number;
+    data?: ProductOrder;
+    message?: string;
+  };
+
+  type BaseResponseProductPoint_ = {
+    code?: number;
+    data?: ProductPoint;
+    message?: string;
+  };
+
+  type BaseResponseProductVip_ = {
+    code?: number;
+    data?: ProductVip;
+    message?: string;
+  };
+
   type BaseResponseString_ = {
     code?: number;
     data?: string;
@@ -166,6 +251,12 @@ declare namespace API {
   type BaseResponseUser_ = {
     code?: number;
     data?: User;
+    message?: string;
+  };
+
+  type BaseResponseUserCreateAssistant_ = {
+    code?: number;
+    data?: UserCreateAssistant;
     message?: string;
   };
 
@@ -237,6 +328,24 @@ declare namespace API {
     updateTime?: string;
   };
 
+  type ChatHistory = {
+    chatId?: number;
+    chatRole?: number;
+    content?: string;
+    createTime?: string;
+    execMessage?: string;
+    id?: number;
+    isDelete?: number;
+    modelId?: number;
+    status?: number;
+    updateTime?: string;
+  };
+
+  type ChatWithModelRequest = {
+    chatId?: number;
+    text?: string;
+  };
+
   type DeleteRequest = {
     id?: number;
   };
@@ -264,9 +373,23 @@ declare namespace API {
     id?: number;
   };
 
+  type GetByTypeRequest = {
+    id?: number;
+    type?: number;
+  };
+
+  type getCaptchaUsingGETParams = {
+    /** emailAccount */
+    emailAccount?: string;
+  };
+
   type getChartByIdUsingGETParams = {
     /** id */
     id?: number;
+  };
+
+  type GetChatRequest = {
+    chatId?: number;
   };
 
   type GetCurMonthServiceRecordVO = {
@@ -280,7 +403,44 @@ declare namespace API {
     id?: number;
   };
 
+  type getProductPointInfoByIdUsingGETParams = {
+    /** id */
+    id?: number;
+  };
+
+  type GetProductPointInfoByTypeVO = {
+    description?: string;
+    id?: number;
+    name?: string;
+    total?: number;
+  };
+
+  type getProductVipInfoByIdUsingGETParams = {
+    /** id */
+    id?: number;
+  };
+
+  type getUserAiRoleByIdUsingGETParams = {
+    /** id */
+    id?: number;
+  };
+
   type getUserByIdUsingGETParams = {
+    /** id */
+    id?: number;
+  };
+
+  type GetUserChatHistoryVO = {
+    assistantName?: string;
+    chatId?: number;
+    functionDes?: string;
+  };
+
+  type GetUserChatRecordRequest = {
+    chatId?: number;
+  };
+
+  type getUserOrderByIdUsingGETParams = {
     /** id */
     id?: number;
   };
@@ -290,9 +450,55 @@ declare namespace API {
     id?: number;
   };
 
+  type IdRequest = {
+    id?: number;
+  };
+
+  type listProductPointInfoByPageUsingGETParams = {
+    addPoints?: number;
+    createTime?: string;
+    current?: number;
+    description?: string;
+    expirationTime?: string;
+    id?: number;
+    isDelete?: number;
+    name?: string;
+    originalTotal?: number;
+    pageSize?: number;
+    sortField?: string;
+    sortOrder?: string;
+    status?: number;
+    total?: number;
+    updateTime?: string;
+    userId?: number;
+  };
+
+  type listProductVipInfoByPageUsingGETParams = {
+    addPoints?: number;
+    createTime?: string;
+    current?: number;
+    description?: string;
+    duration?: number;
+    expirationTime?: string;
+    id?: number;
+    isDelete?: number;
+    name?: string;
+    originalTotal?: number;
+    pageSize?: number;
+    productType?: number;
+    sortField?: string;
+    sortOrder?: string;
+    status?: number;
+    total?: number;
+    updateTime?: string;
+    userId?: number;
+  };
+
   type LoginUserVO = {
     createTime?: string;
+    email?: string;
     id?: number;
+    invitationCode?: string;
     totalRewardPoints?: number;
     updateTime?: string;
     userAvatar?: string;
@@ -301,9 +507,39 @@ declare namespace API {
     userRole?: string;
   };
 
+  type OrderAddRequest = {
+    productId?: number;
+    productType?: number;
+  };
+
+  type OrderCancelRequest = {
+    id?: number;
+  };
+
   type OrderItem = {
     asc?: boolean;
     column?: string;
+  };
+
+  type OrderPayRequest = {
+    id?: number;
+  };
+
+  type OrderQueryRequest = {
+    addPoints?: number;
+    createTime?: string;
+    current?: number;
+    expirationTime?: string;
+    orderName?: string;
+    orderNo?: string;
+    pageSize?: number;
+    payType?: string;
+    productId?: number;
+    productType?: number;
+    sortField?: string;
+    sortOrder?: string;
+    status?: string;
+    total?: number;
   };
 
   type PageAiRole_ = {
@@ -345,6 +581,45 @@ declare namespace API {
     total?: number;
   };
 
+  type PageProductOrder_ = {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: ProductOrder[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+  };
+
+  type PageProductPoint_ = {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: ProductPoint[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+  };
+
+  type PageProductVip_ = {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: ProductVip[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+  };
+
   type PageUser_ = {
     countId?: string;
     current?: number;
@@ -353,6 +628,19 @@ declare namespace API {
     orders?: OrderItem[];
     pages?: number;
     records?: User[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+  };
+
+  type PageUserCreateAssistant_ = {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: UserCreateAssistant[];
     searchCount?: boolean;
     size?: number;
     total?: number;
@@ -439,6 +727,102 @@ declare namespace API {
     userId?: number;
   };
 
+  type ProductOrder = {
+    addPoints?: number;
+    codeUrl?: string;
+    createTime?: string;
+    expirationTime?: string;
+    id?: number;
+    orderName?: string;
+    orderNo?: string;
+    payType?: string;
+    productId?: number;
+    productInfo?: string;
+    productType?: number;
+    status?: string;
+    total?: number;
+    updateTime?: string;
+    userId?: number;
+  };
+
+  type ProductPoint = {
+    addPoints?: number;
+    createTime?: string;
+    description?: string;
+    expirationTime?: string;
+    id?: number;
+    isDelete?: number;
+    name?: string;
+    originalTotal?: number;
+    status?: number;
+    total?: number;
+    updateTime?: string;
+    userId?: number;
+  };
+
+  type ProductPointAddRequest = {
+    addPoints?: number;
+    description?: string;
+    expirationTime?: string;
+    name?: string;
+    originalTotal?: number;
+    status?: number;
+    total?: number;
+  };
+
+  type ProductPointUpdateRequest = {
+    addPoints?: number;
+    description?: string;
+    expirationTime?: string;
+    id?: number;
+    name?: string;
+    originalTotal?: number;
+    status?: number;
+    total?: number;
+  };
+
+  type ProductVip = {
+    addPoints?: number;
+    createTime?: string;
+    description?: string;
+    duration?: number;
+    expirationTime?: string;
+    id?: number;
+    isDelete?: number;
+    name?: string;
+    originalTotal?: number;
+    productType?: number;
+    status?: number;
+    total?: number;
+    updateTime?: string;
+    userId?: number;
+  };
+
+  type ProductVipAddRequest = {
+    addPoints?: number;
+    description?: string;
+    duration?: number;
+    expirationTime?: string;
+    name?: string;
+    originalTotal?: number;
+    productType?: number;
+    status?: number;
+    total?: number;
+  };
+
+  type ProductVipUpdateRequest = {
+    addPoints?: number;
+    description?: string;
+    duration?: number;
+    expirationTime?: string;
+    id?: number;
+    name?: string;
+    originalTotal?: number;
+    productType?: number;
+    status?: number;
+    total?: number;
+  };
+
   type ReGenChartRequest = {
     chartId?: number;
   };
@@ -449,7 +833,9 @@ declare namespace API {
 
   type User = {
     createTime?: string;
+    email?: string;
     id?: number;
+    invitationCode?: string;
     isDelete?: number;
     totalRewardPoints?: number;
     updateTime?: string;
@@ -460,11 +846,45 @@ declare namespace API {
     userRole?: string;
   };
 
+  type UserAddChatRequest = {
+    modelId?: number;
+  };
+
   type UserAddRequest = {
     userAccount?: string;
     userAvatar?: string;
     userName?: string;
     userRole?: string;
+  };
+
+  type UserCreateAssistant = {
+    assistantName?: string;
+    createTime?: string;
+    functionDes?: string;
+    historyTalk?: number;
+    id?: number;
+    inputModel?: string;
+    isDelete?: number;
+    isOnline?: number;
+    otherRequire?: string;
+    requirement?: string;
+    roleDesign?: string;
+    style?: string;
+    targetWork?: string;
+    type?: string;
+    updateTime?: string;
+    userId?: number;
+  };
+
+  type UserEmailRegisterRequest = {
+    agreeToAnAgreement?: string;
+    captcha?: string;
+    checkPassword?: string;
+    emailAccount?: string;
+    invitationCode?: string;
+    userAccount?: string;
+    userName?: string;
+    userPassword?: string;
   };
 
   type UserLoginRequest = {
@@ -529,7 +949,9 @@ declare namespace API {
 
   type UserVO = {
     createTime?: string;
+    email?: string;
     id?: number;
+    invitationCode?: string;
     userAvatar?: string;
     userName?: string;
     userProfile?: string;

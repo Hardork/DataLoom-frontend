@@ -1,5 +1,3 @@
-import { genChartByAiUsingPOST } from '@/services/hwqbi/chartController';
-import { UploadOutlined } from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -8,11 +6,9 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Space,
-  Spin, Tooltip
+  Tooltip
 } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import React, {useEffect, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
 import {useModel} from "@@/exports";
@@ -21,7 +17,7 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { message, Upload } from 'antd';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
-import {getLoginUserUsingGET, updateMyUserUsingPOST, updateUserUsingPOST} from "@/services/hwqbi/userController";
+import {getLoginUserUsingGET} from "@/services/hwqbi/userController";
 import {addRewardUsingGET} from "@/services/hwqbi/rewardRecordController";
 import {flushSync} from "react-dom";
 import WebSocketComponent from "@/components/WebSocket";
@@ -31,6 +27,7 @@ import {
   getUserCurMonthBiRecordUsingGET
 } from "@/services/hwqbi/serviceRecordController";
 import {cloneDeep} from "lodash";
+import SendGiftModal from "@/components/Gift/SendGift";
 
 /**
  * 添加图表页面
@@ -62,8 +59,8 @@ const MyInfo: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const { initialState, setInitialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
-
   const [BiOption, setBiOption] = useState({
+    title: '',
     xAxis: {
       type: 'category',
       data: []
@@ -101,7 +98,7 @@ const MyInfo: React.FC = () => {
   const [optionLoading, setOptionLoading] = useState(false);
   // @ts-ignore
   const [imageUrl, setImageUrl] = useState<string>(currentUser?.userAvatar);
-
+  const [open, setOpen] = useState(false)
   const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
     if (info.file.status === 'uploading') {
       setLoading(true);
@@ -135,7 +132,6 @@ const MyInfo: React.FC = () => {
     setOptionLoading(true)
     const res = await getUserCurMonthBiRecordUsingGET();
     if (res.data) {
-      console.log(res.data)
       const newOption = cloneDeep(BiOption)
       // @ts-ignore
       newOption.xAxis.data = res.data.serviceDate
@@ -274,7 +270,7 @@ const MyInfo: React.FC = () => {
               </div>
               <div>
                 <Button type={"primary"} size={'small'} style={{marginLeft: '20px'}} onClick={getFreeAnalysis}>每日领取</Button>
-                <Button type={"primary"}  size={'small'} style={{marginLeft: '20px'}}>获取更多</Button>
+                <Button type={"primary"}  size={'small'} style={{marginLeft: '20px'}} onClick={() => {setOpen(true)}}>获取更多</Button>
               </div>
             </div>
             <div style={{display: "flex", marginTop: "30px"}}>
@@ -313,6 +309,9 @@ const MyInfo: React.FC = () => {
           </Col>
         </Row>
       </Card>
+      <SendGiftModal invitationCode={currentUser?.invitationCode} onCancel={() => {
+        setOpen(false)
+      }} open={open}/>
     </div>
   );
 };

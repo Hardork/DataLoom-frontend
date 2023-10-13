@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import loaddingImg from "@/assets/loadding.svg";
 import "./index.scss";
 import {Spin} from "antd";
 import {LoadingOutlined} from "@ant-design/icons";
