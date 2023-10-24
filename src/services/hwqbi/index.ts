@@ -5,6 +5,7 @@
 import * as aiController from './aiController';
 import * as aiRoleController from './aiRoleController';
 import * as chartController from './chartController';
+import * as failedChartController from './failedChartController';
 import * as fileController from './fileController';
 import * as userMessageController from './userMessageController';
 import * as orderController from './orderController';
@@ -20,6 +21,7 @@ export default {
   aiController,
   aiRoleController,
   chartController,
+  failedChartController,
   fileController,
   userMessageController,
   orderController,

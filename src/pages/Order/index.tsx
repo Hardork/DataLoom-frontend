@@ -5,7 +5,7 @@ import {
   Row,
 } from 'antd';
 import React, {useEffect, useState} from 'react';
-import {useModel} from "@@/exports";
+import {history, useModel} from "@@/exports";
 
 import { message } from 'antd';
 import WebSocketComponent from "@/components/WebSocket";
@@ -66,6 +66,7 @@ const Order: React.FC = () => {
     const res = await userPayOrderUsingPOST(OrderPayRequest)
     if (res.code === 0) {
       message.success('购买成功')
+      history.push('/shop_list');
     } else {
       message.error('购买失败')
     }
@@ -98,7 +99,7 @@ const Order: React.FC = () => {
                 </div>
                 <div style={{display: "flex", flexDirection: "column", justifyContent: "end"}}>
                   <div style={{fontSize: '16px', color: '#f55f4e'}}>
-                    ￥ {productInfo?.total / 100}
+                    ￥ {productInfo?.total}
                   </div>
                 </div>
               </div>

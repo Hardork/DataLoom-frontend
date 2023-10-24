@@ -69,7 +69,10 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
         loginOut();
         return;
       }
-      history.push(`/account/${key}`);
+      if (key === 'userInfo') {
+        history.push('/my_info')
+      }
+      // history.push(`/account/${key}`);
     },
     [setInitialState],
   );
@@ -114,6 +117,11 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
           },
         ]
       : []),
+    {
+      key: 'userInfo',
+      icon: <UserOutlined />,
+      label: '个人中心',
+    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,

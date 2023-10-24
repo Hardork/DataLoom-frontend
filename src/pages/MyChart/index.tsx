@@ -1,4 +1,4 @@
-import { listMyChartByPageUsingPOST } from '@/services/hwqbi/chartController';
+import {listMyChartByPageUsingPOST, ReGenChartByAiAsyncUsingPOST} from '@/services/hwqbi/chartController';
 
 import { useModel } from '@@/exports';
 import { Avatar, Card, List, message, Result } from 'antd';
@@ -8,6 +8,7 @@ import Search from 'antd/es/input/Search';
 import {Link} from "umi";
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
+import moment from "moment";
 /**
  * 我的图表页面
  * @constructor
@@ -134,8 +135,21 @@ const MyChartPage: React.FC = () => {
                 {item.status === 'failed' && (
                   <>
                     <Result status="error" title="图表生成失败" subTitle={item.execMessage} />
+                    <div>
+                      <a onClick={async () => {
+                        const res = await ReGenChartByAiAsyncUsingPOST({chartId: item.id})
+                        if (res.code === 0) {
+                          message.loading('请求重试中')
+                        } else {
+                          message.error(res.message)
+                        }
+                      }}>重试</a>
+                    </div>
                   </>
                 )}
+              </>
+              <>
+              创建时间： {moment(item.createTime).format('YYYY-MM-DD HH:mm:ss')}
               </>
             </Card>
           </List.Item>

@@ -1,6 +1,6 @@
-import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Card, theme } from 'antd';
+
 import React from 'react';
 
 /**
@@ -87,7 +87,6 @@ const Welcome: React.FC = () => {
   const { token } = theme.useToken();
   const { initialState } = useModel('@@initialState');
   return (
-    <PageContainer>
       <Card
         style={{
           borderRadius: 8,
@@ -123,8 +122,7 @@ const Welcome: React.FC = () => {
               width: '65%',
             }}
           >
-            Goat BI 是一个整合了 umi，Goat BI 和 ProComponents
-            的脚手架方案。致力于在设计规范和基础组件的基础上，继续向上构建，提炼出典型模板/业务组件/配套设计资源，进一步提升企业级中后台产品设计研发过程中的『用户』和『设计者』的体验。
+            Goat BI 为用户分析大量数据，帮助您分析数据并数据中发现有价值的信息
           </p>
           <div
             style={{
@@ -135,26 +133,25 @@ const Welcome: React.FC = () => {
           >
             <InfoCard
               index={1}
-              href="https://umijs.org/docs/introduce/introduce"
-              title="了解 umi"
-              desc="umi 是一个可扩展的企业级前端应用框架,umi 以路由为基础的，同时支持配置式路由和约定式路由，保证路由的功能完备，并以此进行功能扩展。"
+              href="/add_chart_mq"
+              title="智能分析"
+              desc="一键上传数据，即可获取数据的智能分析报告"
             />
             <InfoCard
               index={2}
-              title="了解 Goat BI"
-              href="https://ant.design"
-              desc="antd 是基于 Goat BI 设计体系的 React UI 组件库，主要用于研发企业级中后台产品。"
+              title="AI辅助分析"
+              href="/ai_chat"
+              desc="AI加持，支持随问随答，更快速、更准确地从大量数据中提取有价值的信息"
             />
             <InfoCard
               index={3}
-              title="了解 Pro Components"
-              href="https://procomponents.ant.design"
-              desc="ProComponents 是一个基于 Goat BI 做了更高抽象的模板组件，以 一个组件就是一个页面为开发理念，为中后台开发带来更好的体验。"
+              title="创建分析助手"
+              href="/user_add_assistant"
+              desc="创建属于自己的AI数据分析师"
             />
           </div>
         </div>
       </Card>
-    </PageContainer>
   );
 };
 

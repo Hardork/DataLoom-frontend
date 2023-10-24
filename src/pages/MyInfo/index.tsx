@@ -4,7 +4,7 @@ import {
   Col,
   Divider,
   Form,
-  Input,
+  Input, Modal,
   Row,
   Space,
   Tooltip
@@ -13,11 +13,11 @@ import React, {useEffect, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
 import {useModel} from "@@/exports";
 
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { message, Upload } from 'antd';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
-import {getLoginUserUsingGET} from "@/services/hwqbi/userController";
+import {getLoginUserUsingGET, updateUserUsingPOST} from "@/services/hwqbi/userController";
 import {addRewardUsingGET} from "@/services/hwqbi/rewardRecordController";
 import {flushSync} from "react-dom";
 import WebSocketComponent from "@/components/WebSocket";
@@ -28,6 +28,11 @@ import {
 } from "@/services/hwqbi/serviceRecordController";
 import {cloneDeep} from "lodash";
 import SendGiftModal from "@/components/Gift/SendGift";
+import ImgCrop from "antd-img-crop";
+import {errorConfig} from "@/requestErrorConfig";
+import { history } from '@umijs/max';
+
+
 
 /**
  * 添加图表页面
@@ -59,6 +64,11 @@ const MyInfo: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const { initialState, setInitialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const handleCancel = () => setPreviewOpen(false);
   const [BiOption, setBiOption] = useState({
     title: '',
     xAxis: {
@@ -76,7 +86,6 @@ const MyInfo: React.FC = () => {
       }
   ]
   })
-
   const [AiOption, setAiOption] = useState({
     xAxis: {
       type: 'category',
@@ -93,7 +102,6 @@ const MyInfo: React.FC = () => {
       }
     ]
   })
-
   const [loading, setLoading] = useState(false);
   const [optionLoading, setOptionLoading] = useState(false);
   // @ts-ignore
@@ -117,6 +125,7 @@ const MyInfo: React.FC = () => {
   const getCurrentUser = async () => {
     const res = await getLoginUserUsingGET()
     if(res.data) {
+      console.log(res.data)
       setInitialState({
         currentUser: res.data,
         settings: defaultSettings
@@ -204,18 +213,95 @@ const MyInfo: React.FC = () => {
     setSubmitting(true);
     // 对接后端，上传数据
     const params = {
-      ...values
+      ...values,
+      userAvatar: fileList[0] === undefined ? undefined : fileList[0].url
     };
-    console.log(params)
+    const res = await updateUserUsingPOST(params)
+    if (res.code === 0) {
+      getCurrentUser();
+      message.success('修改成功')
+    } else {
+      message.error('修改失败')
+    }
+
     setSubmitting(false);
   };
 
-  const uploadButton = (
-    <div>
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </div>
-  );
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('-') + 1));
+  };
+
+  const uploadButton = () => {
+    return (
+      <div>
+        <PlusOutlined/>
+        <div style={{marginTop: 8}}>Upload</div>
+      </div>
+    );
+  }
+
+
+  const props: UploadProps = {
+    name: 'file',
+    withCredentials: true,
+    action: `${errorConfig.baseURL}api/file/upload?biz=user_avatar`,
+    onChange: async function ({file, fileList: newFileList}) {
+      const {response} = file;
+      console.log(response)
+      if (file.response && response.data) {
+        const {data: {status, url}} = response
+        console.log(url)
+        const updatedFileList = [...fileList];
+        if (response.code !== 0 || status === 'error') {
+          message.error(response.message);
+          file.status = "error"
+          updatedFileList[0] = {
+            // @ts-ignore
+            uid: currentUser?.userAccount,
+            // @ts-ignore
+            name: currentUser?.userAvatar ? currentUser?.userAvatar?.substring(currentUser?.userAvatar!.lastIndexOf('-') + 1) : "error",
+            status: "error",
+            percent: 100
+          }
+          setFileList(updatedFileList);
+          return
+        }
+        file.status = status
+        updatedFileList[0] = {
+          // @ts-ignore
+          uid: currentUser?.userAccount,
+          // @ts-ignore
+          name: currentUser?.userAvatar?.substring(currentUser?.userAvatar!.lastIndexOf('-') + 1),
+          status: status,
+          url: url,
+          percent: 100
+        }
+        setFileList(updatedFileList);
+      } else {
+        setFileList(newFileList);
+      }
+    },
+    listType: "picture-circle",
+    onPreview: handlePreview,
+    fileList: fileList,
+    beforeUpload: beforeUpload,
+    maxCount: 1,
+    progress: {
+      strokeColor: {
+        '0%': '#108ee9',
+        '100%': '#87d068',
+      },
+      strokeWidth: 3,
+      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+    },
+  };
+
+
 
   return (
     <div className="add-chart">
@@ -234,18 +320,22 @@ const MyInfo: React.FC = () => {
               </Form.Item>
 
               <Form.Item name="userAvatar" label="头像">
-                <Upload
-                  name="userAvatar"
-                  listType="picture-circle"
-                  className="avatar-uploader"
-                  showUploadList={false}
-                  // action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  beforeUpload={beforeUpload}
-                  onChange={handleChange}
-                  maxCount={1}
+                <ImgCrop
+                  rotationSlider
+                  quality={1}
+                  aspectSlider
+                  maxZoom={4}
+                  cropShape={"round"}
+                  zoomSlider
+                  showReset
                 >
-                    {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%', maxHeight: '100px'}} /> : uploadButton}
-                </Upload>
+                  <Upload {...props}>
+                    {fileList.length >= 1 ? undefined : uploadButton()}
+                  </Upload>
+                </ImgCrop>
+                <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+                  <img alt="example" style={{width: '100%'}} src={previewImage}/>
+                </Modal>
               </Form.Item>
               <Form.Item wrapperCol={{ span: 16, offset: 4 }}>
                 <Space>
@@ -276,11 +366,16 @@ const MyInfo: React.FC = () => {
             <div style={{display: "flex", marginTop: "30px"}}>
               <div style={{display: "flex", alignItems: "center"}}>
                 <Tooltip title="会员每日可免费分析10次">
-                  <span>身份: 普通用户</span>
+                  <span>身份: {
+                    currentUser?.userRole === 'vip' ? '会员' : '普通用户'
+                  }
+                  </span>
                 </Tooltip>
               </div>
               <div>
-                <Button type={"primary"} style={{marginLeft: '20px'}}>获取会员</Button>
+                <Button type={"primary"} style={{marginLeft: '20px'}} onClick={() => {
+                  history.push('/shop_list')
+                }}>获取会员</Button>
               </div>
             </div>
           </Card>

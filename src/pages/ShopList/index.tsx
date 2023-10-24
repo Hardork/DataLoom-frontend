@@ -9,6 +9,9 @@ import {
   listProductVipInfoByPageUsingGET,
 } from '@/services/hwqbi/productInfoController';
 import './index.css';
+import {getLoginUserUsingGET} from "@/services/hwqbi/userController";
+import {flushSync} from "react-dom";
+import Settings from "../../../config/defaultSettings";
 
 /**
  * 添加图表页面
@@ -114,8 +117,24 @@ const ShopList: React.FC = () => {
     return;
   };
 
+  const fetchUserInfo = async () => {
+    const userInfo = await getLoginUserUsingGET();
+    if (userInfo) {
+      flushSync(() => {
+        // @ts-ignore
+        console.log('用户信息', userInfo);
+        setInitialState({
+          currentUser: userInfo.data,
+          settings: Settings,
+        });
+      });
+    }
+  };
+
   useEffect(() => {
+    // 记载用户信息
     // 加载商品信息
+    fetchUserInfo();
     getPointProduct();
     getVipProduct();
   }, []);
@@ -150,7 +169,9 @@ const ShopList: React.FC = () => {
               </Tooltip>
             </div>
             <div style={{ marginBottom: '16px' }}></div>
-            <div>身份： {'普通用户'}</div>
+            <div>身份: {
+              currentUser?.userRole === 'vip' ? '会员' : '普通用户'
+            }</div>
           </Card>
         </Col>
       </Row>
@@ -173,10 +194,10 @@ const ShopList: React.FC = () => {
                   <div style={{ textAlign: 'center', padding: '20x' }}>
                     <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{item.name}</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                      ￥ {item.total / 100}.0
+                      ￥ {item.total}.0
                     </div>
                     <div>
-                      <s>原价: ￥ {item.originalTotal / 100}.0</s>
+                      <s>原价: ￥ {item.originalTotal}.0</s>
                     </div>
                   </div>
                 </Card>
@@ -191,7 +212,7 @@ const ShopList: React.FC = () => {
                 <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
                   实付{' '}
                   <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                    ￥{curPointProduct?.total / 100}.0
+                    ￥{curPointProduct?.total}.0
                   </span>
                 </div>
                 <div style={{ marginLeft: '16px' }}>
@@ -228,10 +249,10 @@ const ShopList: React.FC = () => {
                   <div style={{ textAlign: 'center', padding: '20x' }}>
                     <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{item.name}</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                      ￥ {item.total / 100}.0
+                      ￥ {item.total}.0
                     </div>
                     <div>
-                      <s>原价: ￥ {item.originalTotal / 100}.0</s>
+                      <s>原价: ￥ {item.originalTotal}.0</s>
                     </div>
                   </div>
                 </Card>
@@ -247,7 +268,7 @@ const ShopList: React.FC = () => {
                 <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
                   实付{' '}
                   <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                    ￥{curVipProduct?.total / 100}.0
+                    ￥{curVipProduct?.total}.0
                   </span>
                 </div>
                 <div style={{ marginLeft: '16px' }}>

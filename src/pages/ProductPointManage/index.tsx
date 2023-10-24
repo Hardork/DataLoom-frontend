@@ -252,12 +252,12 @@ const ProductPointManage: React.FC = () => {
     {
       title: '现价',
       dataIndex: 'total',
-      render: text => <a>{text / 100} 元</a>,
+      render: text => <a>{text} 元</a>,
     },
     {
       title: '原价',
       dataIndex: 'originalTotal',
-      render: text => <s>{text / 100} 元</s>,
+      render: text => <s>{text} 元</s>,
     },
     {
       title: '状态',

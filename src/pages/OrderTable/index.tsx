@@ -72,7 +72,7 @@ const OrderTable: React.FC = () => {
     {
       title: '价格',
       dataIndex: 'total',
-      render: text => <a>{text / 100} 元</a>,
+      render: text => <a>{text} 元</a>,
     },
     {
       title: '状态',

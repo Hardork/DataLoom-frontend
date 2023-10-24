@@ -117,19 +117,6 @@ const AssistantList: React.FC = () => {
   return (
     <div className="my-chart-page">
       <WebSocketComponent userId={currentUser?.id}></WebSocketComponent>
-      {/*<div>*/}
-      {/*  <Search*/}
-      {/*    placeholder="请输入助手名称"*/}
-      {/*    enterButton*/}
-      {/*    loading={loading}*/}
-      {/*    onSearch={(value) => {*/}
-      {/*      // 设置搜索条件*/}
-      {/*      setSearchParams({*/}
-      {/*        ...initSearchParams*/}
-      {/*      });*/}
-      {/*    }}*/}
-      {/*  />*/}
-      {/*</div>*/}
       <div className="margin-16" />
       <div>
         <h2 style={{color: '#4e8ffe'}}>助手中心</h2>

@@ -176,6 +176,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponsePageFailedChart_ = {
+    code?: number;
+    data?: PageFailedChart_;
+    message?: string;
+  };
+
   type BaseResponsePagePostVO_ = {
     code?: number;
     data?: PagePostVO_;
@@ -348,6 +354,31 @@ declare namespace API {
 
   type DeleteRequest = {
     id?: number;
+  };
+
+  type FailedChart = {
+    chartId?: number;
+    createTime?: string;
+    execMessage?: string;
+    id?: number;
+    isDelete?: number;
+    status?: string;
+    updateTime?: string;
+    userId?: number;
+  };
+
+  type FailedChartQueryRequest = {
+    chartId?: number;
+    createTime?: string;
+    current?: number;
+    execMessage?: string;
+    id?: number;
+    pageSize?: number;
+    sortField?: string;
+    sortOrder?: string;
+    status?: string;
+    updateTime?: string;
+    userId?: number;
   };
 
   type genChartByAiAsyncMqUsingPOSTParams = {
@@ -563,6 +594,19 @@ declare namespace API {
     orders?: OrderItem[];
     pages?: number;
     records?: Chart[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+  };
+
+  type PageFailedChart_ = {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: FailedChart[];
     searchCount?: boolean;
     size?: number;
     total?: number;
