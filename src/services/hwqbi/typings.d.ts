@@ -128,6 +128,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseImageVo_ = {
+    code?: number;
+    data?: ImageVo;
+    message?: string;
+  };
+
   type BaseResponseInt_ = {
     code?: number;
     data?: number;
@@ -245,12 +251,6 @@ declare namespace API {
   type BaseResponseProductVip_ = {
     code?: number;
     data?: ProductVip;
-    message?: string;
-  };
-
-  type BaseResponseString_ = {
-    code?: number;
-    data?: string;
     message?: string;
   };
 
@@ -483,6 +483,13 @@ declare namespace API {
 
   type IdRequest = {
     id?: number;
+  };
+
+  type ImageVo = {
+    name?: string;
+    status?: string;
+    uid?: string;
+    url?: string;
   };
 
   type listProductPointInfoByPageUsingGETParams = {
@@ -881,6 +888,7 @@ declare namespace API {
     id?: number;
     invitationCode?: string;
     isDelete?: number;
+    svipexpirationTime?: string;
     totalRewardPoints?: number;
     updateTime?: string;
     userAccount?: string;
@@ -888,6 +896,7 @@ declare namespace API {
     userName?: string;
     userPassword?: string;
     userRole?: string;
+    vipexpirationTime?: string;
   };
 
   type UserAddChatRequest = {

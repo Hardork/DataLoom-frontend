@@ -8,6 +8,8 @@ import React, { useState} from 'react';
 import {useForm} from "antd/es/form/Form";
 import WebSocketComponent from "@/components/WebSocket";
 import {useModel} from "@@/exports";
+import {UploadProps} from "antd/es/upload/interface";
+import {errorConfig} from "@/requestErrorConfig";
 
 /**
  * 添加图表页面
@@ -18,6 +20,13 @@ const AddChartMq: React.FC = () => {
   const [form] = useForm();
   const { initialState, setInitialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
+
+
+  const props: UploadProps = {
+    name: 'file',
+    withCredentials: true,
+    action: `${errorConfig.baseURL}api/file/upload?biz=user_avatar`,
+  };
 
 
 
@@ -81,7 +90,7 @@ const AddChartMq: React.FC = () => {
               </Form.Item>
               <Form.Item name="file" label="原始数据">
                 <Upload name="file" maxCount={1}>
-                  <Button icon={<UploadOutlined />}>上传 CSV 文件</Button>
+                  <Button icon={<UploadOutlined/>}>上传 CSV 文件</Button>
                 </Upload>
               </Form.Item>
 
