@@ -1,6 +1,6 @@
-# Goat BI
+# AI Visualization
 
-This project is initialized with [Goat BI](https://pro.ant.design). Follow is the quick guide for how to use.
+This project is initialized with [AI Visualization](https://pro.ant.design). Follow is the quick guide for how to use.
 
 ## Environment Prepare
 
@@ -18,7 +18,7 @@ yarn
 
 ## Provided Scripts
 
-Goat BI provides some useful script to help you quick start and build with web project, code style check and test.
+AI Visualization provides some useful script to help you quick start and build with web project, code style check and test.
 
 Scripts provided in `package.json`. It's safe to modify or add additional script:
 

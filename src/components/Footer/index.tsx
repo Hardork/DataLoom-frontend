@@ -13,8 +13,8 @@ const Footer: React.FC = () => {
       copyright={`${currentYear} ${defaultMessage}`}
       links={[
         {
-          key: 'Goat BI',
-          title: 'Goat BI',
+          key: 'AI Visualization',
+          title: 'AI Visualization',
           href: 'https://pro.ant.design',
           blankTarget: true,
         },
@@ -25,13 +25,14 @@ const Footer: React.FC = () => {
           blankTarget: true,
         },
         {
-          key: 'Goat BI',
-          title: 'Goat BI',
+          key: 'AI Visualization',
+          title: 'AI Visualization',
           href: 'https://ant.design',
           blankTarget: true,
         },
       ]}
     />
+
   );
 };
 export default Footer;

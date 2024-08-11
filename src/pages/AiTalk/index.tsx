@@ -5,7 +5,7 @@ import {useForm} from "antd/es/form/Form";
 import WebSocketComponent from "@/components/WebSocket";
 import {useModel} from "@@/exports";
 import AiWebSocket from "@/components/WebSocket/AiWebSocket";
-import {getAiTalkUsingPOST} from "@/services/hwqbi/aiController";
+import {getAiTalkUsingPost} from "@/services/hwqbi/aiController";
 import OmsViewMarkdown from "@/components/OmsViewMarkdown";
 
 /**
@@ -80,7 +80,7 @@ const AiTalk: React.FC = () => {
       ...values
     };
     try {
-      const res = await getAiTalkUsingPOST(params);
+      const res = await getAiTalkUsingPost(params);
       if (!res?.data) {
         message.error('分析失败, ' + res.message);
       }

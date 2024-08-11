@@ -13,10 +13,10 @@ import { Button, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import AssistantUpdateForm from '@/pages/AiAssistantTable/components/AssistantUpdateForm';
 import {
-  addProductPointInfoUsingPOST,
-  deleteProductPointInfoUsingPOST,
-  listProductPointInfoByPageUsingGET,
-  updateProductPointInfoUsingPOST,
+  addProductPointInfoUsingPost,
+  deleteProductPointInfoUsingPost,
+  listProductPointInfoByPageUsingGet,
+  updateProductPointInfoUsingPost,
 } from "@/services/hwqbi/productInfoController";
 
 /**
@@ -53,7 +53,7 @@ const ProductPointManage: React.FC = () => {
       id: currentRow?.id,
       ...fields,
     };
-    const res = await updateProductPointInfoUsingPOST(param);
+    const res = await updateProductPointInfoUsingPost(param);
 
     if (res.code === 0) {
       hide();
@@ -76,7 +76,7 @@ const ProductPointManage: React.FC = () => {
     const param = {
       id: record.id,
     };
-    const res = await deleteProductPointInfoUsingPOST(param);
+    const res = await deleteProductPointInfoUsingPost(param);
     if (res.code === 0) {
       actionRef.current?.reload();
       message.success('删除成功');
@@ -324,7 +324,7 @@ const ProductPointManage: React.FC = () => {
           </Button>,
         ]}
         request={async (values) => {
-          const res = await listProductPointInfoByPageUsingGET({...values});
+          const res = await listProductPointInfoByPageUsingGet({...values});
           return {
             data: res.data?.records,
           };
@@ -341,7 +341,7 @@ const ProductPointManage: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addProductPointInfoUsingPOST({ ...value });
+          const res = await addProductPointInfoUsingPost({ ...value });
           if (res.code === 0) {
             message.success('新增商品成功');
             handleModalOpen(false);

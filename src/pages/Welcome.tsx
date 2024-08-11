@@ -1,13 +1,26 @@
-import { useModel } from '@umijs/max';
-import { Card, theme } from 'antd';
+import {Button, Card, Carousel, Col, Row, theme} from 'antd';
 
 import React from 'react';
-
 /**
  * 每个单独的卡片，为了复用样式抽成了组件
  * @param param0
  * @returns
  */
+
+const contentStyle: React.CSSProperties = {
+  height: '700px',
+  color: '#fff',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: 'center',  // 垂直居中
+  flexDirection: "column",
+  background: 'no-repeat #004b9e',
+  backgroundImage:
+    "url('https://www.fit2cloud.com/dataease/images/banner/banner6.jpg')",
+  backgroundSize: 'cover',  // 使背景图片覆盖盒子
+  backgroundPosition: 'center',  // 使背景图片居中
+};
+
 const InfoCard: React.FC<{
   title: string;
   index: number;
@@ -19,6 +32,8 @@ const InfoCard: React.FC<{
   const { token } = useToken();
 
   return (
+
+
     <div
       style={{
         backgroundColor: token.colorBgContainer,
@@ -79,14 +94,29 @@ const InfoCard: React.FC<{
       <a href={href} target="_blank" rel="noreferrer">
         了解更多 {'>'}
       </a>
+
     </div>
   );
 };
 
 const Welcome: React.FC = () => {
-  const { token } = theme.useToken();
-  const { initialState } = useModel('@@initialState');
+  const {token} = theme.useToken();
+
   return (
+    <div style={{
+      margin: '-32px -40px'
+    }}>
+      <Carousel arrows infinite={false}>
+        <div>
+          <div style={contentStyle}>
+            <h1>开源AI数据可视化分析工具</h1>
+            <h2>让分析易如反掌！借助LLM大模型 + Agent，快速生成可视化分析图表。</h2>
+            <Button type={'primary'} size={"large"} style={{
+              fontWeight: "bold",
+            }} href={'https://github.com/Hardork/hwqbi-backend'} target={'_blank'}>访问GitHub项目</Button>
+          </div>
+        </div>
+      </Carousel>
       <Card
         style={{
           borderRadius: 8,
@@ -110,7 +140,7 @@ const Welcome: React.FC = () => {
               color: token.colorTextHeading,
             }}
           >
-            欢迎使用 Goat BI
+            欢迎使用 AI数据可视化平台
           </div>
           <p
             style={{
@@ -122,7 +152,7 @@ const Welcome: React.FC = () => {
               width: '65%',
             }}
           >
-            Goat BI 为用户分析大量数据，帮助您分析数据并数据中发现有价值的信息
+            AI Visualization 为用户分析大量数据，帮助您分析数据并数据中发现有价值的信息
           </p>
           <div
             style={{
@@ -150,8 +180,104 @@ const Welcome: React.FC = () => {
               desc="创建属于自己的AI数据分析师"
             />
           </div>
+
+          <div
+          >
+            <div style={{
+              marginTop: '100px',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <h2>AI可视化分析，让分析易上手更迅速</h2>
+            </div>
+
+            <div style={{display: "flex", justifyContent: 'center'}}>
+              <div style={{marginTop: '100px', backgroundColor: '#EAF6FD', color: '#333', width: '80%'}}>
+                <Row>
+                  <Col md={8}>
+                    <div style={{
+                      padding: '24px'
+                    }}>
+                      <p style={{
+                        color: '#333',
+                        fontSize: '26px',
+                        lineHeight: '26px',
+                        marginTop: '10px',
+                        marginBottom: '30px'
+                      }}>AI可视化分析</p>
+                      <p style={{
+                        color: "#666",
+                        fontSize: '18px',
+                        lineHeight: '32px'
+                      }}>通过数据可视化，可以直观发现、分析、预警数据中所隐藏的问题，及时应对业务中的风险，发现增长点</p>
+                    </div>
+                  </Col>
+                  <Col md={16}>
+                    <div style={{
+                      width: '100%'
+                    }}>
+                      <img src={'/assets/img_1.png'} style={{
+                        width: '100%'
+                      }}/>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </div>
+
+          <div
+          >
+            <div style={{
+              marginTop: '100px',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <h2>AI辅助分析，交互式挖掘数据的价值</h2>
+            </div>
+
+            <div style={{display: "flex", justifyContent: 'center'}}>
+              <div style={{marginTop: '100px', backgroundColor: '#EAF6FD', color: '#333', width: '80%'}}>
+                <Row>
+                  <Col md={8}>
+                    <div style={{
+                      padding: '24px'
+                    }}>
+                      <p style={{
+                        color: '#333',
+                        fontSize: '26px',
+                        lineHeight: '26px',
+                        marginTop: '10px',
+                        marginBottom: '30px'
+                      }}>AI辅助分析</p>
+                      <p style={{
+                        color: "#666",
+                        fontSize: '18px',
+                        lineHeight: '32px'
+                      }}>以上传的数据为基准，随问随答的方式更快速、更准确地从大量数据中提取有价值的信息</p>
+                    </div>
+                  </Col>
+                  <Col md={16}>
+                    <div style={{
+                      width: '100%'
+                    }}>
+                      <img src={'/assets/img_2.png'} style={{
+                        width: '100%'
+                      }}/>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
+    </div>
+
   );
 };
 

@@ -3,16 +3,16 @@ import { Card, Col, Input, message, Row, Space, Spin} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
-import {listAiRoleVOByPageUsingPOST} from "@/services/hwqbi/aiRoleController";
+import {listAiRoleVoByPageUsingPost} from "@/services/hwqbi/aiRoleController";
 import {
   LoadingOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import {
-  addUserChatHistoryUsingPOST, getChatByIdUsingPOST,
-  getUserChatHistoryUsingGET,
-  getUserChatRecordUsingPOST, userChatWithModelUsingPOST
+  addUserChatHistoryUsingPost, getChatByIdUsingPost,
+  getUserChatHistoryUsingGet,
+  getUserChatRecordUsingPost, userChatWithModelUsingPost
 } from "@/services/hwqbi/aiController";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import OmsViewMarkdown from "@/components/OmsViewMarkdown";
@@ -72,7 +72,7 @@ const AiChat: React.FC = () => {
     console.log(location)
     setLoading(true);
     setSelectItem([])
-    const res = await listAiRoleVOByPageUsingPOST(searchParams);
+    const res = await listAiRoleVoByPageUsingPost(searchParams);
     if (res.data) {
       setAiRoleList(res.data.records ?? []);
       for(const item of res.data.records ?? []) {
@@ -86,7 +86,7 @@ const AiChat: React.FC = () => {
       setTotal(res.data.total ?? 0);
     }
     // 加载历史对话
-    const historyRes = await getUserChatHistoryUsingGET();
+    const historyRes = await getUserChatHistoryUsingGet();
     if (historyRes.data) {
       // setCurModel(historyRes.data[0])
       setChatHistory(historyRes.data);
@@ -99,7 +99,7 @@ const AiChat: React.FC = () => {
         chatId: chatId
       }
       // @ts-ignore
-      const res =  await getChatByIdUsingPOST(param)
+      const res =  await getChatByIdUsingPost(param)
       if (res.data) {
         setCurModel(res.data)
       }
@@ -112,7 +112,7 @@ const AiChat: React.FC = () => {
   const loadRecord = async () => {
     const chatRecordParam = {chatId: curModel?.chatId}
     // 加载用户对话历史
-    const chatRecordRes = await getUserChatRecordUsingPOST(chatRecordParam)
+    const chatRecordRes = await getUserChatRecordUsingPost(chatRecordParam)
     if (chatRecordRes.data) {
       console.log(chatRecordRes.data)
       setChatRecord(chatRecordRes.data)
@@ -145,7 +145,7 @@ const AiChat: React.FC = () => {
       content: content
     }
     setChatRecord(item => [...item, addItem])
-    const res = await userChatWithModelUsingPOST(question)
+    const res = await userChatWithModelUsingPost(question)
     if (res.code !== 0) {
       message.error(res.message)
     }
@@ -173,7 +173,7 @@ const AiChat: React.FC = () => {
       window.clearInterval(intervalTimer)
     }
     // 无滚动
-    if (scrollH == clientH) return
+    if (scrollH === clientH) return
     //
     if (scrollDomRef.current) {
       const distance = scrollH - clientH
@@ -233,7 +233,9 @@ const AiChat: React.FC = () => {
   }, []);
 
   return (
-    <div className="my-chat">
+    <div className="my-chat" style={{
+      margin: '-32px -40px'
+    }}>
       <WebSocketComponent userId={currentUser?.id}></WebSocketComponent>
       <Row gutter={16}>
         <Col span={5}>
@@ -251,12 +253,12 @@ const AiChat: React.FC = () => {
               <>
                 {chatHistory?.map((item, index) => (
                   <>
-                    <Card style={{ width: '100%', marginTop: 16 }} className={index == selectIndex ? 'active-item' : ''} hoverable loading={loading} onClick={() => {
+                    <Card style={{ width: '100%', marginTop: 16 }} className={index === selectIndex ? 'active-item' : ''} hoverable loading={loading} onClick={() => {
                       setCurModel(item)
                       setSelectIndex(index)
                     }}>
 
-                      <div className={index == selectIndex ? 'active-color' : ''}>
+                      <div className={index === selectIndex ? 'active-color' : ''}>
                         <img src={currentUser?.userAvatar} style={{width: '30px', borderRadius: '50%'}}/>
                         <span style={{marginLeft: '20px', fontSize: '14px'}}>{item.assistantName}</span>
                         <div style={{marginLeft: '50px', fontSize: '12px'}}>
@@ -281,7 +283,7 @@ const AiChat: React.FC = () => {
                     height: '80vh',
                     overflowY: 'auto',
                     scrollbarWidth: 'thin',
-                    scrollbarColor: 'red blue'
+                    scrollbarColor: 'grey blue'
                   }} ref={scrollDomRef}>
                     <div style={{width: '100%', textAlign: "center"}}>
                       <h3 style={{fontWeight: "bold"}}>{curModel?.assistantName}</h3>
@@ -362,7 +364,7 @@ const AiChat: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addUserChatHistoryUsingPOST({ ...value });
+          const res = await addUserChatHistoryUsingPost({ ...value });
           if (res.code === 0) {
             message.success('新建成功');
             handleModalOpen(false);

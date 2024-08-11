@@ -12,7 +12,7 @@ import { history, useModel, Helmet } from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useEffect, useState } from 'react';
-import { getCaptchaUsingGET, userEmailRegisterUsingPOST } from '@/services/hwqbi/userController';
+import { getCaptchaUsingGet, userEmailRegisterUsingPost } from '@/services/hwqbi/userController';
 
 const Lang = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -62,12 +62,24 @@ const Register: React.FC = () => {
   // 点击按钮
   const handleSubmit = async (values: API.UserRegisterRequest) => {
     try {
+
+      // @ts-ignore
+      if (values.userAccount?.length < 4) {
+        message.error('账户长度不得小于4位')
+        return;
+      }
+
+      // @ts-ignore
+      if (values.userPassword?.length < 8) {
+        message.error('用户密码不得小于8位')
+        return;
+      }
       if (values.userPassword !== values.checkPassword) {
         message.error('两次输入的密码不一致');
         return;
       }
       // 登录
-      const res = await userEmailRegisterUsingPOST({
+      const res = await userEmailRegisterUsingPost({
         ...values,
       });
       if (res.code === 0) {
@@ -109,8 +121,8 @@ const Register: React.FC = () => {
             },
           }}
           logo={<img alt="logo" src="/logo.svg" />}
-          title="Goat BI"
-          subTitle={'Goat BI是最先进的分析工具'}
+          title="AI Visualization"
+          subTitle={'AI Visualization是最先进的分析工具'}
           initialValues={{
             autoLogin: true,
           }}
@@ -233,7 +245,7 @@ const Register: React.FC = () => {
                   },
                 ]}
                 onGetCaptcha={async (emailAccount) => {
-                  const res = await getCaptchaUsingGET({ emailAccount });
+                  const res = await getCaptchaUsingGet({ emailAccount });
                   if (res.data && res.code === 0) {
                     message.success('验证码发送成功,请在邮箱中查看验证码');
                     return;

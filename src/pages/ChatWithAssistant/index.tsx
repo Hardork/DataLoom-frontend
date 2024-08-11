@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'antd/es/form/Form';
 import { useModel } from '@@/exports';
 import AiWebSocket from '@/components/WebSocket/AiWebSocket';
-import { chatWithAssistantUsingPOST } from '@/services/hwqbi/aiController';
+import { chatWithAssistantUsingPost } from '@/services/hwqbi/aiController';
 import ReactMarkdown from 'react-markdown';
 import { useParams } from 'react-router';
-import { getAiRoleByIdUsingGET } from '@/services/hwqbi/aiRoleController';
+import { getAiRoleByIdUsingGet } from '@/services/hwqbi/aiRoleController';
 import WebSocketComponent from "@/components/WebSocket";
 
 /**
@@ -41,7 +41,7 @@ const ChatWithAssistant: React.FC = () => {
   const params = useParams();
 
   const loadData = async () => {
-    const res = await getAiRoleByIdUsingGET(params);
+    const res = await getAiRoleByIdUsingGet(params);
     setLoading(true);
     if (res.data) {
       setAssistant(res.data);
@@ -107,7 +107,7 @@ const ChatWithAssistant: React.FC = () => {
       ...values,
     };
     try {
-      const res = await chatWithAssistantUsingPOST(params);
+      const res = await chatWithAssistantUsingPost(params);
       if (!res?.data) {
         message.error('分析失败, ' + res.message);
       }

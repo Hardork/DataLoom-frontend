@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** 查询当前月份用户Ai服务调用情况 GET /api/serviceRecord/curMonthRecord/Ai */
-export async function getUserCurMonthAiRecordUsingGET(options?: { [key: string]: any }) {
+export async function getUserCurMonthAiRecordUsingGet(options?: { [key: string]: any }) {
   return request<API.BaseResponseGetCurMonthServiceRecordVO_>(
     '/api/serviceRecord/curMonthRecord/Ai',
     {
@@ -14,7 +14,7 @@ export async function getUserCurMonthAiRecordUsingGET(options?: { [key: string]:
 }
 
 /** 查询当前月份用户Bi服务调用情况 GET /api/serviceRecord/curMonthRecord/Bi */
-export async function getUserCurMonthBiRecordUsingGET(options?: { [key: string]: any }) {
+export async function getUserCurMonthBiRecordUsingGet(options?: { [key: string]: any }) {
   return request<API.BaseResponseGetCurMonthServiceRecordVO_>(
     '/api/serviceRecord/curMonthRecord/Bi',
     {

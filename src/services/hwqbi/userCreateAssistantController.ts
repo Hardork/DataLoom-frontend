@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** addUserAiRole POST /api/userAssistant/add */
-export async function addUserAiRoleUsingPOST(
+export async function addUserAiRoleUsingPost(
   body: API.AiRoleAddRequest,
   options?: { [key: string]: any },
 ) {
@@ -18,7 +18,7 @@ export async function addUserAiRoleUsingPOST(
 }
 
 /** deleteUserAiRole POST /api/userAssistant/delete */
-export async function deleteUserAiRoleUsingPOST(
+export async function deleteUserAiRoleUsingPost(
   body: API.DeleteRequest,
   options?: { [key: string]: any },
 ) {
@@ -33,7 +33,7 @@ export async function deleteUserAiRoleUsingPOST(
 }
 
 /** getUserAiRoleById GET /api/userAssistant/get/vo */
-export async function getUserAiRoleByIdUsingGET(
+export async function getUserAiRoleByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getUserAiRoleByIdUsingGETParams,
   options?: { [key: string]: any },
@@ -48,7 +48,7 @@ export async function getUserAiRoleByIdUsingGET(
 }
 
 /** listUserAiRoleVOByPage POST /api/userAssistant/list/page/vo */
-export async function listUserAiRoleVOByPageUsingPOST(
+export async function listUserAiRoleVoByPageUsingPost(
   body: API.AiRoleQueryRequest,
   options?: { [key: string]: any },
 ) {
@@ -63,7 +63,7 @@ export async function listUserAiRoleVOByPageUsingPOST(
 }
 
 /** updateUserAiRole POST /api/userAssistant/update */
-export async function updateUserAiRoleUsingPOST(
+export async function updateUserAiRoleUsingPost(
   body: API.AiRoleUpdateRequest,
   options?: { [key: string]: any },
 ) {

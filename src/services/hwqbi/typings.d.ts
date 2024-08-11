@@ -1,10 +1,19 @@
 declare namespace API {
+  type AddChardDataRecordRequest = {
+    data?: Record<string, any>;
+    dataId?: string;
+  };
+
+  type AddUserAskSqlHistoryRequest = {
+    dataId?: string;
+  };
+
   type AddUserChatHistory = {
-    modelId?: number;
+    modelId?: string;
   };
 
   type AiChatRequest = {
-    assistantId?: number;
+    assistantId?: string;
     text?: string;
   };
 
@@ -13,7 +22,7 @@ declare namespace API {
     createTime?: string;
     functionDes?: string;
     historyTalk?: number;
-    id?: number;
+    id?: string;
     inputModel?: string;
     isDelete?: number;
     otherRequire?: string;
@@ -23,7 +32,7 @@ declare namespace API {
     targetWork?: string;
     type?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type AiRoleAddRequest = {
@@ -41,13 +50,13 @@ declare namespace API {
 
   type AiRoleQueryRequest = {
     assistantName?: string;
-    current?: number;
+    current?: string;
     functionDes?: string;
     historyTalk?: number;
-    id?: number;
+    id?: string;
     inputModel?: string;
     otherRequire?: string;
-    pageSize?: number;
+    pageSize?: string;
     requirement?: string;
     roleDesign?: string;
     selectKey?: number;
@@ -62,7 +71,7 @@ declare namespace API {
     assistantName?: string;
     functionDes?: string;
     historyTalk?: number;
-    id?: number;
+    id?: string;
     inputModel?: string;
     otherRequire?: string;
     requirement?: string;
@@ -110,6 +119,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseDataPage_ = {
+    code?: number;
+    data?: DataPage;
+    message?: string;
+  };
+
   type BaseResponseGetCurMonthServiceRecordVO_ = {
     code?: number;
     data?: GetCurMonthServiceRecordVO;
@@ -134,21 +149,39 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponseInt_ = {
-    code?: number;
-    data?: number;
-    message?: string;
-  };
-
   type BaseResponseListChatHistory_ = {
     code?: number;
     data?: ChatHistory[];
     message?: string;
   };
 
+  type BaseResponseListDataCollaboratorsVO_ = {
+    code?: number;
+    data?: DataCollaboratorsVO[];
+    message?: string;
+  };
+
   type BaseResponseListGetUserChatHistoryVO_ = {
     code?: number;
     data?: GetUserChatHistoryVO[];
+    message?: string;
+  };
+
+  type BaseResponseListGetUserSQLChatRecordVO_ = {
+    code?: number;
+    data?: GetUserSQLChatRecordVO[];
+    message?: string;
+  };
+
+  type BaseResponseListString_ = {
+    code?: number;
+    data?: string[];
+    message?: string;
+  };
+
+  type BaseResponseListUserData_ = {
+    code?: number;
+    data?: UserData[];
     message?: string;
   };
 
@@ -166,7 +199,7 @@ declare namespace API {
 
   type BaseResponseLong_ = {
     code?: number;
-    data?: number;
+    data?: string;
     message?: string;
   };
 
@@ -185,12 +218,6 @@ declare namespace API {
   type BaseResponsePageFailedChart_ = {
     code?: number;
     data?: PageFailedChart_;
-    message?: string;
-  };
-
-  type BaseResponsePagePostVO_ = {
-    code?: number;
-    data?: PagePostVO_;
     message?: string;
   };
 
@@ -230,9 +257,15 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponsePostVO_ = {
+  type BaseResponsePreviewData_ = {
     code?: number;
-    data?: PostVO;
+    data?: PreviewData;
+    message?: string;
+  };
+
+  type BaseResponsePreviewExcelDataVO_ = {
+    code?: number;
+    data?: PreviewExcelDataVO;
     message?: string;
   };
 
@@ -251,6 +284,12 @@ declare namespace API {
   type BaseResponseProductVip_ = {
     code?: number;
     data?: ProductVip;
+    message?: string;
+  };
+
+  type BaseResponseString_ = {
+    code?: number;
+    data?: string;
     message?: string;
   };
 
@@ -273,7 +312,7 @@ declare namespace API {
   };
 
   type BiResponse = {
-    chartId?: number;
+    chartId?: string;
     genChart?: string;
     genResult?: string;
   };
@@ -286,12 +325,13 @@ declare namespace API {
     genChart?: string;
     genResult?: string;
     goal?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     name?: string;
     status?: string;
     updateTime?: string;
-    userId?: number;
+    userDataId?: string;
+    userId?: string;
   };
 
   type ChartAddRequest = {
@@ -301,24 +341,29 @@ declare namespace API {
     name?: string;
   };
 
+  type ChartData = {
+    data?: Record<string, any>;
+    id?: string;
+  };
+
   type ChartEditRequest = {
     chartData?: string;
     chartType?: string;
     goal?: string;
-    id?: number;
+    id?: string;
     name?: string;
   };
 
   type ChartQueryRequest = {
     chartType?: string;
-    current?: number;
+    current?: string;
     goal?: string;
-    id?: number;
+    id?: string;
     name?: string;
-    pageSize?: number;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type ChartUpdateRequest = {
@@ -328,57 +373,119 @@ declare namespace API {
     genChart?: string;
     genResult?: string;
     goal?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     name?: string;
     updateTime?: string;
   };
 
+  type ChatForSQLRequest = {
+    chatId?: string;
+    question?: string;
+  };
+
   type ChatHistory = {
-    chatId?: number;
+    chatId?: string;
     chatRole?: number;
     content?: string;
     createTime?: string;
     execMessage?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
-    modelId?: number;
+    modelId?: string;
     status?: number;
     updateTime?: string;
   };
 
   type ChatWithModelRequest = {
-    chatId?: number;
+    chatId?: string;
     text?: string;
   };
 
+  type ColumnsVO = {
+    dataIndex?: string;
+    title?: string;
+  };
+
+  type DataCollaboratorsVO = {
+    permission?: number;
+    userVO?: UserVO;
+  };
+
+  type DataPage = {
+    current?: string;
+    dataList?: ChartData[];
+    size?: string;
+    tableFieldInfosList?: TableFieldInfo[];
+    total?: string;
+  };
+
+  type DataQueryRequest = {
+    chartData?: ChartData;
+    current?: string;
+    dataId?: string;
+    pageSize?: string;
+    sortField?: string;
+    sortOrder?: string;
+  };
+
+  type DataSourceConfig = {
+    dataBaseName?: string;
+    description?: string;
+    host?: string;
+    initConNum?: number;
+    maxConNum?: number;
+    name: string;
+    password?: string;
+    port?: string;
+    timeoutSecond?: number;
+    type?: string;
+    userName?: string;
+  };
+
+  type DeleteChartDataRecordRequest = {
+    dataId?: string;
+    id?: string;
+  };
+
   type DeleteRequest = {
-    id?: number;
+    id?: string;
+  };
+
+  type DeleteUserDataRequest = {
+    id?: string;
+  };
+
+  type EditChartDataRecordRequest = {
+    data?: Record<string, any>;
+    dataId?: string;
+    id?: string;
   };
 
   type FailedChart = {
-    chartId?: number;
+    chartId?: string;
     createTime?: string;
     execMessage?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
+    retryNum?: number;
     status?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type FailedChartQueryRequest = {
-    chartId?: number;
+    chartId?: string;
     createTime?: string;
-    current?: number;
+    current?: string;
     execMessage?: string;
-    id?: number;
-    pageSize?: number;
+    id?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
     status?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type genChartByAiAsyncMqUsingPOSTParams = {
@@ -387,25 +494,26 @@ declare namespace API {
     name?: string;
   };
 
-  type genChartByAiAsyncUsingPOSTParams = {
+  type genChartByAiAsyncMqV3UsingPOSTParams = {
     chartType?: string;
     goal?: string;
     name?: string;
   };
 
-  type genChartByAiUsingPOSTParams = {
+  type GenChartByAiWithDataRequest = {
     chartType?: string;
+    dataId?: string;
     goal?: string;
     name?: string;
   };
 
   type getAiRoleByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
   };
 
   type GetByTypeRequest = {
-    id?: number;
+    id?: string;
     type?: number;
   };
 
@@ -416,73 +524,99 @@ declare namespace API {
 
   type getChartByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
   };
 
   type GetChatRequest = {
-    chatId?: number;
+    chatId?: string;
   };
 
   type GetCurMonthServiceRecordVO = {
-    serviceData?: number[];
+    serviceData?: string[];
     serviceDate?: string[];
     serviceType?: string;
   };
 
-  type getPostVOByIdUsingGETParams = {
-    /** id */
-    id?: number;
+  type getDataCollaboratorsUsingGETParams = {
+    /** dataId */
+    dataId: string;
+  };
+
+  type getOtherUserDataUsingGETParams = {
+    /** dataId */
+    dataId: string;
+    /** secret */
+    secret: string;
+    /** type */
+    type: number;
   };
 
   type getProductPointInfoByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
   };
 
   type GetProductPointInfoByTypeVO = {
     description?: string;
-    id?: number;
+    id?: string;
     name?: string;
-    total?: number;
+    total?: string;
   };
 
   type getProductVipInfoByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
+  };
+
+  type getSchemasUsingGETParams = {
+    /** id */
+    id: string;
   };
 
   type getUserAiRoleByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
   };
 
   type getUserByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
   };
 
   type GetUserChatHistoryVO = {
     assistantName?: string;
-    chatId?: number;
+    chatId?: string;
     functionDes?: string;
   };
 
   type GetUserChatRecordRequest = {
-    chatId?: number;
+    chatId?: string;
   };
 
   type getUserOrderByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
+  };
+
+  type GetUserSQLChatRecordVO = {
+    chatId?: string;
+    chatRole?: number;
+    columns?: ColumnsVO[];
+    content?: string;
+    id?: string;
+    modelId?: string;
+    res?: Record<string, any>[];
+    sql?: string;
+    status?: number;
   };
 
   type getUserVOByIdUsingGETParams = {
     /** id */
-    id?: number;
+    id?: string;
   };
 
   type IdRequest = {
-    id?: number;
+    id?: string;
   };
 
   type ImageVo = {
@@ -493,49 +627,49 @@ declare namespace API {
   };
 
   type listProductPointInfoByPageUsingGETParams = {
-    addPoints?: number;
+    addPoints?: string;
     createTime?: string;
-    current?: number;
+    current?: string;
     description?: string;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     name?: string;
-    originalTotal?: number;
-    pageSize?: number;
+    originalTotal?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
     status?: number;
-    total?: number;
+    total?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type listProductVipInfoByPageUsingGETParams = {
-    addPoints?: number;
+    addPoints?: string;
     createTime?: string;
-    current?: number;
+    current?: string;
     description?: string;
     duration?: number;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     name?: string;
-    originalTotal?: number;
-    pageSize?: number;
+    originalTotal?: string;
+    pageSize?: string;
     productType?: number;
     sortField?: string;
     sortOrder?: string;
     status?: number;
-    total?: number;
+    total?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type LoginUserVO = {
     createTime?: string;
     email?: string;
-    id?: number;
+    id?: string;
     invitationCode?: string;
     totalRewardPoints?: number;
     updateTime?: string;
@@ -546,12 +680,12 @@ declare namespace API {
   };
 
   type OrderAddRequest = {
-    productId?: number;
+    productId?: string;
     productType?: number;
   };
 
   type OrderCancelRequest = {
-    id?: number;
+    id?: string;
   };
 
   type OrderItem = {
@@ -560,322 +694,289 @@ declare namespace API {
   };
 
   type OrderPayRequest = {
-    id?: number;
+    id?: string;
   };
 
   type OrderQueryRequest = {
-    addPoints?: number;
+    addPoints?: string;
     createTime?: string;
-    current?: number;
+    current?: string;
     expirationTime?: string;
     orderName?: string;
     orderNo?: string;
-    pageSize?: number;
+    pageSize?: string;
     payType?: string;
-    productId?: number;
+    productId?: string;
     productType?: number;
     sortField?: string;
     sortOrder?: string;
     status?: string;
-    total?: number;
+    total?: string;
   };
 
   type PageAiRole_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: AiRole[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageChart_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: Chart[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageFailedChart_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: FailedChart[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
-  };
-
-  type PagePostVO_ = {
-    countId?: string;
-    current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: OrderItem[];
-    pages?: number;
-    records?: PostVO[];
-    searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageProductOrder_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: ProductOrder[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageProductPoint_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: ProductPoint[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageProductVip_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: ProductVip[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageUser_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: User[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageUserCreateAssistant_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: UserCreateAssistant[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
   type PageUserVO_ = {
     countId?: string;
-    current?: number;
-    maxLimit?: number;
+    current?: string;
+    maxLimit?: string;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
-    pages?: number;
+    pages?: string;
     records?: UserVO[];
     searchCount?: boolean;
-    size?: number;
-    total?: number;
+    size?: string;
+    total?: string;
   };
 
-  type PostAddRequest = {
-    content?: string;
-    tags?: string[];
-    title?: string;
+  type PreviewData = {
+    data?: Record<string, any>[];
+    field?: SchemaStructure[];
   };
 
-  type PostEditRequest = {
-    chartData?: string;
-    chartType?: string;
-    goal?: string;
-    id?: number;
+  type PreviewDataRequest = {
+    dataName?: string;
+    datasourceId?: string;
   };
 
-  type PostFavourAddRequest = {
-    postId?: number;
-  };
-
-  type PostFavourQueryRequest = {
-    current?: number;
-    pageSize?: number;
-    postQueryRequest?: PostQueryRequest;
-    sortField?: string;
-    sortOrder?: string;
-    userId?: number;
-  };
-
-  type PostQueryRequest = {
-    content?: string;
-    current?: number;
-    favourUserId?: number;
-    id?: number;
-    notId?: number;
-    orTags?: string[];
-    pageSize?: number;
-    searchText?: string;
-    sortField?: string;
-    sortOrder?: string;
-    tags?: string[];
-    title?: string;
-    userId?: number;
-  };
-
-  type PostThumbAddRequest = {
-    postId?: number;
-  };
-
-  type PostUpdateRequest = {
-    content?: string;
-    id?: number;
-    tags?: string[];
-    title?: string;
-  };
-
-  type PostVO = {
-    content?: string;
-    createTime?: string;
-    favourNum?: number;
-    hasFavour?: boolean;
-    hasThumb?: boolean;
-    id?: number;
-    tagList?: string[];
-    thumbNum?: number;
-    title?: string;
-    updateTime?: string;
-    user?: UserVO;
-    userId?: number;
+  type PreviewExcelDataVO = {
+    dataList?: ChartData[];
+    errorMessage?: string;
+    isValid?: boolean;
+    tableFieldInfosList?: TableFieldInfo[];
   };
 
   type ProductOrder = {
-    addPoints?: number;
+    addPoints?: string;
     codeUrl?: string;
     createTime?: string;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     orderName?: string;
     orderNo?: string;
     payType?: string;
-    productId?: number;
+    productId?: string;
     productInfo?: string;
     productType?: number;
     status?: string;
-    total?: number;
+    total?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type ProductPoint = {
-    addPoints?: number;
+    addPoints?: string;
     createTime?: string;
     description?: string;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     name?: string;
-    originalTotal?: number;
+    originalTotal?: string;
     status?: number;
-    total?: number;
+    total?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type ProductPointAddRequest = {
-    addPoints?: number;
+    addPoints?: string;
     description?: string;
     expirationTime?: string;
     name?: string;
-    originalTotal?: number;
+    originalTotal?: string;
     status?: number;
-    total?: number;
+    total?: string;
   };
 
   type ProductPointUpdateRequest = {
-    addPoints?: number;
+    addPoints?: string;
     description?: string;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     name?: string;
-    originalTotal?: number;
+    originalTotal?: string;
     status?: number;
-    total?: number;
+    total?: string;
   };
 
   type ProductVip = {
-    addPoints?: number;
+    addPoints?: string;
     createTime?: string;
     description?: string;
     duration?: number;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     name?: string;
-    originalTotal?: number;
+    originalTotal?: string;
     productType?: number;
     status?: number;
-    total?: number;
+    total?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type ProductVipAddRequest = {
-    addPoints?: number;
+    addPoints?: string;
     description?: string;
     duration?: number;
     expirationTime?: string;
     name?: string;
-    originalTotal?: number;
+    originalTotal?: string;
     productType?: number;
     status?: number;
-    total?: number;
+    total?: string;
   };
 
   type ProductVipUpdateRequest = {
-    addPoints?: number;
+    addPoints?: string;
     description?: string;
     duration?: number;
     expirationTime?: string;
-    id?: number;
+    id?: string;
     name?: string;
-    originalTotal?: number;
+    originalTotal?: string;
     productType?: number;
     status?: number;
-    total?: number;
+    total?: string;
   };
 
   type ReGenChartRequest = {
-    chartId?: number;
+    chartId?: string;
+  };
+
+  type SchemaStructure = {
+    columnName?: string;
+    comment?: string;
+    datasourceId?: number;
+    id?: number;
+    type?: string;
+  };
+
+  type ShareUserDataRequest = {
+    id?: string;
+    permission?: number;
+  };
+
+  type TableFieldInfo = {
+    fieldType?: string;
+    name?: string;
+    originName?: string;
+  };
+
+  type uploadFileToMongoUsingPOSTParams = {
+    dataName?: string;
+    description?: string;
+    publicAll?: boolean;
+  };
+
+  type uploadFileToMySQLUsingPOSTParams = {
+    dataName?: string;
+    description?: string;
+    publicAll?: boolean;
   };
 
   type uploadFileUsingPOSTParams = {
@@ -885,7 +986,7 @@ declare namespace API {
   type User = {
     createTime?: string;
     email?: string;
-    id?: number;
+    id?: string;
     invitationCode?: string;
     isDelete?: number;
     svipexpirationTime?: string;
@@ -900,7 +1001,7 @@ declare namespace API {
   };
 
   type UserAddChatRequest = {
-    modelId?: number;
+    modelId?: string;
   };
 
   type UserAddRequest = {
@@ -915,7 +1016,7 @@ declare namespace API {
     createTime?: string;
     functionDes?: string;
     historyTalk?: number;
-    id?: number;
+    id?: string;
     inputModel?: string;
     isDelete?: number;
     isOnline?: number;
@@ -926,7 +1027,23 @@ declare namespace API {
     targetWork?: string;
     type?: string;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
+  };
+
+  type UserData = {
+    approvalConfirm?: boolean;
+    createTime?: string;
+    dataName?: string;
+    description?: string;
+    fieldTypeInfo?: string;
+    id?: string;
+    isDelete?: number;
+    readSecretKey?: string;
+    totalRecord?: number;
+    updateTime?: string;
+    uploadType?: number;
+    userId?: string;
+    writeSecretKey?: string;
   };
 
   type UserEmailRegisterRequest = {
@@ -948,14 +1065,14 @@ declare namespace API {
   type UserMessage = {
     createTime?: string;
     description?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     isRead?: number;
     route?: string;
     title?: string;
     type?: number;
     updateTime?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type UserMessageAddRequest = {
@@ -964,14 +1081,14 @@ declare namespace API {
     route?: string;
     title?: string;
     type?: number;
-    userId?: number;
+    userId?: string;
   };
 
   type UserQueryRequest = {
-    current?: number;
-    id?: number;
+    current?: string;
+    id?: string;
     mpOpenId?: string;
-    pageSize?: number;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
     unionId?: string;
@@ -993,7 +1110,7 @@ declare namespace API {
   };
 
   type UserUpdateRequest = {
-    id?: number;
+    id?: string;
     userAvatar?: string;
     userName?: string;
     userProfile?: string;
@@ -1003,7 +1120,7 @@ declare namespace API {
   type UserVO = {
     createTime?: string;
     email?: string;
-    id?: number;
+    id?: string;
     invitationCode?: string;
     userAvatar?: string;
     userName?: string;

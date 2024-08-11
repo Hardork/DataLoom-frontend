@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** addProductPointInfo POST /api/productInfo/add/point */
-export async function addProductPointInfoUsingPOST(
+export async function addProductPointInfoUsingPost(
   body: API.ProductPointAddRequest,
   options?: { [key: string]: any },
 ) {
@@ -18,7 +18,7 @@ export async function addProductPointInfoUsingPOST(
 }
 
 /** addProductVipInfo POST /api/productInfo/add/vip */
-export async function addProductVipInfoUsingPOST(
+export async function addProductVipInfoUsingPost(
   body: API.ProductVipAddRequest,
   options?: { [key: string]: any },
 ) {
@@ -33,7 +33,7 @@ export async function addProductVipInfoUsingPOST(
 }
 
 /** deleteProductPointInfo POST /api/productInfo/delete/point */
-export async function deleteProductPointInfoUsingPOST(
+export async function deleteProductPointInfoUsingPost(
   body: API.DeleteRequest,
   options?: { [key: string]: any },
 ) {
@@ -48,7 +48,7 @@ export async function deleteProductPointInfoUsingPOST(
 }
 
 /** deleteProductVipInfo POST /api/productInfo/delete/vip */
-export async function deleteProductVipInfoUsingPOST(
+export async function deleteProductVipInfoUsingPost(
   body: API.DeleteRequest,
   options?: { [key: string]: any },
 ) {
@@ -63,7 +63,7 @@ export async function deleteProductVipInfoUsingPOST(
 }
 
 /** getProductPointInfoById GET /api/productInfo/get/point */
-export async function getProductPointInfoByIdUsingGET(
+export async function getProductPointInfoByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getProductPointInfoByIdUsingGETParams,
   options?: { [key: string]: any },
@@ -78,7 +78,7 @@ export async function getProductPointInfoByIdUsingGET(
 }
 
 /** getProductVipInfoById GET /api/productInfo/get/vip */
-export async function getProductVipInfoByIdUsingGET(
+export async function getProductVipInfoByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getProductVipInfoByIdUsingGETParams,
   options?: { [key: string]: any },
@@ -93,7 +93,7 @@ export async function getProductVipInfoByIdUsingGET(
 }
 
 /** getProductPointInfoByType POST /api/productInfo/getByType */
-export async function getProductPointInfoByTypeUsingPOST(
+export async function getProductPointInfoByTypeUsingPost(
   body: API.GetByTypeRequest,
   options?: { [key: string]: any },
 ) {
@@ -108,7 +108,7 @@ export async function getProductPointInfoByTypeUsingPOST(
 }
 
 /** listProductPointInfoByPage GET /api/productInfo/list/point/page */
-export async function listProductPointInfoByPageUsingGET(
+export async function listProductPointInfoByPageUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.listProductPointInfoByPageUsingGETParams,
   options?: { [key: string]: any },
@@ -123,7 +123,7 @@ export async function listProductPointInfoByPageUsingGET(
 }
 
 /** listProductVipInfoByPage GET /api/productInfo/list/vip/page */
-export async function listProductVipInfoByPageUsingGET(
+export async function listProductVipInfoByPageUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.listProductVipInfoByPageUsingGETParams,
   options?: { [key: string]: any },
@@ -138,7 +138,7 @@ export async function listProductVipInfoByPageUsingGET(
 }
 
 /** offlineProductPointInfo POST /api/productInfo/offline/point */
-export async function offlineProductPointInfoUsingPOST(
+export async function offlineProductPointInfoUsingPost(
   body: API.IdRequest,
   options?: { [key: string]: any },
 ) {
@@ -153,7 +153,7 @@ export async function offlineProductPointInfoUsingPOST(
 }
 
 /** offlineProductVipInfo POST /api/productInfo/offline/vip */
-export async function offlineProductVipInfoUsingPOST(
+export async function offlineProductVipInfoUsingPost(
   body: API.IdRequest,
   options?: { [key: string]: any },
 ) {
@@ -168,7 +168,7 @@ export async function offlineProductVipInfoUsingPOST(
 }
 
 /** onlineProductPointInfo POST /api/productInfo/online/point */
-export async function onlineProductPointInfoUsingPOST(
+export async function onlineProductPointInfoUsingPost(
   body: API.IdRequest,
   options?: { [key: string]: any },
 ) {
@@ -183,7 +183,7 @@ export async function onlineProductPointInfoUsingPOST(
 }
 
 /** onlineProductVipInfo POST /api/productInfo/online/vip */
-export async function onlineProductVipInfoUsingPOST(
+export async function onlineProductVipInfoUsingPost(
   body: API.IdRequest,
   options?: { [key: string]: any },
 ) {
@@ -198,7 +198,7 @@ export async function onlineProductVipInfoUsingPOST(
 }
 
 /** updateProductPointInfo POST /api/productInfo/update/point */
-export async function updateProductPointInfoUsingPOST(
+export async function updateProductPointInfoUsingPost(
   body: API.ProductPointUpdateRequest,
   options?: { [key: string]: any },
 ) {
@@ -213,7 +213,7 @@ export async function updateProductPointInfoUsingPOST(
 }
 
 /** updateProductVipInfo POST /api/productInfo/update/vip */
-export async function updateProductVipInfoUsingPOST(
+export async function updateProductVipInfoUsingPost(
   body: API.ProductVipUpdateRequest,
   options?: { [key: string]: any },
 ) {

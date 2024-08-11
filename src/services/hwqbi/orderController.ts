@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** addOrder POST /api/order/add */
-export async function addOrderUsingPOST(
+export async function addOrderUsingPost(
   body: API.OrderAddRequest,
   options?: { [key: string]: any },
 ) {
@@ -18,7 +18,7 @@ export async function addOrderUsingPOST(
 }
 
 /** userCancelOrder POST /api/order/cancel */
-export async function userCancelOrderUsingPOST(
+export async function userCancelOrderUsingPost(
   body: API.OrderCancelRequest,
   options?: { [key: string]: any },
 ) {
@@ -33,7 +33,7 @@ export async function userCancelOrderUsingPOST(
 }
 
 /** getUserOrderById GET /api/order/get/byId */
-export async function getUserOrderByIdUsingGET(
+export async function getUserOrderByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getUserOrderByIdUsingGETParams,
   options?: { [key: string]: any },
@@ -48,7 +48,7 @@ export async function getUserOrderByIdUsingGET(
 }
 
 /** listUserOrderByPage POST /api/order/list/page */
-export async function listUserOrderByPageUsingPOST(
+export async function listUserOrderByPageUsingPost(
   body: API.OrderQueryRequest,
   options?: { [key: string]: any },
 ) {
@@ -63,7 +63,7 @@ export async function listUserOrderByPageUsingPOST(
 }
 
 /** userPayOrder POST /api/order/pay */
-export async function userPayOrderUsingPOST(
+export async function userPayOrderUsingPost(
   body: API.OrderPayRequest,
   options?: { [key: string]: any },
 ) {

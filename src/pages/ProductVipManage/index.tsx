@@ -13,10 +13,10 @@ import { Button, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import AssistantUpdateForm from '@/pages/AiAssistantTable/components/AssistantUpdateForm';
 import {
-  addProductVipInfoUsingPOST,
-  deleteProductVipInfoUsingPOST,
-  listProductVipInfoByPageUsingGET,
-  updateProductVipInfoUsingPOST
+  addProductVipInfoUsingPost,
+  deleteProductVipInfoUsingPost,
+  listProductVipInfoByPageUsingGet,
+  updateProductVipInfoUsingPost
 } from "@/services/hwqbi/productInfoController";
 
 /**
@@ -53,7 +53,7 @@ const ProductVipManage: React.FC = () => {
       id: currentRow?.id,
       ...fields,
     };
-    const res = await updateProductVipInfoUsingPOST(param);
+    const res = await updateProductVipInfoUsingPost(param);
 
     if (res.code === 0) {
       hide();
@@ -76,7 +76,7 @@ const ProductVipManage: React.FC = () => {
     const param = {
       id: record.id,
     };
-    const res = await deleteProductVipInfoUsingPOST(param);
+    const res = await deleteProductVipInfoUsingPost(param);
     if (res.code === 0) {
       actionRef.current?.reload();
       message.success('删除成功');
@@ -380,7 +380,7 @@ const ProductVipManage: React.FC = () => {
         ]}
         request={async (values) => {
           console.log(values)
-          const res = await listProductVipInfoByPageUsingGET({...values});
+          const res = await listProductVipInfoByPageUsingGet({...values});
           return {
             data: res.data?.records,
           };
@@ -397,7 +397,7 @@ const ProductVipManage: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addProductVipInfoUsingPOST({ ...value });
+          const res = await addProductVipInfoUsingPost({ ...value });
           if (res.code === 0) {
             message.success('新增商品成功');
             handleModalOpen(false);

@@ -1,17 +1,18 @@
 import Footer from '@/components/Footer';
-import { getFakeCaptcha } from '@/services/ant-design-pro/login';
-import { LockOutlined, MobileOutlined, UserOutlined } from '@ant-design/icons';
-import { LoginForm, ProFormCaptcha, ProFormText } from '@ant-design/pro-components';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { LoginForm, ProFormText } from '@ant-design/pro-components';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { history, useModel, Helmet } from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { listChartVOByPageUsingPOST } from '@/services/hwqbi/chartController';
-import { getLoginUserUsingGET, userLoginUsingPOST } from '@/services/hwqbi/userController';
+import {
+  getLoginUserUsingGet,
+  userLoginUsingPost,
+  userTestUsingGet
+} from '@/services/hwqbi/userController';
 import { Link } from 'umi';
-import {currentUser} from "@/services/ant-design-pro/api";
 
 const Lang = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -64,7 +65,7 @@ const Login: React.FC = () => {
   });
 
   const fetchUserInfo = async () => {
-    const userInfo = await getLoginUserUsingGET();
+    const userInfo = await getLoginUserUsingGet();
     if (userInfo) {
       flushSync(() => {
         // @ts-ignore
@@ -79,7 +80,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: API.UserLoginRequest) => {
     try {
       // 登录
-      const res = await userLoginUsingPOST({
+      const res = await userLoginUsingPost({
         ...values,
       });
       if (res.code === 0) {
@@ -99,6 +100,29 @@ const Login: React.FC = () => {
       message.error(defaultLoginFailureMessage);
     }
   };
+
+  const userTestLogin = async () => {
+    try {
+      // 登录
+      const res = await userTestUsingGet();
+      if (res.code === 0) {
+        const defaultLoginSuccessMessage = '登录成功！';
+        message.success(defaultLoginSuccessMessage);
+        fetchUserInfo().then(() => {
+          const urlParams = new URL(window.location.href).searchParams;
+          history.push(urlParams.get('redirect') || '/');
+        });
+        return;
+      } else {
+        message.error(res.message);
+      }
+    } catch (error) {
+      const defaultLoginFailureMessage = '登录失败，请重试！';
+      console.log(error);
+      message.error(defaultLoginFailureMessage);
+    }
+  }
+
   const { status, type: loginType } = userLoginState;
   return (
     <div className={containerClassName}>
@@ -119,8 +143,8 @@ const Login: React.FC = () => {
             maxWidth: '75vw',
           }}
           logo={<img alt="logo" src="/logo.svg" />}
-          title="Goat BI"
-          subTitle={'Goat BI是最先进的分析工具'}
+          title="AI Visualization"
+          subTitle={'AI Visualization是最先进的分析工具'}
           initialValues={{
             autoLogin: true,
           }}
@@ -137,11 +161,7 @@ const Login: React.FC = () => {
               {
                 key: 'account',
                 label: '账户密码登录',
-              },
-              {
-                key: 'mobile',
-                label: '手机号登录',
-              },
+              }
             ]}
           />
 
@@ -182,66 +202,17 @@ const Login: React.FC = () => {
           )}
 
           {status === 'error' && loginType === 'mobile' && <LoginMessage content="验证码错误" />}
-          {type === 'mobile' && (
-            <>
-              <ProFormText
-                fieldProps={{
-                  size: 'large',
-                  prefix: <MobileOutlined />,
-                }}
-                name="mobile"
-                placeholder={'请输入手机号！'}
-                rules={[
-                  {
-                    required: true,
-                    message: '手机号是必填项！',
-                  },
-                  {
-                    pattern: /^1\d{10}$/,
-                    message: '不合法的手机号！',
-                  },
-                ]}
-              />
-              <ProFormCaptcha
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined />,
-                }}
-                captchaProps={{
-                  size: 'large',
-                }}
-                placeholder={'请输入验证码！'}
-                captchaTextRender={(timing, count) => {
-                  if (timing) {
-                    return `${count} ${'秒后重新获取'}`;
-                  }
-                  return '获取验证码';
-                }}
-                name="captcha"
-                rules={[
-                  {
-                    required: true,
-                    message: '验证码是必填项！',
-                  },
-                ]}
-                onGetCaptcha={async (phone) => {
-                  const result = await getFakeCaptcha({
-                    phone,
-                  });
-                  if (!result) {
-                    return;
-                  }
-                  message.success('获取验证码成功！验证码为：1234');
-                }}
-              />
-            </>
-          )}
           <div
             style={{
               marginBottom: 24,
+              display: "flex",
+              justifyContent: "space-between"
             }}
           >
             <Link to="/user/register">注册</Link>
+            <a onClick={() => {
+              userTestLogin()
+            }}>游客访问</a>
           </div>
         </LoginForm>
       </div>

@@ -5,13 +5,13 @@ import {useForm} from "antd/es/form/Form";
 import WebSocketComponent from "@/components/WebSocket";
 import {history, useModel} from "@@/exports";
 import AiWebSocket from "@/components/WebSocket/AiWebSocket";
-import {chatWithTempUsingPOST, getAiTalkUsingPOST} from "@/services/hwqbi/aiController";
+import {chatWithTempUsingPost, getAiTalkUsingPost} from "@/services/hwqbi/aiController";
 import OmsViewMarkdown from "@/components/OmsViewMarkdown";
-import {addAiRoleUsingPOST} from "@/services/hwqbi/aiRoleController";
+import {addAiRoleUsingPost} from "@/services/hwqbi/aiRoleController";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {ProFormSwitch} from "@ant-design/pro-form";
 import {CheckOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons";
-import {addUserAiRoleUsingPOST} from "@/services/hwqbi/userCreateAssistantController";
+import {addUserAiRoleUsingPost} from "@/services/hwqbi/userCreateAssistantController";
 
 /**
  * 添加图表页面
@@ -230,7 +230,7 @@ const UserAddAssistant: React.FC = () => {
         historyTalk: values.historyTalk !== undefined
       }
       // 提交
-      const res = await addUserAiRoleUsingPOST(param);
+      const res = await addUserAiRoleUsingPost(param);
       if (res.code === 0) { // 跳转到助手页面
         message.success('创建成功')
         history.push('/assistant_list')
@@ -267,7 +267,7 @@ const UserAddAssistant: React.FC = () => {
       ...tempAssistant,
       text: content
     }
-    const res = await chatWithTempUsingPOST(param)
+    const res = await chatWithTempUsingPost(param)
     if (res.code !== 0) {
       message.error(res.message)
     }

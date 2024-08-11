@@ -1,4 +1,4 @@
-import {listMyChartByPageUsingPOST, ReGenChartByAiAsyncUsingPOST} from '@/services/hwqbi/chartController';
+import {listMyChartByPageUsingPost, reGenChartByAiAsyncUsingPost} from '@/services/hwqbi/chartController';
 
 import { useModel } from '@@/exports';
 import { Avatar, Card, List, message, Result } from 'antd';
@@ -21,6 +21,7 @@ const MyChartPage: React.FC = () => {
     sortOrder: 'desc',
   };
 
+  // @ts-ignore
   const [searchParams, setSearchParams] = useState<API.ChartQueryRequest>({ ...initSearchParams });
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
@@ -31,7 +32,7 @@ const MyChartPage: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const res = await listMyChartByPageUsingPOST(searchParams);
+      const res = await listMyChartByPageUsingPost(searchParams);
       if (res.data) {
         setChartList(res.data.records ?? []);
         setTotal(res.data.total ?? 0);
@@ -39,9 +40,27 @@ const MyChartPage: React.FC = () => {
         if (res.data.records) {
           res.data.records.forEach((data) => {
             if (data.status === 'succeed') {
-              const chartOption = JSON.parse(data.genChart ?? '{}');
-              chartOption.title = undefined;
-              data.genChart = JSON.stringify(chartOption);
+              try {
+                const chartOption = JSON.parse(data.genChart ?? '{}');
+                chartOption.title = undefined;
+                data.genChart = JSON.stringify(chartOption);
+              } catch (e) {
+                const option = {
+                  title: {
+                    text: '生成失败',
+                    subtext: '请稍后重试或联系管理员',
+                    left: 'center',
+                    top: 'middle',
+                    textStyle: {
+                      color: 'red',
+                      fontSize: 16,
+                    },
+                  },
+                  series: [],
+                  // 其他配置项...
+                };
+                data.genChart = JSON.stringify(option);
+              }
             }
           });
         }
@@ -137,7 +156,7 @@ const MyChartPage: React.FC = () => {
                     <Result status="error" title="图表生成失败" subTitle={item.execMessage} />
                     <div>
                       <a onClick={async () => {
-                        const res = await ReGenChartByAiAsyncUsingPOST({chartId: item.id})
+                        const res = await reGenChartByAiAsyncUsingPost({chartId: item.id})
                         if (res.code === 0) {
                           message.loading('请求重试中')
                         } else {
@@ -145,6 +164,11 @@ const MyChartPage: React.FC = () => {
                         }
                       }}>重试</a>
                     </div>
+                  </>
+                )}
+                {item.status === 'timeout' && (
+                  <>
+                    <Result status="error" title="系统繁忙" subTitle={item.execMessage} />
                   </>
                 )}
               </>

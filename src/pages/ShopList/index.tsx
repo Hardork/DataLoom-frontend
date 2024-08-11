@@ -5,11 +5,11 @@ import { history, useModel } from '@@/exports';
 import WebSocketComponent from '@/components/WebSocket';
 import { ColumnsType } from 'antd/es/table';
 import {
-  listProductPointInfoByPageUsingGET,
-  listProductVipInfoByPageUsingGET,
+  listProductPointInfoByPageUsingGet,
+  listProductVipInfoByPageUsingGet,
 } from '@/services/hwqbi/productInfoController';
 import './index.css';
-import {getLoginUserUsingGET} from "@/services/hwqbi/userController";
+import {getLoginUserUsingGet} from "@/services/hwqbi/userController";
 import {flushSync} from "react-dom";
 import Settings from "../../../config/defaultSettings";
 
@@ -92,7 +92,7 @@ const ShopList: React.FC = () => {
   ];
 
   const getVipProduct = async () => {
-    const res = await listProductVipInfoByPageUsingGET({});
+    const res = await listProductVipInfoByPageUsingGet({});
     if (res.data) {
       setVipProductList(res.data.records);
       if (res.data.records && res.data.records.length > 0) {
@@ -105,7 +105,7 @@ const ShopList: React.FC = () => {
   };
 
   const getPointProduct = async () => {
-    const res = await listProductPointInfoByPageUsingGET({});
+    const res = await listProductPointInfoByPageUsingGet({});
     if (res.data) {
       setPointProductList(res.data.records);
       if (res.data.records && res.data.records.length > 0) {
@@ -118,7 +118,7 @@ const ShopList: React.FC = () => {
   };
 
   const fetchUserInfo = async () => {
-    const userInfo = await getLoginUserUsingGET();
+    const userInfo = await getLoginUserUsingGet();
     if (userInfo) {
       flushSync(() => {
         // @ts-ignore

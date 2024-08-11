@@ -10,10 +10,10 @@ import {history, useModel} from "@@/exports";
 import { message } from 'antd';
 import WebSocketComponent from "@/components/WebSocket";
 import {
-  getProductPointInfoByTypeUsingPOST,
+  getProductPointInfoByTypeUsingPost,
 } from "@/services/hwqbi/productInfoController";
 import {useParams} from "react-router";
-import {addOrderUsingPOST, userPayOrderUsingPOST} from "@/services/hwqbi/orderController";
+import {addOrderUsingPost, userPayOrderUsingPost} from "@/services/hwqbi/orderController";
 
 /**
  * 添加图表页面
@@ -38,7 +38,7 @@ const Order: React.FC = () => {
 
   const loadProductInfo = async () => {
     setLoading(true)
-    const res = await getProductPointInfoByTypeUsingPOST(param)
+    const res = await getProductPointInfoByTypeUsingPost(param)
     if (res.data) {
       setProductInfo(res.data)
       if (res.data.id) {
@@ -46,7 +46,7 @@ const Order: React.FC = () => {
           productId: res.data.id,
           productType: param.type
         }
-        const addRes = await addOrderUsingPOST(addParam)
+        const addRes = await addOrderUsingPost(addParam)
         if (addRes.code === 0) {
           console.log(res.data)
           setOrderId(addRes.data)
@@ -63,7 +63,7 @@ const Order: React.FC = () => {
     const OrderPayRequest = {
       id: orderId
     };
-    const res = await userPayOrderUsingPOST(OrderPayRequest)
+    const res = await userPayOrderUsingPost(OrderPayRequest)
     if (res.code === 0) {
       message.success('购买成功')
       history.push('/shop_list');

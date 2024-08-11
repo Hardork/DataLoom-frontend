@@ -1,7 +1,7 @@
 import '@umijs/max';
 import React, {useEffect, useState} from 'react';
 import {Badge, Button, Card, Drawer, List, message, Space} from "antd";
-import {hasReadMessageUsingPOST, listUnReadMessageUsingPOST} from "@/services/hwqbi/userMessageController";
+import {hasReadMessageUsingPost, listUnReadMessageUsingPost} from "@/services/hwqbi/userMessageController";
 import moment from "moment";
 import {Link} from "umi";
 import {useModel} from "@@/exports";
@@ -11,7 +11,6 @@ import {useModel} from "@@/exports";
  * @constructor
  */
 export const Message = () => {
-  const [count, setCount] = useState(5);
   const [show, setShow] = useState(false);
   const [open, setOpen] = useState(false);
   const [unReadMessage, setUnReadMessage] = useState([]);
@@ -24,7 +23,7 @@ export const Message = () => {
       message.warning('没有未读消息')
       return;
     }
-    const res = await hasReadMessageUsingPOST();
+    const res = await hasReadMessageUsingPost();
     if (res.code === 0) {
       // 清理消息列表
       setUnReadMessage([])
@@ -39,7 +38,7 @@ export const Message = () => {
     // 请求数据
     setOpen(true);
     setLoading(true)
-    const res = await listUnReadMessageUsingPOST();
+    const res = await listUnReadMessageUsingPost();
     if (res.code === 0) {
       // @ts-ignore
       setUnReadMessage(res.data)
@@ -54,7 +53,7 @@ export const Message = () => {
   };
 
   const queryUnReadMessage = async () => {
-    const res = await listUnReadMessageUsingPOST();
+    const res = await listUnReadMessageUsingPost();
     if (res.data) {
       if (res.data.length > 0) {
         setShow(true)
@@ -66,11 +65,11 @@ export const Message = () => {
     queryUnReadMessage()
     const ws = new WebSocket('ws://localhost:8081/api/websocket/budge/' + currentUser?.id);
 
-    ws.onmessage = (event) => {
+    ws.onmessage = () => {
       setShow(true)
     };
 
-    ws.onopen = (event) => {
+    ws.onopen = () => {
       console.log('徽标连接已建立')
     }
 
@@ -79,70 +78,69 @@ export const Message = () => {
     };
   }, []);
 
-  const onChange = (checked: boolean) => {
-    setShow(checked);
-  };
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          height: 26,
-          width: '26px'
-        }}
-        onClick={() => {
-          showDrawer()
-        }}
-      >
-        <Badge dot={show}>
-          <img src={'/notice.png'} style={{width: '100%'}}/>
-        </Badge>
-      </div>
-      <Drawer title="未读消息" placement="right" onClose={onClose} open={open} extra={
-        <Space>
-          <Button onClick={readAllMessage} type="primary">
-            一键已读
-          </Button>
-        </Space>
-      }>
-        <List
-          dataSource={unReadMessage}
-          renderItem={(item:API.UserMessage) => (
-            <List.Item>
-              <Card title={item.title} style={{width: '100%'}}>
-                <div style={{display: "flex", justifyContent:"space-between"}}>
-                  <div>
-                    <>
-                      {
-                        item.route !== '' && (
-                          <>
-                            <Link to={item.route ?? '/add_chart'} onClick={() => {
-                              onClose()
-                            }}>{item.description}</Link>
-                          </>
-                        )
-                      }
-                      {
-                        item.route === '' && (
-                          <>
-                            {item.description}
-                          </>
-                        )
-                      }
-                      </>
-                  </div>
-                  <div>
-                    {moment(item.createTime).format('YYYY-MM-DD HH:mm:ss')}
-                  </div>
-                </div>
-              </Card>
-            </List.Item>
-          )}
-        />
-      </Drawer>
-    </div>
+    currentUser !== null && <>
+      <div>
+        <div
+          style={{
+            display: 'flex',
+            height: 26,
+            width: '26px'
+          }}
+          onClick={() => {
+            showDrawer()
+          }}
+        >
+          <Badge dot={show}>
+            <img src={'/notice.png'} style={{width: '100%'}}/>
+          </Badge>
+        </div>
 
+        <Drawer title="未读消息" placement="right" onClose={onClose} open={open} extra={
+          <Space>
+            <Button onClick={readAllMessage} type="primary">
+              一键已读
+            </Button>
+          </Space>
+        }>
+          <List
+            dataSource={unReadMessage}
+            renderItem={(item: API.UserMessage) => (
+              <List.Item>
+                <Card title={item.title} style={{width: '100%'}}>
+                  <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <div>
+                      <>
+                        {
+                          item.route !== '' && (
+                            <>
+                              <Link to={item.route ?? '/add_chart'} onClick={() => {
+                                onClose()
+                              }}>{item.description}</Link>
+                            </>
+                          )
+                        }
+                        {
+                          item.route === '' && (
+                            <>
+                              {item.description}
+                            </>
+                          )
+                        }
+                      </>
+                    </div>
+                    <div>
+                      {moment(item.createTime).format('YYYY-MM-DD HH:mm:ss')}
+                    </div>
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+          />
+        </Drawer>
+      </div>
+    </>
 
 
   );

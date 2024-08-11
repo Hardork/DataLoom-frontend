@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** addUserMessage POST /api/message/add */
-export async function addUserMessageUsingPOST(
+export async function addUserMessageUsingPost(
   body: API.UserMessageAddRequest,
   options?: { [key: string]: any },
 ) {
@@ -18,7 +18,7 @@ export async function addUserMessageUsingPOST(
 }
 
 /** listUnReadMessage POST /api/message/list */
-export async function listUnReadMessageUsingPOST(options?: { [key: string]: any }) {
+export async function listUnReadMessageUsingPost(options?: { [key: string]: any }) {
   return request<API.BaseResponseListUserMessage_>('/api/message/list', {
     method: 'POST',
     ...(options || {}),
@@ -26,7 +26,7 @@ export async function listUnReadMessageUsingPOST(options?: { [key: string]: any 
 }
 
 /** hasReadMessage POST /api/message/read */
-export async function hasReadMessageUsingPOST(options?: { [key: string]: any }) {
+export async function hasReadMessageUsingPost(options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean_>('/api/message/read', {
     method: 'POST',
     ...(options || {}),

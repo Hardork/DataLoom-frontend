@@ -1,12 +1,14 @@
 import {Message} from '@/components/RightContent';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
-import { history, Link } from '@umijs/max';
+import { history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import React from 'react';
+import React, {useState} from 'react';
 import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
-import {getLoginUserUsingGET} from "@/services/hwqbi/userController";
+import {getLoginUserUsingGet} from "@/services/hwqbi/userController";
+import {Card, FloatButton} from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 const loginPath = '/user/login';
 
 /**
@@ -19,7 +21,7 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      const res = await getLoginUserUsingGET();
+      const res = await getLoginUserUsingGet();
       return res.data;
     } catch (error) {
       history.push(loginPath);
@@ -46,6 +48,10 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false)
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   return {
     actionsRender: () => [<Message key="doc" />],
     avatarProps: {
@@ -61,9 +67,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
-        history.push(loginPath);
-      }
+      // if (!initialState?.currentUser && location.pathname !== loginPath) {
+      //   history.push(loginPath);
+      // }
     },
     layoutBgImgList: [
       {
@@ -105,6 +111,48 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
               }));
             }}
           />
+          <>
+            <div>
+              <FloatButton icon={<QuestionCircleOutlined/>} type="primary" style={{right: 0}} onClick={() => {
+                setOpenDrawer(!openDrawer)
+              }}/>
+              {
+                openDrawer && <>
+                  <div className={"fade-in"} style={{
+                    position: "fixed",
+                    right: "5px",
+                    bottom: "100px",
+                    width: "400px",
+                  }}>
+                    <Card style={{
+                      width: "100%",
+                    }}>
+                      <iframe
+                        src="http://localhost:8080/ui/chat/51ccbe5c7543677a"
+                        style={{
+                          width: "100%",
+                          height: "600px"
+                        }}
+                        frameBorder="0"
+                        allow="microphone"
+                      >
+                      </iframe>
+                      <div style={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        width: 0,
+                        height: 0,
+                        borderLeft: "20px solid transparent", // 左边透明
+                        borderBottom: "20px solid #1890ff", // 底部颜色
+                      }}/>
+                    </Card>
+                  </div>
+                </>
+              }
+
+            </div>
+          </>
         </>
       );
     },

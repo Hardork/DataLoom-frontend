@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** listFailedChartsByPage POST /api/failed_chart/list/page */
-export async function listFailedChartsByPageUsingPOST(
+export async function listFailedChartsByPageUsingPost(
   body: API.FailedChartQueryRequest,
   options?: { [key: string]: any },
 ) {
