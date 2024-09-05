@@ -6,7 +6,7 @@ import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import React, {useState} from 'react';
 import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
-import {getLoginUserUsingGet} from "@/services/hwqbi/userController";
+import {getLoginUser} from "@/services/DataLoom/userController";
 import {Card, FloatButton} from "antd";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 const loginPath = '/user/login';
@@ -21,7 +21,7 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      const res = await getLoginUserUsingGet();
+      const res = await getLoginUser();
       return res.data;
     } catch (error) {
       history.push(loginPath);
@@ -166,7 +166,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request = {
-  baseURL: 'http://localhost:8081',
+  baseURL: 'http://localhost:8081/api',
   withCredentials: true,
   ...errorConfig,
 };

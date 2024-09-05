@@ -8,10 +8,10 @@ import Settings from '../../../../config/defaultSettings';
 import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import {
-  getLoginUserUsingGet,
-  userLoginUsingPost,
-  userTestUsingGet
-} from '@/services/hwqbi/userController';
+  getLoginUser,
+  userLogin,
+  userTest
+} from '@/services/DataLoom/userController';
 import { Link } from 'umi';
 
 const Lang = () => {
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
   });
 
   const fetchUserInfo = async () => {
-    const userInfo = await getLoginUserUsingGet();
+    const userInfo = await getLoginUser();
     if (userInfo) {
       flushSync(() => {
         // @ts-ignore
@@ -80,7 +80,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: API.UserLoginRequest) => {
     try {
       // 登录
-      const res = await userLoginUsingPost({
+      const res = await userLogin({
         ...values,
       });
       if (res.code === 0) {
@@ -104,7 +104,7 @@ const Login: React.FC = () => {
   const userTestLogin = async () => {
     try {
       // 登录
-      const res = await userTestUsingGet();
+      const res = await userTest();
       if (res.code === 0) {
         const defaultLoginSuccessMessage = '登录成功！';
         message.success(defaultLoginSuccessMessage);

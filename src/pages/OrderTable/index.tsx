@@ -6,7 +6,7 @@ import {
 import '@umijs/max';
 import { message } from 'antd';
 import React, { useRef, useState } from 'react';
-import {listUserOrderByPageUsingPost, userCancelOrderUsingPost} from "@/services/hwqbi/orderController";
+import {listUserOrderByPage, userCancelOrder} from "@/services/points-service/orderController";
 import {history} from "@@/core/history";
 
 /**
@@ -35,7 +35,7 @@ const OrderTable: React.FC = () => {
    */
   const handleCancel = async (fields: API.ProductOrder) => {
     const hide = message.loading('取消订单中');
-    const res = await userCancelOrderUsingPost({id: fields.id});
+    const res = await userCancelOrder({id: fields.id});
     if (res.code === 0) {
       hide();
       message.success('取消成功');
@@ -138,7 +138,7 @@ const OrderTable: React.FC = () => {
           labelWidth: 120,
         }}
         request={async (values) => {
-          const res = await listUserOrderByPageUsingPost({...values});
+          const res = await listUserOrderByPage({...values});
           console.log(res.data?.records)
           return {
             data: res.data?.records,

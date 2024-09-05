@@ -13,11 +13,11 @@ import '@umijs/max';
 import { Button, Drawer, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import {
-  addAiRoleUsingPost,
-  deleteAiRoleUsingPost,
-  listAiRoleVoByPageUsingPost,
-  updateAiRoleUsingPost,
-} from '@/services/hwqbi/aiRoleController';
+  addAiRole,
+  deleteAiRole,
+  listAiRoleVoByPage,
+  updateAiRole,
+} from '@/services/DataLoom/aiRoleController';
 import { ProFormSwitch } from '@ant-design/pro-form';
 import AssistantUpdateForm from '@/pages/AiAssistantTable/components/AssistantUpdateForm';
 
@@ -56,7 +56,7 @@ const AiAssistantTable: React.FC = () => {
       id: currentRow?.id,
       ...fields,
     };
-    const res = await updateAiRoleUsingPost(param);
+    const res = await updateAiRole(param);
 
     if (res.code === 0) {
       hide();
@@ -80,7 +80,7 @@ const AiAssistantTable: React.FC = () => {
     const param = {
       id: record.id,
     };
-    const res = await deleteAiRoleUsingPost(param);
+    const res = await deleteAiRole(param);
     if (res.code === 0) {
       hide();
       actionRef.current?.reload();
@@ -314,7 +314,7 @@ const AiAssistantTable: React.FC = () => {
           </Button>,
         ]}
         request={async (values) => {
-          const res = await listAiRoleVoByPageUsingPost({...values});
+          const res = await listAiRoleVoByPage({...values});
           return {
             data: res.data?.records,
           };
@@ -336,7 +336,7 @@ const AiAssistantTable: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addAiRoleUsingPost({ ...value });
+          const res = await addAiRole({ ...value });
           if (res.code === 0) {
             message.success('新增助手成功');
             handleModalOpen(false);

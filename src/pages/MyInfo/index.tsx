@@ -17,15 +17,15 @@ import { PlusOutlined } from '@ant-design/icons';
 import { message, Upload } from 'antd';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
-import {getLoginUserUsingGet, updateUserUsingPost} from "@/services/hwqbi/userController";
-import {addRewardUsingGet} from "@/services/hwqbi/rewardRecordController";
+import {getLoginUser, updateUser} from "@/services/DataLoom/userController";
+import {addReward} from "@/services/points-service/rewardRecordController";
 import {flushSync} from "react-dom";
 import WebSocketComponent from "@/components/WebSocket";
 import defaultSettings from "../../../config/defaultSettings";
 import {
-  getUserCurMonthAiRecordUsingGet,
-  getUserCurMonthBiRecordUsingGet
-} from "@/services/hwqbi/serviceRecordController";
+  getUserCurMonthAiRecord,
+  getUserCurMonthBiRecord
+} from "@/services/DataLoom/serviceRecordController";
 import {cloneDeep} from "lodash";
 import SendGiftModal from "@/components/Gift/SendGift";
 import ImgCrop from "antd-img-crop";
@@ -123,7 +123,7 @@ const MyInfo: React.FC = () => {
 
   // 重新获取用户信息
   const getCurrentUser = async () => {
-    const res = await getLoginUserUsingGet()
+    const res = await getLoginUser()
     if(res.data) {
       console.log(res.data)
       setInitialState({
@@ -139,7 +139,7 @@ const MyInfo: React.FC = () => {
   //获取接口信息
   const userInvokeBiInfo = async () => {
     setOptionLoading(true)
-    const res = await getUserCurMonthBiRecordUsingGet();
+    const res = await getUserCurMonthBiRecord();
     if (res.data) {
       const newOption = cloneDeep(BiOption)
       // @ts-ignore
@@ -156,7 +156,7 @@ const MyInfo: React.FC = () => {
 
   const userInvokeAiInfo = async () => {
     setOptionLoading(true)
-    const res = await getUserCurMonthAiRecordUsingGet();
+    const res = await getUserCurMonthAiRecord();
     if (res.data) {
       console.log(res.data)
       const newOption = cloneDeep(AiOption)
@@ -182,11 +182,11 @@ const MyInfo: React.FC = () => {
 
 
   const getFreeAnalysis = async () => {
-    const res = await addRewardUsingGet();
+    const res = await addReward();
     if (res.code === 0) {
       message.success('获取成功')
       // 更新用户信息
-      const userInfo = await getLoginUserUsingGet();
+      const userInfo = await getLoginUser();
       if (userInfo) {
         flushSync(() => {
           // @ts-ignore
@@ -216,7 +216,7 @@ const MyInfo: React.FC = () => {
       ...values,
       userAvatar: fileList[0] === undefined ? undefined : fileList[0].url
     };
-    const res = await updateUserUsingPost(params)
+    const res = await updateUser(params)
     if (res.code === 0) {
       getCurrentUser();
       message.success('修改成功')

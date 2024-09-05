@@ -12,7 +12,7 @@ import { history, useModel, Helmet } from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useEffect, useState } from 'react';
-import { getCaptchaUsingGet, userEmailRegisterUsingPost } from '@/services/hwqbi/userController';
+import { getCaptcha, userEmailRegister } from '@/services/DataLoom/userController';
 
 const Lang = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -79,7 +79,7 @@ const Register: React.FC = () => {
         return;
       }
       // 登录
-      const res = await userEmailRegisterUsingPost({
+      const res = await userEmailRegister({
         ...values,
       });
       if (res.code === 0) {
@@ -245,7 +245,7 @@ const Register: React.FC = () => {
                   },
                 ]}
                 onGetCaptcha={async (emailAccount) => {
-                  const res = await getCaptchaUsingGet({ emailAccount });
+                  const res = await getCaptcha({ emailAccount });
                   if (res.data && res.code === 0) {
                     message.success('验证码发送成功,请在邮箱中查看验证码');
                     return;

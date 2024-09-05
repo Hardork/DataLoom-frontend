@@ -1,4 +1,4 @@
-import {getChartByIdUsingGet} from '@/services/hwqbi/chartController';
+import {getChartById} from '@/services/DataLoom/chartController';
 
 import { useModel} from '@@/exports';
 import { Card, Divider, message} from 'antd';
@@ -35,7 +35,7 @@ const ChartDetail: React.FC = () => {
   const loadData = async (params: Readonly<Params<string>>) => {
     setLoading(true);
     try {
-      const res = await getChartByIdUsingGet(params);
+      const res = await getChartById(params);
       if (res.data) {
         if (res.data.status === 'succeed') {
           // 构建表格数据

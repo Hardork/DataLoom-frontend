@@ -1,17 +1,15 @@
 import {Button, Card, Col, Form, Input, message, Row, Space, Spin} from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import React, {useEffect, useRef, useState} from 'react';
 import {useForm} from "antd/es/form/Form";
 import WebSocketComponent from "@/components/WebSocket";
 import {history, useModel} from "@@/exports";
 import AiWebSocket from "@/components/WebSocket/AiWebSocket";
-import {chatWithTempUsingPost, getAiTalkUsingPost} from "@/services/hwqbi/aiController";
+import {chatWithTemp} from "@/services/DataLoom/aiController";
 import OmsViewMarkdown from "@/components/OmsViewMarkdown";
-import {addAiRoleUsingPost} from "@/services/hwqbi/aiRoleController";
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {ProFormSwitch} from "@ant-design/pro-form";
 import {CheckOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons";
-import {addUserAiRoleUsingPost} from "@/services/hwqbi/userCreateAssistantController";
+import {addUserAiRole} from "@/services/DataLoom/userCreateAssistantController";
 
 /**
  * 添加图表页面
@@ -230,7 +228,7 @@ const UserAddAssistant: React.FC = () => {
         historyTalk: values.historyTalk !== undefined
       }
       // 提交
-      const res = await addUserAiRoleUsingPost(param);
+      const res = await addUserAiRole(param);
       if (res.code === 0) { // 跳转到助手页面
         message.success('创建成功')
         history.push('/assistant_list')
@@ -267,7 +265,7 @@ const UserAddAssistant: React.FC = () => {
       ...tempAssistant,
       text: content
     }
-    const res = await chatWithTempUsingPost(param)
+    const res = await chatWithTemp(param)
     if (res.code !== 0) {
       message.error(res.message)
     }

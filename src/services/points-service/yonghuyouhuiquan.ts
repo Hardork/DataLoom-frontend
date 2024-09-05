@@ -2,12 +2,12 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** listFailedChartsByPage POST /api/failed_chart/list/page */
-export async function listFailedChartsByPageUsingPost(
-  body: API.FailedChartQueryRequest,
+/** 领取优惠券 POST /points-service/userCoupon/claim */
+export async function userClaimCoupon(
+  body: API.UserClaimCouponDTO,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponsePageFailedChart_>('/api/failed_chart/list/page', {
+  return request<API.BaseResponseVoid>('/points-service/userCoupon/claim', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

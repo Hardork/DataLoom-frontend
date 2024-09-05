@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Result} from "antd";
 import {useParams} from "react-router";
-import {getOtherUserDataUsingGet} from "@/services/hwqbi/dataController";
+import {getOtherUserData} from "@/services/DataLoom/dataController";
 import { history } from '@@/exports';
 
 
@@ -10,7 +10,7 @@ const AddOtherDataResult: React.FC = () => {
   const param = useParams();
   const [success, setSuccess] = useState<boolean>(undefined);
   const getOtherUserData = async ()=> {
-    const res = await getOtherUserDataUsingGet({
+    const res = await getOtherUserData({
       dataId: param.dataId,
       secret: param.secret,
       type: param.type

@@ -1,4 +1,4 @@
-import {listMyChartByPageUsingPost, reGenChartByAiAsyncUsingPost} from '@/services/hwqbi/chartController';
+import {listMyChartByPage, reGenChartByAiAsync} from '@/services/DataLoom/chartController';
 
 import { useModel } from '@@/exports';
 import { Avatar, Card, List, message, Result } from 'antd';
@@ -32,7 +32,7 @@ const MyChartPage: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const res = await listMyChartByPageUsingPost(searchParams);
+      const res = await listMyChartByPage(searchParams);
       if (res.data) {
         setChartList(res.data.records ?? []);
         setTotal(res.data.total ?? 0);
@@ -156,7 +156,7 @@ const MyChartPage: React.FC = () => {
                     <Result status="error" title="图表生成失败" subTitle={item.execMessage} />
                     <div>
                       <a onClick={async () => {
-                        const res = await reGenChartByAiAsyncUsingPost({chartId: item.id})
+                        const res = await reGenChartByAiAsync({chartId: item.id})
                         if (res.code === 0) {
                           message.loading('请求重试中')
                         } else {

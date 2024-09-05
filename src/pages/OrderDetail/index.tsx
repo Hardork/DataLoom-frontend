@@ -10,7 +10,7 @@ import {useModel} from "@@/exports";
 
 import WebSocketComponent from "@/components/WebSocket";
 import {useParams} from "react-router";
-import { getUserOrderByIdUsingGet} from "@/services/hwqbi/orderController";
+import { getUserOrderById} from "@/services/points-service/orderController";
 import moment from "moment";
 
 /**
@@ -103,7 +103,7 @@ const OrderDetail: React.FC = () => {
 
   const loadOrderInfo = async () => {
     setLoading(true)
-    const res = await getUserOrderByIdUsingGet(param)
+    const res = await getUserOrderById(param)
     if (res.data) {
       setOrderInfo(res.data)
       setLoading(false)

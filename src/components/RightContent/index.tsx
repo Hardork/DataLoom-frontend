@@ -1,7 +1,7 @@
 import '@umijs/max';
 import React, {useEffect, useState} from 'react';
 import {Badge, Button, Card, Drawer, List, message, Space} from "antd";
-import {hasReadMessageUsingPost, listUnReadMessageUsingPost} from "@/services/hwqbi/userMessageController";
+import {hasReadMessage, listUnReadMessage} from "@/services/DataLoom/userMessageController";
 import moment from "moment";
 import {Link} from "umi";
 import {useModel} from "@@/exports";
@@ -23,7 +23,7 @@ export const Message = () => {
       message.warning('没有未读消息')
       return;
     }
-    const res = await hasReadMessageUsingPost();
+    const res = await hasReadMessage();
     if (res.code === 0) {
       // 清理消息列表
       setUnReadMessage([])
@@ -38,7 +38,7 @@ export const Message = () => {
     // 请求数据
     setOpen(true);
     setLoading(true)
-    const res = await listUnReadMessageUsingPost();
+    const res = await listUnReadMessage();
     if (res.code === 0) {
       // @ts-ignore
       setUnReadMessage(res.data)
@@ -53,7 +53,7 @@ export const Message = () => {
   };
 
   const queryUnReadMessage = async () => {
-    const res = await listUnReadMessageUsingPost();
+    const res = await listUnReadMessage();
     if (res.data) {
       if (res.data.length > 0) {
         setShow(true)

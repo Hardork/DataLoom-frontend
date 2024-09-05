@@ -20,10 +20,10 @@ import {
 } from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  deleteUserDataUsingPost, getDataCollaboratorsUsingGet,
-  listUserDataInfoUsingGet, previewAndCheckExcelInfoUsingPost, shareUserDataUsingPost,
-  uploadFileToMongoUsingPost
-} from "@/services/hwqbi/dataController";
+  deleteUserData, listUserDataInfo,
+  previewAndCheckExcelInfo, shareUserData,
+  uploadFileToMongo
+} from "@/services/DataLoom/dataController";
 import moment from "moment";
 import {history} from "@@/core/history";
 import {RcFile, UploadProps} from "antd/es/upload/interface";
@@ -39,9 +39,9 @@ import {
 import {useModel} from "@@/exports";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {
-  checkConnectUsingPost,
-  saveDataSourceMetaInfoUsingPost
-} from "@/services/hwqbi/dataSourceController";
+  checkConnect,
+  saveDataSourceMetaInfo
+} from "@/services/DataLoom/dataSourceController";
 import { AES_Encrypt } from '../../utils/AES'
 
 
@@ -73,7 +73,7 @@ export default () => {
       title: '删除数据集',
       content: '删除数据集后，系统不提供数据恢复的功能，确认删除吗？',
       onOk: async () => {
-        const res = await deleteUserDataUsingPost({id : record.id})
+        const res = await deleteUserData({id : record.id})
         if (res.code === 0) {
           message.success('删除成功')
           setChange(!change)
@@ -90,7 +90,7 @@ export default () => {
   const getShareLink = async (id : string | undefined, permission : number)=> {
       setLoading(true)
     try {
-      const res = await shareUserDataUsingPost({ id, permission });
+      const res = await shareUserData({ id, permission });
       if (res.code === 0) {
         setShareLink(res.data);
         return res.data;
@@ -115,7 +115,7 @@ export default () => {
     const [ dataLoading, setDataLoading] = useState<boolean>()
     const getShareLinkInner = async ()=> {
       try {
-        const res = await shareUserDataUsingPost({ id : item.id, permission: 0 });
+        const res = await shareUserData({ id : item.id, permission: 0 });
         if (res.code === 0) {
           // @ts-ignore
           setLink(res.data)
@@ -135,7 +135,7 @@ export default () => {
       }
       setDataLoading(true)
       try {
-        const res = await getDataCollaboratorsUsingGet({dataId: item.id});
+        const res = await getDataCollaborators({dataId: item.id});
         if (res.code === 0) {
           // @ts-ignore
           setDataCollaborators(res.data)
@@ -261,8 +261,8 @@ export default () => {
       </div>
     );
   };
-  const listUserDataInfo = async () => {
-    const res = await listUserDataInfoUsingGet()
+  const loadUserDataInfo = async () => {
+    const res = await listUserDataInfo()
     if (res.code === 0) {
       setOriginalData(res.data)
       console.log(res.data)
@@ -327,7 +327,7 @@ export default () => {
   }, [loading, shareLink]);
 
   useEffect(() => {
-    listUserDataInfo()
+    loadUserDataInfo()
   }, [change]);
 
 
@@ -393,7 +393,7 @@ export default () => {
 
 
   const previewDataRequest = async (oriFile: RcFile) => {
-    const res = await previewAndCheckExcelInfoUsingPost({}, oriFile)
+    const res = await previewAndCheckExcelInfo({}, oriFile)
     if (res.code === 0) {
       // 根据请求返回的数据动态生成列配置
       const newColumns = generateColumns(res.data?.tableFieldInfosList);
@@ -451,7 +451,7 @@ export default () => {
       console.log('Validated Values:', values);
       setCheckLoading(true)
       console.log(AES_Encrypt(values.password))
-      const res = await checkConnectUsingPost({...values, password: AES_Encrypt(values.password)})
+      const res = await checkConnect({...values, password: AES_Encrypt(values.password)})
       if (res.code === 0) {
         message.success('校验成功')
       } else {
@@ -539,7 +539,7 @@ export default () => {
           const uploadFileParams = {
             ...values,
           }
-          const res = await uploadFileToMongoUsingPost(uploadFileParams, {}, file);
+          const res = await uploadFileToMongo(uploadFileParams, {}, file);
           if (res.code === 0) {
             setChange(!change)
             setFileVisible(false);
@@ -622,7 +622,7 @@ export default () => {
       <StepsForm
         onFinish={async (values: API.DataSourceConfig) => {
           console.log({...values})
-          const res = await saveDataSourceMetaInfoUsingPost({...values, password: AES_Encrypt(values.password)})
+          const res = await saveDataSourceMetaInfo({...values, password: AES_Encrypt(values.password)})
           if (res.code === 0) {
             setChange(!change)
             setDatabaseVisible(false);

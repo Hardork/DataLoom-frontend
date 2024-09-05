@@ -13,11 +13,11 @@ import { Button, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import AssistantUpdateForm from '@/pages/AiAssistantTable/components/AssistantUpdateForm';
 import {
-  addProductPointInfoUsingPost,
-  deleteProductPointInfoUsingPost,
-  listProductPointInfoByPageUsingGet,
-  updateProductPointInfoUsingPost,
-} from "@/services/hwqbi/productInfoController";
+  addProductPointInfo,
+  deleteProductPointInfo,
+  listProductPointInfoByPage,
+  updateProductPointInfo,
+} from "@/services/points-service/productInfoController";
 
 /**
  * @en-US Add node
@@ -39,7 +39,6 @@ const ProductPointManage: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.ProductPoint>();
-  const [selectedRowsState, setSelectedRows] = useState<API.ProductPoint[]>([]);
 
   /**
    * @en-US Update node
@@ -53,7 +52,7 @@ const ProductPointManage: React.FC = () => {
       id: currentRow?.id,
       ...fields,
     };
-    const res = await updateProductPointInfoUsingPost(param);
+    const res = await updateProductPointInfo(param);
 
     if (res.code === 0) {
       hide();
@@ -76,7 +75,7 @@ const ProductPointManage: React.FC = () => {
     const param = {
       id: record.id,
     };
-    const res = await deleteProductPointInfoUsingPost(param);
+    const res = await deleteProductPointInfo(param);
     if (res.code === 0) {
       actionRef.current?.reload();
       message.success('删除成功');
@@ -324,7 +323,7 @@ const ProductPointManage: React.FC = () => {
           </Button>,
         ]}
         request={async (values) => {
-          const res = await listProductPointInfoByPageUsingGet({...values});
+          const res = await listProductPointInfoByPage({...values});
           return {
             data: res.data?.records,
           };
@@ -341,7 +340,7 @@ const ProductPointManage: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addProductPointInfoUsingPost({ ...value });
+          const res = await addProductPointInfo({ ...value });
           if (res.code === 0) {
             message.success('新增商品成功');
             handleModalOpen(false);

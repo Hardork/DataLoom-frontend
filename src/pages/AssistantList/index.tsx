@@ -3,14 +3,14 @@ import { Button, Card, Col, List, message, Row, Tabs} from 'antd';
 import React, { useEffect, useState } from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
-import {listAiRoleVoByPageUsingPost} from "@/services/hwqbi/aiRoleController";
+import {listAiRoleVoByPage} from "@/services/DataLoom/aiRoleController";
 import {
-  addUserChatHistoryUsingPost,
-  getUserChatHistoryUsingGet,
-  userAddChatUsingPost
-} from "@/services/hwqbi/aiController";
+  addUserChatHistory,
+  getUserChatHistory,
+  userAddChat
+} from "@/services/DataLoom/aiController";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
-import {listUserAiRoleVoByPageUsingPost} from "@/services/hwqbi/userCreateAssistantController";
+import {listUserAiRoleVoByPage} from "@/services/DataLoom/userCreateAssistantController";
 /**
  * 我的图表页面
  * @constructor
@@ -50,7 +50,7 @@ const AssistantList: React.FC = () => {
     setLoading(true);
     setSelectItem([])
       if (selectKey === 0) {
-        const res = await listAiRoleVoByPageUsingPost(searchParams);
+        const res = await listAiRoleVoByPage(searchParams);
         if (res.data) {
           setAiRoleList(res.data.records ?? []);
           for (const item of res.data.records ?? []) {
@@ -67,7 +67,7 @@ const AssistantList: React.FC = () => {
       }
 
       if (selectKey === 1) {
-        const res = await listUserAiRoleVoByPageUsingPost(searchParams);
+        const res = await listUserAiRoleVoByPage(searchParams);
         if (res.data) {
           setAiRoleList(res.data.records ?? []);
           for (const item of res.data.records ?? []) {
@@ -83,7 +83,7 @@ const AssistantList: React.FC = () => {
         }
       }
 
-    const historyRes = await getUserChatHistoryUsingGet();
+    const historyRes = await getUserChatHistory();
     if (historyRes.data) {
       setChatHistory(historyRes.data);
     }
@@ -151,7 +151,7 @@ const AssistantList: React.FC = () => {
                   const param = {
                     modelId: item.id
                   }
-                  const res = await userAddChatUsingPost(param)
+                  const res = await userAddChat(param)
                   if (res.data) {
                     history.push({pathname: '/ai_chat', search: res.data + ''})
                   }
@@ -172,7 +172,7 @@ const AssistantList: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addUserChatHistoryUsingPost({ ...value });
+          const res = await addUserChatHistory({ ...value });
           if (res.code === 0) {
             message.success('新建成功');
             handleModalOpen(false);

@@ -6,11 +6,11 @@ import '@umijs/max';
 import {message, Space} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  addOneRecordUsingPost,
-  deleteRecordByIdUsingPost,
-  editRecordByIdUsingPost,
-  listUserDataByPageUsingPost
-} from "@/services/hwqbi/dataController";
+  addOneRecord,
+  deleteRecordById,
+  editRecordById,
+  listUserDataByPage
+} from "@/services/DataLoom/dataController";
 import {useParams} from "react-router";
 import Icon, {
   CalendarOutlined,
@@ -144,7 +144,7 @@ const DataTable: React.FC = () => {
       dataId : dataParam.id,
       id: record.id
     }
-    const res = await deleteRecordByIdUsingPost(deleteChartDataRecordRequest)
+    const res = await deleteRecordById(deleteChartDataRecordRequest)
     if (res.code === 0) {
       hide();
       message.success('删除成功');
@@ -175,7 +175,7 @@ const DataTable: React.FC = () => {
       id: record.id,
       data: getRecordData(record)
     }
-    const res = await editRecordByIdUsingPost(editChartDataRecordRequest)
+    const res = await editRecordById(editChartDataRecordRequest)
     if (res.code === 0) {
       hide();
       message.success('编辑成功');
@@ -193,7 +193,7 @@ const DataTable: React.FC = () => {
       dataId : dataParam.id,
       data: getRecordData(record)
     }
-    const res = await addOneRecordUsingPost(addChartDataRecordRequest)
+    const res = await addOneRecord(addChartDataRecordRequest)
     if (res.code === 0) {
       hide();
       message.success('添加成功');
@@ -209,7 +209,7 @@ const DataTable: React.FC = () => {
       const param = dynamicTransform(values)
       param['dataId'] = dataParam.id
       console.log(param)
-      const res = await listUserDataByPageUsingPost(param);
+      const res = await listUserDataByPage(param);
       if (res.code === 0) {
         // 根据请求返回的数据动态生成列配置
         const newColumns = generateColumns(res.data?.tableFieldInfosList);
@@ -282,7 +282,7 @@ const DataTable: React.FC = () => {
             // data为修改后的数据
             // 检查对象中是否存在 index 字段
 
-            // editRecordByIdUsingPost()
+            // editRecordById()
           },
           onChange: setEditableRowKeys
         }}

@@ -1,6 +1,6 @@
 import {
-  genChartByAiAsyncMqV3UsingPost, genChartByAiWithDataAsyncMqUsingPost,
-} from '@/services/hwqbi/chartController';
+  genChartByAiAsyncMqV3, genChartByAiWithDataAsyncMq,
+} from '@/services/DataLoom/chartController';
 import {FileExcelOutlined, UploadOutlined} from '@ant-design/icons';
 import {
   Button,
@@ -30,7 +30,7 @@ import {ProColumns, ProList} from '@ant-design/pro-components';
 import {
   ProTable,
 } from '@ant-design/pro-components';
-import {listUserDataInfoUsingGet} from "@/services/hwqbi/dataController";
+import {listUserDataInfo} from "@/services/DataLoom/dataController";
 
 
 export interface TableListItem {
@@ -99,7 +99,7 @@ const AddChartMq: React.FC = () => {
 
   const showDrawer = async () => {
     // 请求用户数据集数据
-    const res = await listUserDataInfoUsingGet();
+    const res = await listUserDataInfo();
     if (res.code === 0) { // 请求成功
       setUserDataInfo(res.data);
       const t = res.data?.map((item) => ({
@@ -167,7 +167,7 @@ const AddChartMq: React.FC = () => {
       };
       try {
         // 根据不同的选择访问不同的接口
-        const res = await genChartByAiAsyncMqV3UsingPost(params, {}, values.file.file.originFileObj);
+        const res = await genChartByAiAsyncMqV3(params, {}, values.file.file.originFileObj);
         if (!res?.data) {
           message.error('分析失败, ' + res.message);
         } else {
@@ -185,7 +185,7 @@ const AddChartMq: React.FC = () => {
       };
       try {
         // 根据不同的选择访问不同的接口
-        const res = await genChartByAiWithDataAsyncMqUsingPost(params);
+        const res = await genChartByAiWithDataAsyncMq(params);
         if (!res?.data) {
           message.error('分析失败, ' + res.message);
         } else {

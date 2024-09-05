@@ -27,7 +27,7 @@ interface ResponseStructure {
 export const errorConfig: RequestConfig = {
   // 错误处理： umi@3 的错误处理方案。
   // baseURL: 'http://hgoat.cn:80/',
-  baseURL: 'http://localhost:8081/',
+  baseURL: 'http://localhost:8090/api',
   errorConfig: {
     // 错误抛出
     errorThrower: (res) => {

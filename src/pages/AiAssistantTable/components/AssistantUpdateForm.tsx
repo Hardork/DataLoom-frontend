@@ -10,7 +10,7 @@ import {
 import '@umijs/max';
 import {message, Modal} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
-import {addAiRoleUsingPost} from "@/services/hwqbi/aiRoleController";
+import {addAiRole} from "@/services/DataLoom/aiRoleController";
 import {ProFormSwitch} from "@ant-design/pro-form";
 export type Props = {
   columns: ProColumns<API.AiRole>[];

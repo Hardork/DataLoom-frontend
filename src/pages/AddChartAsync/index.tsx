@@ -1,4 +1,4 @@
-import {genChartByAiAsyncUsingPOST} from '@/services/hwqbi/chartController';
+import {genChartByAiAsyncUsingPOST} from '@/services/DataLoom/chartController';
 import { UploadOutlined } from '@ant-design/icons';
 import {Button, Card, Col, Form, Input, message, Row, Select, Space, Upload} from 'antd';
 import TextArea from 'antd/es/input/TextArea';

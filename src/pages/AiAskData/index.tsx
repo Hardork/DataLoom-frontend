@@ -3,22 +3,19 @@ import {Card, Col, Collapse, Input, message, Row, Space, Spin, Table} from 'antd
 import React, {useEffect, useRef, useState} from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
-import {listAiRoleVoByPageUsingPost} from "@/services/hwqbi/aiRoleController";
 import {
   LoadingOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import {
-  addUserAskSqlHistoryUsingPost,
-  addUserChatHistoryUsingPost, getChatByIdUsingPost,
-  getUserChatHistoryUsingGet,
-  getUserChatRecordUsingPost, getUserSqlChatRecordUsingPost, userChatForSqlUsingPost, userChatWithModelUsingPost
-} from "@/services/hwqbi/aiController";
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea, ProTable} from "@ant-design/pro-components";
-import OmsViewMarkdown from "@/components/OmsViewMarkdown";
+  addUserChatHistory, getChatById,
+  getUserChatHistory,
+  getUserSqlChatRecord, userChatForSql
+} from "@/services/DataLoom/aiController";
+import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {useLocation} from "umi";
-import {listUserMySqlDataInfoUsingGet} from "@/services/hwqbi/dataController";
+import {listUserMySqlDataInfo} from "@/services/DataLoom/dataController";
 /**
  * 我的图表页面
  * @constructor
@@ -74,7 +71,7 @@ const AiAskData: React.FC = () => {
     setLoading(true);
     setSelectItem([])
     // 加载用户数据集
-    const userDataRes = await listUserMySqlDataInfoUsingGet()
+    const userDataRes = await listUserMySqlDataInfo()
     if (userDataRes.code === 0) {
       for(const item of userDataRes.data ?? []) {
         const cur = {
@@ -87,7 +84,7 @@ const AiAskData: React.FC = () => {
     }
 
     // 加载历史对话
-    const historyRes = await getUserChatHistoryUsingGet();
+    const historyRes = await getUserChatHistory();
     if (historyRes.data) {
       console.log(historyRes.data)
       setChatHistory(historyRes.data);
@@ -100,7 +97,7 @@ const AiAskData: React.FC = () => {
         chatId: chatId
       }
       // @ts-ignore
-      const res =  await getChatByIdUsingPost(param)
+      const res =  await getChatById(param)
       if (res.data) {
         setCurModel(res.data)
       }
@@ -113,7 +110,7 @@ const AiAskData: React.FC = () => {
   const loadRecord = async () => {
     const chatRecordParam = {chatId: curModel?.chatId}
     // 加载用户对话历史
-    const chatRecordRes = await getUserSqlChatRecordUsingPost(chatRecordParam)
+    const chatRecordRes = await getUserSqlChatRecord(chatRecordParam)
     if (chatRecordRes.data) {
       setChatRecord(chatRecordRes.data)
     }
@@ -145,7 +142,7 @@ const AiAskData: React.FC = () => {
       content: content
     }
     setChatRecord(item => [...item, addItem])
-    const res = await userChatForSqlUsingPost(question)
+    const res = await userChatForSql(question)
     if (res.code !== 0) {
       message.error(res.message)
     }
@@ -418,7 +415,7 @@ const AiAskData: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addUserAskSqlHistoryUsingPost({ ...value });
+          const res = await addUserChatHistory({ ...value });
           if (res.code === 0) {
             message.success('新建成功');
             handleModalOpen(false);

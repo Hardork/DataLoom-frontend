@@ -3,17 +3,17 @@ import { Card, Col, Input, message, Row, Space, Spin} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
-import {listAiRoleVoByPageUsingPost} from "@/services/hwqbi/aiRoleController";
+import {listAiRoleVoByPage} from "@/services/DataLoom/aiRoleController";
 import {
   LoadingOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import {
-  addUserChatHistoryUsingPost, getChatByIdUsingPost,
-  getUserChatHistoryUsingGet,
-  getUserChatRecordUsingPost, userChatWithModelUsingPost
-} from "@/services/hwqbi/aiController";
+  addUserChatHistory, getChatById,
+  getUserChatHistory,
+  getUserChatRecord, userChatWithModel
+} from "@/services/DataLoom/aiController";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import OmsViewMarkdown from "@/components/OmsViewMarkdown";
 import {useLocation} from "umi";
@@ -72,7 +72,7 @@ const AiChat: React.FC = () => {
     console.log(location)
     setLoading(true);
     setSelectItem([])
-    const res = await listAiRoleVoByPageUsingPost(searchParams);
+    const res = await listAiRoleVoByPage(searchParams);
     if (res.data) {
       setAiRoleList(res.data.records ?? []);
       for(const item of res.data.records ?? []) {
@@ -86,7 +86,7 @@ const AiChat: React.FC = () => {
       setTotal(res.data.total ?? 0);
     }
     // 加载历史对话
-    const historyRes = await getUserChatHistoryUsingGet();
+    const historyRes = await getUserChatHistory();
     if (historyRes.data) {
       // setCurModel(historyRes.data[0])
       setChatHistory(historyRes.data);
@@ -99,7 +99,7 @@ const AiChat: React.FC = () => {
         chatId: chatId
       }
       // @ts-ignore
-      const res =  await getChatByIdUsingPost(param)
+      const res =  await getChatById(param)
       if (res.data) {
         setCurModel(res.data)
       }
@@ -112,7 +112,7 @@ const AiChat: React.FC = () => {
   const loadRecord = async () => {
     const chatRecordParam = {chatId: curModel?.chatId}
     // 加载用户对话历史
-    const chatRecordRes = await getUserChatRecordUsingPost(chatRecordParam)
+    const chatRecordRes = await getUserChatRecord(chatRecordParam)
     if (chatRecordRes.data) {
       console.log(chatRecordRes.data)
       setChatRecord(chatRecordRes.data)
@@ -145,7 +145,7 @@ const AiChat: React.FC = () => {
       content: content
     }
     setChatRecord(item => [...item, addItem])
-    const res = await userChatWithModelUsingPost(question)
+    const res = await userChatWithModel(question)
     if (res.code !== 0) {
       message.error(res.message)
     }
@@ -364,7 +364,7 @@ const AiChat: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addUserChatHistoryUsingPost({ ...value });
+          const res = await addUserChatHistory({ ...value });
           if (res.code === 0) {
             message.success('新建成功');
             handleModalOpen(false);

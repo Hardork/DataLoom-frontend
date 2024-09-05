@@ -4,7 +4,7 @@
   { path: '/welcome', name: '首页', component: './Welcome', layout: {hideNav: false,}},
   // { path: '/add_chart_async', name: '智能分析（异步）', icon: 'barChart', component: './AddChartAsync' },
   { path: '/add_chart_data/:id', name: '数据集', icon: 'barChart', component: './DataTable' , hideInMenu: true},
-  { path: '/mysql_detail/:id', name: '数据源', icon: 'barChart', component: './MySQLDetail', hideInMenu: true},
+  { path: '/mysql_detail/:id', name: '数据源', icon: 'barChart', component: './MySQLDetail'},
   { path: '/add_other_data/:dataId/:type/:secret', name: '添加共享数据', icon: 'barChart', component: './AddOtherDataResult' , hideInMenu: true},
   { path: '/data_meta_table', name: '数据源', icon: 'database', component: './DataMetaTable' },
   { path: '/add_chart_mq', name: '智能分析（MQ）', icon: 'barChart', component: './AddChartMq' },
