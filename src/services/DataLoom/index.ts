@@ -15,6 +15,7 @@ import * as chartController from './chartController';
 import * as aiRoleController from './aiRoleController';
 import * as aiController from './aiController';
 import * as serviceRecordController from './serviceRecordController';
+import * as coreDatasetTableController from './coreDatasetTableController';
 export default {
   userCreateAssistantController,
   userController,
@@ -29,4 +30,5 @@ export default {
   aiRoleController,
   aiController,
   serviceRecordController,
+  coreDatasetTableController,
 };
