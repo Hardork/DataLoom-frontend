@@ -132,12 +132,10 @@ export default defineConfig({
       // 或者使用在线的版本
       schemaPath: "http://localhost:8081/api/v3/api-docs",
       projectName: 'DataLoom',
-      // schemaPath: join(__dirname, 'oneapi.json'),
       mock: false,
     },
     {
       requestLibPath: "import { request } from '@umijs/max'",
-      // 或者使用在线的版本
       schemaPath: "http://localhost:8082/api/v3/api-docs",
       projectName: 'points-service',
       mock: false,

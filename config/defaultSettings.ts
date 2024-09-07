@@ -16,7 +16,6 @@ const Settings: ProLayoutProps & {
   colorPrimary: "#1677FF",
   splitMenus: false,
   siderMenuType: "sub",
-  fixedHeader: true,
   pwa: true,
   logo: "/logo-dataloom.png",
   token: {
