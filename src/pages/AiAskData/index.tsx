@@ -9,6 +9,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import {
+  addUserAskSqlHistory,
   addUserChatHistory, getChatById,
   getUserChatHistory,
   getUserSqlChatRecord, userChatForSql
@@ -16,6 +17,7 @@ import {
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {useLocation} from "umi";
 import {listUserMySqlDataInfo} from "@/services/DataLoom/dataController";
+import {listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
 /**
  * 我的图表页面
  * @constructor
@@ -57,8 +59,8 @@ const AiAskData: React.FC = () => {
     {
       name: 'dataId',
       required: true,
-      label: '数据集',
-      message: '数据集不得为空',
+      label: '数据源',
+      message: '数据源不得为空',
       type: 'select',
       selectItem: selectItem
     },
@@ -71,11 +73,24 @@ const AiAskData: React.FC = () => {
     setLoading(true);
     setSelectItem([])
     // 加载用户数据集
-    const userDataRes = await listUserMySqlDataInfo()
-    if (userDataRes.code === 0) {
-      for(const item of userDataRes.data ?? []) {
+    const userDatasourceRes = await listUserDataSource()
+    if (userDatasourceRes.code === 0) {
+      for(const item of userDatasourceRes.data ?? []) {
         const cur = {
-          label: item.dataName,
+          label: <>
+            {item.type === 'excel' && <>
+              <img src={'/assets/Excel.svg'}/>
+            </>}
+            {item.type === 'mysql' && <>
+              <img src={'/assets/Mysql.svg'}/>
+            </>}
+            {item.type === 'api' && <>
+              <img src={'/assets/API.svg'}/>
+            </>}
+            <span style={{
+              marginLeft: '10px'
+            }}>{item.name}</span>
+          </>,
           value: item.id,
         }
         // @ts-ignore
@@ -272,7 +287,8 @@ const AiAskData: React.FC = () => {
       <WebSocketComponent userId={currentUser?.id}></WebSocketComponent>
       <Row gutter={16}>
         <Col span={5}>
-          <Card style={{minHeight: '88vh'}}>
+          <Card style={{minHeight: '93vh'}}>
+            <div><h3>智能问数</h3></div>
             <Space direction="horizontal" style={{width: '100%'}} size={20}>
               <div>
                 <Input placeholder="搜索历史对话" suffix={<SearchOutlined/>}/>
@@ -281,12 +297,13 @@ const AiAskData: React.FC = () => {
                 handleModalOpen(true)
               }}><PlusOutlined/></a>
             </Space>
-            <div className="margin-16" />
+            <div className="margin-16"/>
             <div>
               <>
                 {chatHistory?.map((item, index) => (
                   <>
-                    <Card style={{ width: '100%', marginTop: 16 }} className={index === selectIndex ? 'active-item' : ''} hoverable loading={loading} onClick={() => {
+                    <Card style={{width: '100%', marginTop: 16}} className={index === selectIndex ? 'active-item' : ''}
+                          hoverable loading={loading} onClick={() => {
                       setCurModel(item)
                       setSelectIndex(index)
                     }}>
@@ -308,73 +325,74 @@ const AiAskData: React.FC = () => {
         <Col span={19} style={{
           position: "relative"
         }}>
+          {curModel && <>
             <Col span={24}>
               <Card style={{height: '93vh', position: "relative"}}>
-                  {/*助手信息*/}
-                  <div style={{
-                    width: '100%',
-                    height: '84vh',
-                    overflowY: 'auto',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: 'grey blue'
-                  }} ref={scrollDomRef}>
-                    <div style={{width: '100%', textAlign: "center"}}>
-                      <h3 style={{fontWeight: "bold"}}>{curModel?.assistantName}</h3>
-                    </div>
-                    <div className="margin-16" />
-                    {/* 渲染历史对话 */}
-                    {
-                      curModel && <>
+                {/*助手信息*/}
+                <div style={{
+                  width: '100%',
+                  height: '84vh',
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: 'grey blue'
+                }} ref={scrollDomRef}>
+                  <div style={{width: '100%', textAlign: "center"}}>
+                    <h3 style={{fontWeight: "bold"}}>{curModel?.assistantName}</h3>
+                  </div>
+                  <div className="margin-16" />
+                  {/* 渲染历史对话 */}
+                  {
+                    curModel && <>
+                      <div>
+                        <Space direction="horizontal">
+                          <img src={'/model.png'} style={{width: '30px'}}/>
+                          <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}>
+                            {'你好，我是' + curModel?.assistantName + ',' + '我可以' + curModel?.functionDes}
+                          </div>
+                        </Space>
+                        <div className="margin-16" />
+                      </div>
+                    </>
+                  }
+
+                  {
+                    chatRecord?.map(item => (
+                      <>
                         <div>
                           <Space direction="horizontal">
-                            <img src={'/model.png'} style={{width: '30px'}}/>
-                            <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}>
-                              {'你好，我是' + curModel?.assistantName + ',' + '我可以' + curModel?.functionDes}
-                            </div>
+                            {item.chatRole === 0 && <>
+                              <img src={currentUser?.userAvatar} style={{width: '30px',borderRadius: '50%'}}/>
+                              <div style={{marginTop: '5px',padding: '10px' , background: '#e7f7ff', borderRadius: '10px'}}>{item.content}</div>
+                            </>}
+                            {item.chatRole === 1 && <>
+                              <img src={'/model.png'} style={{width: '30px'}}/>
+                              <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}>
+                                <Table
+                                  columns={item.columns}
+                                  dataSource={item.res}
+                                  pagination={false}
+                                  size={'small'}
+                                />
+                                <Collapse items={[
+                                  {
+                                    key: '1',
+                                    label: <>
+                                      <span style={{color: '#1677ff'}}>查询SQL</span>
+                                    </>,
+                                    children: <p>{item.sql}</p>
+                                  }
+                                ]} size={'small'} bordered={false} />
+                              </div>
+                              <div>
+                              </div>
+                            </>}
                           </Space>
                           <div className="margin-16" />
                         </div>
                       </>
-                    }
-
-                    {
-                      chatRecord?.map(item => (
-                        <>
-                          <div>
-                            <Space direction="horizontal">
-                              {item.chatRole === 0 && <>
-                                <img src={currentUser?.userAvatar} style={{width: '30px',borderRadius: '50%'}}/>
-                                <div style={{marginTop: '5px',padding: '10px' , background: '#e7f7ff', borderRadius: '10px'}}>{item.content}</div>
-                              </>}
-                              {item.chatRole === 1 && <>
-                                  <img src={'/model.png'} style={{width: '30px'}}/>
-                                <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}>
-                                  <Table
-                                    columns={item.columns}
-                                    dataSource={item.res}
-                                    pagination={false}
-                                    size={'small'}
-                                  />
-                                  <Collapse items={[
-                                    {
-                                      key: '1',
-                                      label: <>
-                                      <span style={{color: '#1677ff'}}>查询SQL</span>
-                                      </>,
-                                      children: <p>{item.sql}</p>
-                                    }
-                                  ]} size={'small'} bordered={false} />
-                                </div>
-                                <div>
-                                </div>
-                              </>}
-                            </Space>
-                            <div className="margin-16" />
-                          </div>
-                        </>
-                      ))
-                    }
-                  </div>
+                    ))
+                  }
+                </div>
 
                 <div style={{position: "fixed", bottom: '3vh', width: '70%'}}>
                   <Input
@@ -388,20 +406,158 @@ const AiAskData: React.FC = () => {
                     }}
                     suffix={
                       <>
-                      {
-                        !submitting && <a onClick={() => {
-                          sendQuestion()
-                        }}><img src={'/send.png'} style={{width: '24px'}}/></a>
-                      }
-                      {
-                        submitting && <Spin indicator={antIcon} />
-                      }
+                        {
+                          !submitting && <a onClick={() => {
+                            sendQuestion()
+                          }}><img src={'/send.png'} style={{width: '24px'}}/></a>
+                        }
+                        {
+                          submitting && <Spin indicator={antIcon} />
+                        }
                       </>
                     }
                   />
                 </div>
               </Card>
             </Col>
+          </>}
+          {curModel === undefined && <>
+          <Col span={24}>
+            <Card style={{height: '93vh', position: "relative", backgroundColor: "#F6F7F9"}}>
+              <div style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center"
+              }}>
+                <div style={{
+                  maxWidth: "800px",
+                  minWidth: "500px",
+                  marginTop: "10vh",
+                  height: "100%",
+                  flexShrink: 1,
+                  justifyContent: "center"
+                }}>
+                  <div style={{
+                    maxWidth: "700px",
+                    textAlign: "left",
+                    padding: "0 16px 0 16px",
+                    marginBottom: "32px",
+                    boxSizing: "border-box"
+                  }}>
+                    <div style={{
+                      fontSize: "28px",
+                      marginBottom: "4px !important",
+                      lineHeight: "42px !important",
+                      whiteSpace: "nowrap"
+                    }}><p><span
+                      style={{
+                        color: "rgb(36, 84, 255)"
+                      }}><strong>问数</strong></span>
+                      <span
+                        style={{
+                          color: "rgb(0, 0, 0)"
+                        }}
+                      >用</span><span
+                        style={{
+                          color: "rgb(36, 84, 255)"
+                        }}
+                      ><strong>DATALOOM</strong></span></p></div>
+                    <div
+                      style={{
+                        fontSize: "16px !important",
+                        lineHeight: "26px !important",
+                        color: "var(--txt_icon_black_1, #1a2029)"
+                      }}
+                    >
+                      <p style={{
+                        lineHeight: 1
+                      }}><strong>数据检索无需复杂！试问LOOM，他会给你所有数据🚀</strong></p>
+                    </div>
+                  </div>
+                  <div style={{
+                    paddingBottom: "400px"
+                  }}>
+                    <Card style={{marginBottom: "10px"}}>
+                      <div style={{
+                        display: "inlineBlock",
+                        color: "var(--txt_icon_black_1, #1a2029)",
+                        fontFamily: "PingFang SC",
+                        fontWeight: 600,
+                        fontStyle: "normal",
+                        fontSize: "14px",
+                        lineHeight: "22px",
+                        textAlign: "left",
+                        flex: 1,
+                        maxHeight: "40px",
+                        overflowY: "hidden",
+                      }}>
+                        <span style={{
+                          color: "var(--txt_stroke_blue_1, #386fff)"
+                        }}>数据矿工</span>⚒️：提前有价值数据
+                      </div>
+                    </Card>
+                    <Card style={{marginBottom: "10px"}}>
+                      <div style={{
+                        display: "inlineBlock",
+                        color: "var(--txt_icon_black_1, #1a2029)",
+                        fontFamily: "PingFang SC",
+                        fontWeight: 600,
+                        fontStyle: "normal",
+                        fontSize: "14px",
+                        lineHeight: "22px",
+                        textAlign: "left",
+                        flex: 1,
+                        maxHeight: "40px",
+                        overflowY: "hidden",
+                      }}>
+                        <span style={{
+                          color: "var(--txt_stroke_blue_1, #386fff)"
+                        }}>实时观察</span>
+                        👀：请给我最近一周数据📊
+                      </div>
+                    </Card>
+                  </div>
+                  <div style={{
+                    width: "100%",
+                    minWidth: "872px",
+                    maxWidth: "872px",
+                    paddingBottom: "12px",
+                    boxSizing: "border-box",
+                    borderRadius: "12px",
+                    flex: "none",
+                    position: "relative"
+                  }}>
+                    <Input
+                      placeholder="请输入内容"
+                      value={content}
+                      onChange={(e) => {
+                        setContent(e.target.value)
+                      }}
+                      onPressEnter={(e) => {
+                        sendQuestion()
+                      }}
+                      suffix={
+                        <>
+                          {
+                            !submitting && <a onClick={() => {
+                              sendQuestion()
+                            }}><img src={'/send.png'} style={{width: '24px'}}/></a>
+                          }
+                          {
+                            submitting && <Spin indicator={antIcon}/>
+                          }
+                        </>
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </Card>
+          </Col>
+          </>}
+
         </Col>
       </Row>
 
@@ -415,7 +571,7 @@ const AiAskData: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addUserChatHistory({ ...value });
+          const res = await addUserAskSqlHistory({...value});
           if (res.code === 0) {
             message.success('新建成功');
             handleModalOpen(false);

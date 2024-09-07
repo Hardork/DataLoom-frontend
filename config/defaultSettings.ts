@@ -7,7 +7,7 @@ const Settings: ProLayoutProps & {
   pwa?: boolean;
   logo?: string;
 } = {
-  title: 'AI Viz',
+  title: ' ',
   navTheme: "light",
   layout: "top",
   contentWidth: "Fluid",
@@ -18,7 +18,7 @@ const Settings: ProLayoutProps & {
   siderMenuType: "sub",
   fixedHeader: true,
   pwa: true,
-  logo: "/logo.svg",
+  logo: "/logo-dataloom.png",
   token: {
     // 自定义顶部菜单栏背景颜色
     header: {
