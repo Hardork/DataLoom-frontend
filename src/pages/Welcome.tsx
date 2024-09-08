@@ -140,7 +140,7 @@ const Welcome: React.FC = () => {
               color: token.colorTextHeading,
             }}
           >
-            欢迎使用 AI数据可视化平台
+            欢迎使用 DataLoom
           </div>
           <p
             style={{
@@ -152,7 +152,7 @@ const Welcome: React.FC = () => {
               width: '65%',
             }}
           >
-            AI Visualization 为用户分析大量数据，帮助您分析数据并数据中发现有价值的信息
+            DataLoom 为用户分析大量数据，帮助您分析数据并数据中发现有价值的信息
           </p>
           <div
             style={{

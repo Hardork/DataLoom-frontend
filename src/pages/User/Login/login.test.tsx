@@ -40,14 +40,14 @@ describe('Login Page', () => {
       />,
     );
 
-    await rootContainer.findAllByText('AI Visualization');
+    await rootContainer.findAllByText('DataLoom');
 
     act(() => {
       historyRef.current?.push('/user/login');
     });
 
     expect(rootContainer.baseElement?.querySelector('.ant-pro-form-login-desc')?.textContent).toBe(
-      'AI Visualization is the most influential web design specification in Xihu district',
+      'DataLoom is the most influential web design specification in Xihu district',
     );
 
     expect(rootContainer.asFragment()).toMatchSnapshot();
@@ -66,7 +66,7 @@ describe('Login Page', () => {
       />,
     );
 
-    await rootContainer.findAllByText('AI Visualization');
+    await rootContainer.findAllByText('DataLoom');
 
     const userNameInput = await rootContainer.findByPlaceholderText('Username: admin or user');
 
@@ -85,7 +85,7 @@ describe('Login Page', () => {
     // 等待接口返回结果
     await waitTime(5000);
 
-    await rootContainer.findAllByText('AI Visualization');
+    await rootContainer.findAllByText('DataLoom');
 
     expect(rootContainer.asFragment()).toMatchSnapshot();
 
