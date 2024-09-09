@@ -143,8 +143,8 @@ const Login: React.FC = () => {
             maxWidth: '75vw',
           }}
           logo={<img alt="logo" src="/logo.svg" />}
-          title="DataLoom"
-          subTitle={'DataLoom是最先进的分析工具'}
+          title="AI Visualization"
+          subTitle={'AI Visualization是最先进的分析工具'}
           initialValues={{
             autoLogin: true,
           }}

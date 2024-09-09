@@ -13,8 +13,8 @@ const Footer: React.FC = () => {
       copyright={`${currentYear} ${defaultMessage}`}
       links={[
         {
-          key: 'DataLoom',
-          title: 'DataLoom',
+          key: 'AI Visualization',
+          title: 'AI Visualization',
           href: 'https://pro.ant.design',
           blankTarget: true,
         },
@@ -25,8 +25,8 @@ const Footer: React.FC = () => {
           blankTarget: true,
         },
         {
-          key: 'DataLoom',
-          title: 'DataLoom',
+          key: 'AI Visualization',
+          title: 'AI Visualization',
           href: 'https://ant.design',
           blankTarget: true,
         },
