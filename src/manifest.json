@@ -1,6 +1,6 @@
 {
-  "name": "DataLoom",
-  "short_name": "DataLoom",
+  "name": "AI Visualization",
+  "short_name": "AI Visualization",
   "display": "standalone",
   "start_url": "./?utm_source=homescreen",
   "theme_color": "#002140",

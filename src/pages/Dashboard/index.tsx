@@ -3,8 +3,9 @@ import GridLayout from "react-grid-layout";
 import ReactEcharts from "echarts-for-react";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import {Button, Modal, Popover, Select, Tabs} from "antd";
+import {Button, Input, Menu, Modal, Popover, Select, Tabs} from "antd";
 import TabPane from "antd/es/tabs/TabPane";
+import {SearchOutlined} from "@ant-design/icons";
 
 const ResponsiveGridLayout = GridLayout.WidthProvider(GridLayout.Responsive);
 
@@ -20,6 +21,7 @@ const initialLayouts = {
 
 // 图表组件
 const Chart = ({ id }) => {
+  // 获取存储在后端的配置文件
   const getOption = () => ({
     tooltip: {},
     xAxis: {
@@ -47,9 +49,7 @@ const Dashboard = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // 控制对话框
   const [selectedChartType, setSelectedChartType] = useState(null); // 选择的图表类型
   const [layouts, setLayouts] = useState(() => {
-    // 页面加载时从 localStorage 加载布局
-    const savedLayouts = localStorage.getItem("dashboard-layout");
-    return savedLayouts ? JSON.parse(savedLayouts) : initialLayouts;
+    return initialLayouts;
   });
   const [hoveredChart, setHoveredChart] = useState(null); // 跟踪当前悬停的图表
   const [selectedChart, setSelectedChart] = useState(null); // 追踪被点击的div
@@ -64,7 +64,7 @@ const Dashboard = () => {
   };
 
   const [charts, setCharts] = useState(() => {
-    // 页面加载时从 localStorage 加载图表数据
+    // 页面加载时从 后端 加载图表数据
     return  [
       { i: "chart1", component: <Chart id="1" /> }];
   });
@@ -136,29 +136,13 @@ const Dashboard = () => {
 
   // 保存布局到 localStorage
   const saveLayout = () => {
-    localStorage.setItem("dashboard-layout", JSON.stringify(layouts));
-    localStorage.setItem("dashboard-charts", JSON.stringify(charts));
+    console.log(JSON.stringify(layouts))
+    // console.log(JSON.stringify(charts))
     alert("仪表盘布局已保存！");
   };
 
   const renderCharts = useMemo(() => charts, [charts]);
-  // 根据图表类型生成图表组件
-  const renderChartComponent = (type) => {
-    switch (type) {
-      case "bar":
-        return <div>柱状图</div>;
-      case "line":
-        return <div>折线图</div>;
-      case "pie":
-        return <div>饼图</div>;
-      case "scatter":
-        return <div>散点图</div>;
-      case "horizontal-bar":
-        return <div>条形图</div>;
-      default:
-        return null;
-    }
-  };
+
 
   const EchartsSelectCard = () => {
     const chartTypes = [
@@ -214,7 +198,7 @@ const Dashboard = () => {
         {/* 卡片容器 */}
         <div style={containerStyle}>
           {chartTypes.map((chart, index) => (
-            <div key={index} style={cardStyle} onClick={() => {
+            <div key={index} style={cardStyle} onClick={() =>  {
               hide()
               handleChartSelect(chart.type)
             }}>
@@ -270,142 +254,176 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: "flex", width: "100%" , margin: '-32px -40px'}}>
+      {/* 左侧搜索框和仪表盘信息列表 */}
       <div style={{
-        display: "flex"
+        width: "15%", // 左侧占15%宽度
+        display: "flex",
+        flexDirection: "column",
+        borderRight: "1px solid #eee", // 添加右侧边框来分隔左右区域
+        height: "100vh", // 左侧高度占满整个页面
+        boxSizing: "border-box"
       }}>
-        <Popover
-          content={<><EchartsSelectCard></EchartsSelectCard></>}
-          title=""
-          placement="rightBottom"
-          trigger="click"
-          open={open}
-          onOpenChange={handleOpenChange}
-        >
-          <Button style={{
-            backgroundColor: '#1456F0',
-            color: '#ffffff'
-          }}>+添加图表
-          </Button>
-        </Popover>
+        <div style={{padding: '16px'}}>
+          <h4 style={{paddingBottom: '10px'}}>仪表盘</h4>
+          <Input placeholder={'搜索'} addonBefore={<SearchOutlined/>}></Input>
+        </div>
 
-        <Button onClick={saveLayout} style={{
-          marginLeft: "10px"
-        }}>保存仪表盘</Button>
+        <div style={{overflow: 'auto', padding: '16px'}}>
+          <Menu
+            style={{width: '100%'}}
+            defaultSelectedKeys={['1']}
+            defaultOpenKeys={['sub1']}
+            onClick={(record) => {
+              // setSelectDatasource(record.key)
+            }}
+            mode="inline"
+            // items={datasources}
+          />
+        </div>
       </div>
 
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={layouts}
-        breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480 }}
-        cols={{ lg: 12, md: 10, sm: 6, xs: 4 }}
-        rowHeight={150}
-        onLayoutStop={onLayoutChange}
-        margin={[10, 10]}
-      >
-        {renderCharts.map((chart) => (
-          <div key={chart.i} style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxSizing: "border-box", // 确保边框不会改变元素的大小
-            border:
-            selectedChart === chart.i
-            ? "2px solid #1456F0" // 设置选中时的边框样式
-            : hoveredChart === chart.i
-            ? "2px solid #C2D4FF" // 设置悬停时的边框样式
-            : "2px solid transparent", // 默认无边框
-          }}
-          onClick={() => setSelectedChart(chart.i)} // 点击时设置当前div为选中状态
-          onMouseEnter={() => setHoveredChart(chart.i)} // 鼠标进入时设置当前图表为悬停状态
-          onMouseLeave={() => setHoveredChart(null)}    // 鼠标离开时清除悬停状态
+      {/* 右侧详细的仪表盘布局 */}
+      <div style={{width: "85%", padding: "10px"}}>
+        <div>
+          <div style={{
+            display: "flex"
+          }}>
+            <Popover
+              content={<><EchartsSelectCard></EchartsSelectCard></>}
+              title=""
+              placement="rightBottom"
+              trigger="click"
+              open={open}
+              onOpenChange={handleOpenChange}
+            >
+              <Button style={{
+                backgroundColor: '#1456F0',
+                color: '#ffffff'
+              }}>+添加图表
+              </Button>
+            </Popover>
+
+            <Button onClick={saveLayout} style={{
+              marginLeft: "10px"
+            }}>保存仪表盘</Button>
+          </div>
+
+          <ResponsiveGridLayout
+            className="layout"
+            layouts={layouts}
+            breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480}}
+            cols={{lg: 12, md: 10, sm: 6, xs: 4}}
+            rowHeight={150}
+            onLayoutStop={onLayoutChange}
+            margin={[10, 10]}
           >
-            <div style={{
-              boxSizing: "border-box",
-              height: "40px",
-              maxHeight: "40px",
-              minHeight: "14px",
-              padding: "14px 12px 4px 16px",
-            }}>
-              <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                maxWidth: "100%",
-                minWidth: "5px",
-                width: "100%",
-                boxSizing: "border-box" // 确保边框不会改变元素的大小
-              }}>
-                <div>图表</div>
-                <div>
-                  {(hoveredChart === chart.i || selectedChart === chart.i) && (  // 只有当当前图表被悬停时，显示按钮
-                    <>
-                      <Button size={"small"} style={{ marginRight: "4px" }}>
-                        💡 智能分析
-                      </Button>
-                      <Button size={"small"}>
-                        <img src={"/系统配置.svg"} alt="系统配置" />
-                      </Button>
-                    </>
-                  )}
+            {renderCharts.map((chart) => (
+              <div key={chart.i} style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '12px',
+                boxSizing: "border-box", // 确保边框不会改变元素的大小
+                border:
+                  selectedChart === chart.i
+                    ? "2px solid #1456F0" // 设置选中时的边框样式
+                    : hoveredChart === chart.i
+                      ? "2px solid #C2D4FF" // 设置悬停时的边框样式
+                      : "2px solid transparent", // 默认无边框
+              }}
+                   onClick={() => setSelectedChart(chart.i)} // 点击时设置当前div为选中状态
+                   onMouseEnter={() => setHoveredChart(chart.i)} // 鼠标进入时设置当前图表为悬停状态
+                   onMouseLeave={() => setHoveredChart(null)}    // 鼠标离开时清除悬停状态
+              >
+                <div style={{
+                  boxSizing: "border-box",
+                  height: "40px",
+                  maxHeight: "40px",
+                  minHeight: "14px",
+                  padding: "14px 12px 4px 16px",
+                }}>
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    maxWidth: "100%",
+                    minWidth: "5px",
+                    width: "100%",
+                    boxSizing: "border-box" // 确保边框不会改变元素的大小
+                  }}>
+                    <div>图表</div>
+                    <div>
+                      {(hoveredChart === chart.i || selectedChart === chart.i) && (  // 只有当当前图表被悬停时，显示按钮
+                        <>
+                          <Button size={"small"} style={{marginRight: "4px"}}>
+                            💡 智能分析
+                          </Button>
+                          <Button size={"small"}>
+                            <img src={"/系统配置.svg"} alt="系统配置"/>
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {chart.component}
+              </div>
+            ))}
+          </ResponsiveGridLayout>
+
+
+          {/* 弹出 Modal */}
+          <Modal
+            visible={isModalVisible}
+            title="自定义图表"
+            width="80%"
+            onCancel={() => setIsModalVisible(false)} // 关闭Modal
+            footer={[
+              <Button key="submit" type="primary" onClick={() => setIsModalVisible(false)}>
+                确定
+              </Button>,
+            ]}
+          >
+            <div style={{display: "flex", width: "100%", height: "500px"}}>
+              {/* 左侧80%区域显示图表 */}
+              <div style={{flex: "80%", borderRight: "1px solid #f0f0f0", paddingRight: "20px"}}>
+                <div style={{
+                  height: "100%",
+                  width: "100%"
+                }}>
+                  <ReactEcharts option={chartOption} style={{height: "100%", width: "100%"}}/>
                 </div>
               </div>
+
+              {/* 右侧20%区域显示选项卡 + 选择框 */}
+              <div style={{flex: "20%", paddingLeft: "20px"}}>
+                <Tabs defaultActiveKey="1">
+                  <TabPane tab="轴配置" key="1">
+                    <div style={{marginBottom: "16px"}}>选择X轴类型</div>
+                    <Select
+                      defaultValue="category"
+                      style={{width: "100%"}}
+                      onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                    >
+                      <Option value="category">类目轴</Option>
+                      <Option value="value">数值轴</Option>
+                    </Select>
+
+                    <div style={{marginTop: "16px"}}>选择Y轴类型</div>
+                    <Select
+                      defaultValue="value"
+                      style={{width: "100%"}}
+                      onChange={(value) => handleOptionChange({yAxis: {type: value}})}
+                    >
+                      <Option value="value">数值轴</Option>
+                      <Option value="log">对数轴</Option>
+                    </Select>
+                  </TabPane>
+                </Tabs>
+              </div>
             </div>
-            {chart.component}
-          </div>
-        ))}
-      </ResponsiveGridLayout>
-
-
-      {/* 弹出 Modal */}
-      <Modal
-        visible={isModalVisible}
-        title="自定义图表"
-        width="80%"
-        onCancel={() => setIsModalVisible(false)} // 关闭Modal
-        footer={[
-          <Button key="submit" type="primary" onClick={() => setIsModalVisible(false)}>
-            确定
-          </Button>,
-        ]}
-      >
-        <div style={{ display: "flex", width: "100%", height: "500px" }}>
-          {/* 左侧80%区域显示图表 */}
-          <div style={{ flex: "80%", borderRight: "1px solid #f0f0f0", paddingRight: "20px" }}>
-            <div style={{
-              height: "100%",
-              width: "100%"
-            }}>
-              <ReactEcharts option={chartOption} style={{ height: "100%", width: "100%" }} />
-            </div>
-          </div>
-
-          {/* 右侧20%区域显示选项卡 + 选择框 */}
-          <div style={{ flex: "20%", paddingLeft: "20px" }}>
-            <Tabs defaultActiveKey="1">
-              <TabPane tab="轴配置" key="1">
-                <div style={{ marginBottom: "16px" }}>选择X轴类型</div>
-                <Select
-                  defaultValue="category"
-                  style={{ width: "100%" }}
-                  onChange={(value) => handleOptionChange({ xAxis: { type: value } })}
-                >
-                  <Option value="category">类目轴</Option>
-                  <Option value="value">数值轴</Option>
-                </Select>
-
-                <div style={{ marginTop: "16px" }}>选择Y轴类型</div>
-                <Select
-                  defaultValue="value"
-                  style={{ width: "100%" }}
-                  onChange={(value) => handleOptionChange({ yAxis: { type: value } })}
-                >
-                  <Option value="value">数值轴</Option>
-                  <Option value="log">对数轴</Option>
-                </Select>
-              </TabPane>
-            </Tabs>
-          </div>
+          </Modal>
         </div>
-      </Modal>
+
+      </div>
     </div>
   );
 };
