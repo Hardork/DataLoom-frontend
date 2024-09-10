@@ -1080,7 +1080,7 @@ exports[`Login Page should show login form 1`] = `
             target="_blank"
             title="AI Visualization"
           >
-            AI Viz
+            DataLoom
           </a>
         </div>
         <div
