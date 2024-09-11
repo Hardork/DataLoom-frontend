@@ -6,6 +6,7 @@ import 'react-resizable/css/styles.css';
 import {Button, Input, Menu, Modal, Popover, Select, Tabs} from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import {SearchOutlined} from "@ant-design/icons";
+import ChartOption from "@/pages/Dashboard/components/ChartOptions";
 
 const ResponsiveGridLayout = GridLayout.WidthProvider(GridLayout.Responsive);
 
@@ -20,26 +21,13 @@ const initialLayouts = {
 };
 
 // 图表组件
-const Chart = ({ id }) => {
-  // 获取存储在后端的配置文件
-  const getOption = () => ({
-    tooltip: {},
-    xAxis: {
-      data: ["A", "B", "C", "D", "E"],
-    },
-    yAxis: {},
-    series: [
-      {
-        name: "销量",
-        type: "bar",
-        data: [5, 20, 36, 10, 10],
-      },
-    ],
-  });
+const Chart = ({type}) => {
+  // init
+  const option =  ChartOption(type)
 
   return (
     <ReactEcharts
-      option={getOption()}
+      option={option}
       style={{ width: "100%", height: "100%" }}
     />
   );
@@ -66,7 +54,10 @@ const Dashboard = () => {
   const [charts, setCharts] = useState(() => {
     // 页面加载时从 后端 加载图表数据
     return  [
-      { i: "chart1", component: <Chart id="1" /> }];
+      { i: "chart1", component: <Chart type="0" /> },
+      { i: "chart2", component: <Chart type="1" /> },
+      { i: "chart3", component: <Chart type="2" /> },
+    ];
   });
 
   // 显示对话框

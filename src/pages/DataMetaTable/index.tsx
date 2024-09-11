@@ -43,6 +43,7 @@ import {
   saveDataSourceMetaInfo
 } from "@/services/DataLoom/dataSourceController";
 import { AES_Encrypt } from '../../utils/AES'
+import {addDatasource} from "@/services/DataLoom/coreDataSourceController";
 
 
 
@@ -536,10 +537,21 @@ export default () => {
             message.error('文件未上传');
             return;
           }
-          const uploadFileParams = {
-            ...values,
+          const formData = new FormData();
+          formData.append("file", file);
+          const param = {
+            pid: 0,
+            name: values.name,
+            type: 'excel',
+            configuration: '',
+            file: file
           }
-          const res = await uploadFileToMongo(uploadFileParams, {}, file);
+          //json部分
+          const datasourceDTO = JSON.stringify(param);
+          formData.append('datasourceDTO', new Blob([datasourceDTO], {type: "application/json"}));
+          // file
+          console.log(formData)
+          const res = await addDatasource(formData);
           if (res.code === 0) {
             setChange(!change)
             setFileVisible(false);
@@ -580,9 +592,9 @@ export default () => {
           }}
         >
           <ProFormText
-            name="dataName"
+            name="name"
             width="md"
-            label="数据集名称"
+            label="数据源名称"
             placeholder="请输入名称"
             rules={[{ required: true }]}
           />

@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 此处后端没有提供注释 GET /admin/coreDatasetGroup/get */
+/** 获取数据集字段信息 GET /admin/coreDatasetGroup/get */
 export async function get(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getParams,
@@ -17,7 +17,7 @@ export async function get(
   });
 }
 
-/** 此处后端没有提供注释 POST /admin/coreDatasetGroup/previewSql */
+/** 预览自定义SQL POST /admin/coreDatasetGroup/previewSql */
 export async function previewSql(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.previewSqlParams,
@@ -32,7 +32,7 @@ export async function previewSql(
   });
 }
 
-/** 此处后端没有提供注释 POST /admin/coreDatasetGroup/save */
+/** 保存数据集 POST /admin/coreDatasetGroup/save */
 export async function save(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.saveParams,

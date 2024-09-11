@@ -3,7 +3,12 @@
 import { request } from '@umijs/max';
 
 /** 此处后端没有提供注释 POST /admin/coreDatasource/add */
-export async function addDatasource(body: API.DatasourceDTO, options?: { [key: string]: any }) {
+export async function addDatasource(
+  body: {
+    datasourceDTO: API.DatasourceDTO;
+  },
+  options?: { [key: string]: any },
+) {
   return request<API.BaseResponseLong>('/admin/coreDatasource/add', {
     method: 'POST',
     headers: {
