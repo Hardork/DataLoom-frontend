@@ -10,9 +10,9 @@ import {
   DescriptionsProps,
   Row,
   Col,
-  Card, Tag, Button, Drawer, Steps, Form, Select, InputNumber, Dropdown, DatePicker
+  Card, Tag, Button, Drawer, Steps, Form, Select, InputNumber, Dropdown, DatePicker, Space
 } from 'antd';
-import {SearchOutlined} from "@ant-design/icons";
+import {MinusCircleOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import {ProTable} from "@ant-design/pro-components";
 import {useParams} from "react-router";
 import {getSchemas} from "@/services/DataLoom/dataSourceController";
@@ -23,6 +23,8 @@ import {getByDatasource} from "@/services/DataLoom/coreDatasetTableController";
 import {Buffer} from "memfs/lib/internal/buffer";
 import {Radio} from 'antd/lib';
 import Cron from 'antd-cron';
+import moment from "moment";
+import {log} from "echarts/types/src/util/log";
 
 const {Content, Sider} = Layout;
 
@@ -40,28 +42,79 @@ const MyLayout = () => {
   const [columns, setColumns] = useState([])
   const [dimension, setDimension] = useState<Record<string, any>[]>()
   const [measure, setMeasure] = useState<Record<string, any>[]>()
-  const [ApiDefinition, setApiDefinition] = useState<Record<string, any>[]>()
+  const [ApiDefinitions, setApiDefinitions] = useState<Record<string, any>[]>()
+  const [ApiDefinition, setApiDefinition] = useState<API.ApiDefinition>()
   const [DatasourceTask, setDatasourceTask] = useState<Record<string, any>>()
-  const [open, setOpen] = useState(false);
+  const [bottomDrawerOpen, setbottomDrawerOpen] = useState(false);
+  const [rightDrawerOpen, setrightDrawerOpen] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [rightDrawerCurrent, setrightDrawerCurrent] = useState(0);
   const [updateFrequency, setUpdateFrequency] = useState('RIGHTNOW');
   const [updateType, setUpdateType] = useState('all_scope');
+  const [headerItems, setHeaderItems] = useState<Record<string, any>[]>([]);
   const [form] = Form.useForm()
+  const [rightDrawerForm] = Form.useForm()
 
   useEffect(() => {
     // 在数据获取后，设置表单的初始值
     if (datasource) {
-      // form.setFieldsValue(datasource)
-      form.setFieldsValue({ name: '测试名称', description: '测试描述' })
+      console.log(datasource)
+      form.resetFields()
+      form.setFieldsValue({
+        ...datasource,
+        syncSetting: {
+          ...datasource.syncSetting,
+          startTime: datasource?.syncSetting?.startTime
+            ? moment(datasource?.syncSetting?.startTime, 'YYYY-MM-DD HH:mm:ss')
+            : null,
+          endTime: datasource?.syncSetting?.endTime
+            ? moment(datasource?.syncSetting?.endTime, 'YYYY-MM-DD HH:mm:ss')
+            : null,
+        },
+      })
+      setUpdateFrequency(datasource?.syncSetting?.syncRate);
+      console.log(form.getFieldValue("name"))
     }
   }, [datasource, form])
+
+  useEffect(() => {
+    // 在数据获取后，设置表单的初始值
+    console.log(ApiDefinition)
+    rightDrawerForm.resetFields()
+    rightDrawerForm.setFieldsValue(ApiDefinition)
+    console.log(rightDrawerForm.getFieldValue("name"))
+  }, [ApiDefinition, rightDrawerForm])
+
+  useEffect(() => {
+    if (ApiDefinition?.request?.headers) {
+      // 将数据转换为表单需要的结构
+      const headers = ApiDefinition.request.headers.map(header => ({
+        key: Object.keys(header)[0],
+        value: header[Object.keys(header)[0]]
+      }));
+      setHeaderItems(headers);
+    } else {
+      // 如果 ApiDefinition.request.headers 不存在，则设置为空数组
+      // TODO 存在问题
+      setHeaderItems([]);
+      console.log(headerItems)
+    }
+  }, [ApiDefinition]);
 
   const next = () => {
     setCurrent(current + 1);
   };
 
+  const rightDrawerNext = () => {
+    setrightDrawerCurrent(rightDrawerCurrent + 1);
+  };
+
   const prev = () => {
     setCurrent(current - 1);
+  };
+
+  const rightDrawerPrev = () => {
+    setrightDrawerCurrent(rightDrawerCurrent - 1);
   };
 
   const mysqlDatasourceConfItems: DescriptionsProps['items'] = [
@@ -131,12 +184,221 @@ const MyLayout = () => {
   const steps = [
     {
       title: '数据源配置信息',
-      content: 'First-content',
     },
     {
       title: '数据更新设置',
-      content: 'Second-content',
     },
+  ];
+
+  const RightDrawerSteps = [
+    {
+      title: '连接API',
+    },
+    {
+      title: '提取数据',
+    },
+  ];
+
+  const queryItems: TabsProps['items'] = [
+    {
+      key: '1',
+      label: '请求头',
+      children: <>
+        <Form.List name={['request', 'header']} initialValue={headerItems}>
+          {(fields, { add: addHeader, remove: removeHeader }) => (
+            <>
+              {fields.map(({ key, name, fieldKey, ...restField }) => {
+                // 根据数据生成字段名
+                const headerItem = headerItems[name];
+                return (
+                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'key']}
+                      fieldKey={[fieldKey, 'key']}
+                      // initialValue={headerItem ? headerItem.key : ''}
+                      rules={[{ required: true, message: '请输入键' }]}
+                    >
+                      <Input placeholder="键" />
+                    </Form.Item>
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'value']}
+                      fieldKey={[fieldKey, 'value']}
+                      // initialValue={headerItem ? headerItem.value : ''}
+                      rules={[{ required: true, message: '请输入值' }]}
+                    >
+                      <Input placeholder="值" />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => removeHeader(name)} />
+                  </Space>
+                );
+              })}
+              <Form.Item>
+                <Button type="dashed" onClick={() => addHeader()} block icon={<PlusOutlined />}>
+                  添加参数
+                </Button>
+              </Form.Item>
+            </>
+          )}
+        </Form.List>
+      </>,
+    },
+    {
+      key: '2',
+      label: 'QUERY参数',
+      children: <>
+        <Form.List name="queryParams">
+          {(fields, {add: addQuery, remove: removeQuery}) => (
+            <>
+              {fields.map(({key, name, ...restField}) => (
+                <Space key={key} style={{display: 'flex', marginBottom: 8}} align="baseline">
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'headersKey']}
+                  >
+                    <Input placeholder="键"/>
+                  </Form.Item>
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'headersValue']}
+                  >
+                    <Input placeholder="值"/>
+                  </Form.Item>
+                  <MinusCircleOutlined onClick={() => removeQuery(name)}/>
+                </Space>
+              ))}
+              <Form.Item>
+                <Button type="dashed" onClick={() => addQuery()} block icon={<PlusOutlined/>}>
+                  添加参数
+                </Button>
+              </Form.Item>
+            </>
+          )}
+        </Form.List>
+      </>,
+    },
+    {
+      key: '3',
+      label: '请求体',
+      children: (
+        <>
+          <Form.Item
+            name={['request', 'bodyType']}
+            label="请求体类型"
+            rules={[{required: true, message: '请选择请求体类型'}]}
+          >
+            <Radio.Group>
+              <Radio value="formData">Form Data</Radio>
+              <Radio value="urlEncoded">x-www-form-urlencoded</Radio>
+              <Radio value="raw">Raw</Radio>
+              <Radio value="xml">XML</Radio>
+              <Radio value="json">JSON</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          {/* 动态渲染表单 */}
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.request?.bodyType !== currentValues.request?.bodyType}
+          >
+            {({getFieldValue}) => {
+              const bodyType = getFieldValue(['request', 'bodyType']);
+
+              if (bodyType === 'formData') {
+                return (
+                  <Form.List name={['request', 'formDataBody']}>
+                    {(fields, {add, remove}) => (
+                      <>
+                        {fields.map(({key, name, fieldKey, ...restField}) => (
+                          <Space key={key} style={{display: 'flex', marginBottom: 8}} align="baseline">
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'formKey']}
+                              fieldKey={[fieldKey, 'formKey']}
+                              rules={[{required: true, message: '请输入键'}]}
+                            >
+                              <Input placeholder="键"/>
+                            </Form.Item>
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'formValue']}
+                              fieldKey={[fieldKey, 'formValue']}
+                              rules={[{required: true, message: '请输入值'}]}
+                            >
+                              <Input placeholder="值"/>
+                            </Form.Item>
+                            <MinusCircleOutlined onClick={() => remove(name)}/>
+                          </Space>
+                        ))}
+                        <Form.Item>
+                          <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined/>}>
+                            添加参数
+                          </Button>
+                        </Form.Item>
+                      </>
+                    )}
+                  </Form.List>
+                );
+              }
+
+              if (bodyType === 'urlEncoded') {
+                return (
+                  <Form.List name={['request', 'urlEncodedBody']}>
+                    {(fields, {add, remove}) => (
+                      <>
+                        {fields.map(({key, name, fieldKey, ...restField}) => (
+                          <Space key={key} style={{display: 'flex', marginBottom: 8}} align="baseline">
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'urlEncodedKey']}
+                              fieldKey={[fieldKey, 'urlEncodedKey']}
+                              rules={[{required: true, message: '请输入键'}]}
+                            >
+                              <Input placeholder="键"/>
+                            </Form.Item>
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'urlEncodedValue']}
+                              fieldKey={[fieldKey, 'urlEncodedValue']}
+                              rules={[{required: true, message: '请输入值'}]}
+                            >
+                              <Input placeholder="值"/>
+                            </Form.Item>
+                            <MinusCircleOutlined onClick={() => remove(name)}/>
+                          </Space>
+                        ))}
+                        <Form.Item>
+                          <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined/>}>
+                            添加参数
+                          </Button>
+                        </Form.Item>
+                      </>
+                    )}
+                  </Form.List>
+                );
+              }
+
+              if (['raw', 'xml', 'json'].includes(bodyType)) {
+                return (
+                  <Form.Item
+                    name={['request', `${bodyType}Body`]}
+                    label={`${bodyType.toUpperCase()} 请求体`}
+                  >
+                    <Input.TextArea rows={4} placeholder={`请输入 ${bodyType.toUpperCase()} 格式的请求体`}/>
+                  </Form.Item>
+                );
+              }
+
+              return null;
+            }}
+          </Form.Item>
+
+
+        </>
+      )
+    }
+    ,
   ];
 
   const handleUpdateFrequencyChange = e => {
@@ -172,12 +434,20 @@ const MyLayout = () => {
   const getDatasourceById = async (id) => {
     const res = await getDataSource({datasourceId: id})
     if (res.code === 0) {
+      if (res.data.syncSetting) {
+        if (res.data.syncSetting.startTime) {
+          res.data.syncSetting.startTime = moment(res.data.syncSetting.startTime);
+        }
+        if (res.data.syncSetting.endTime) {
+          res.data.syncSetting.endTime = moment(res.data.syncSetting.endTime);
+        }
+      }
       setDatasource(res.data)
       // @ts-ignore
       if (res.data.type === 'mysql') {
         setConfiguration(JSON.parse(res.data.configuration))
       } else if (res.data.type === 'api') {
-        setApiDefinition(JSON.parse(res.data.configuration))
+        setApiDefinitions(JSON.parse(res.data.configuration))
         await getTaskByDatasource(selectDatasource)
       }
     }
@@ -201,11 +471,19 @@ const MyLayout = () => {
   }
 
   const openEdit = () => {
-    setOpen(true)
+    setbottomDrawerOpen(true)
+  }
+
+  const rightOpenEdit = () => {
+    setrightDrawerOpen(true)
+  }
+
+  const onRightClose = () => {
+    setrightDrawerOpen(false)
   }
 
   const onClose = () => {
-    setOpen(false);
+    setbottomDrawerOpen(false);
   };
 
   const fetchSchemas = async () => {
@@ -264,7 +542,7 @@ const MyLayout = () => {
           datasource?.type === 'api' &&
           <ProCard title="数据表" headerBordered headStyle={{background: '#F5F6F7'}}>
             <Row gutter={[16, 8]}>
-              {ApiDefinition?.map((item, index) => (
+              {ApiDefinitions?.map((item, index) => (
                 <Col span={12} key={index}>
                   <Card title={
                     <div>
@@ -383,7 +661,7 @@ const MyLayout = () => {
         placement="bottom"
         // closable={false}
         onClose={onClose}
-        open={open}
+        open={bottomDrawerOpen}
         height="90%"
       >
         {datasource?.type === 'api' && (
@@ -412,28 +690,36 @@ const MyLayout = () => {
                     alignItems: "center",
                     justifyContent: "center",
                   }}>
-                    <div>
-                      <Form layout="vertical" form={form}>
-                        <Form.Item
-                          label="数据源名称"
-                          name="name"
-                          rules={[{required: true}]}
-                        >
-                          <Input style={{width: "40em"}}/> {/* 缩小输入框宽度 */}
-                        </Form.Item>
+                    <Form layout="vertical" form={form} initialValues={datasource}>
+                      <Form.Item
+                        label="数据源名称"
+                        name="name"
+                        rules={[{required: true}]}
+                      >
+                        <Input style={{width: "40em"}}></Input>
+                      </Form.Item>
 
-                        <Form.Item
-                          label="描述"
-                          name="description"
-                          rules={[{required: true, message: '请输入描述信息'}]}
-                        >
-                          <Input.TextArea style={{height: "4em"}} showCount maxLength={100}/> {/* 缩小文本框高度 */}
-                        </Form.Item>
-                      </Form>
-                    </div>
+                      <Form.Item
+                        label="描述"
+                        name="description"
+                        rules={[{required: true, message: '请输入描述信息'}]}
+                      >
+                        <Input.TextArea style={{height: "4em"}} showCount
+                                        maxLength={100}></Input.TextArea> {/* 缩小文本框高度 */}
+                      </Form.Item>
+                    </Form>
                   </div>
                 </ProCard>
-
+                <div>
+                  <Button type="primary"
+                          style={{position: 'absolute', right: '250px', width: "80px", height: "35px", zIndex: 2}}
+                          onClick={() => {
+                            setApiDefinition(undefined)
+                            rightOpenEdit()
+                          }}>
+                    添加+
+                  </Button>
+                </div>
                 <ProCard
                   title="数据表"
                   headerBordered
@@ -442,14 +728,20 @@ const MyLayout = () => {
                   }}
                 >
                   <Row gutter={[8, 8]}>  {/* 减少列间距 */}
-                    {ApiDefinition?.map((item, index) => (
+                    {ApiDefinitions?.map((item, index) => (
                       <Col span={12} key={index}>
                         <Card title={
                           <div>
                             {item.name} {item.status === 'success' ? <Tag color="success">有效</Tag> :
                             <Tag color="error">失效</Tag>}
                           </div>
-                        }>
+                        }
+                              onClick={() => {
+                                setApiDefinition(item)
+                                rightOpenEdit()
+                                console.log(item)
+                              }}
+                        >
                           <div style={{marginBottom: 6}}>  {/* 减少底部间距 */}
                             <strong style={{display: 'inline-block', width: 100}}>数据时间:</strong>
                             <span>{item.updateTime}</span>
@@ -484,15 +776,15 @@ const MyLayout = () => {
                 >
                   <div>
                     <div>
-                      <Form layout="vertical">
-                        <Form.Item label="更新方式" required={true} >
+                      <Form layout="vertical" form={form} initialValues={datasource.syncSetting}>
+                        <Form.Item label="更新方式" name="updateType" required={true}>
                           <Radio.Group onChange={e => setUpdateType(e.target.value)} value={updateType}>
                             <Radio value="all_scope">全量更新</Radio>
                             <Radio value="add_scope">增量更新</Radio>
                           </Radio.Group>
                         </Form.Item>
 
-                        <Form.Item label="更新频率" required={true}>
+                        <Form.Item label="更新频率" name="syncRate" required={true}>
                           <Radio.Group onChange={handleUpdateFrequencyChange} value={updateFrequency}>
                             <Radio value="RIGHTNOW">立即更新</Radio>
                             <Radio value="CRON">表达式设定</Radio>
@@ -503,14 +795,14 @@ const MyLayout = () => {
                         {/* 当选择 "CRON" 时显示表达式输入框 */}
                         {updateFrequency === 'CRON' && (
                           <div>
-                            <Form.Item label="CRON 表达式">
+                            <Form.Item name="cron" label="CRON 表达式">
                               {/*TODO 修改为CRON组件*/}
                               <Input></Input>
                             </Form.Item>
-                            <Form.Item label="开始时间" required={true}>
+                            <Form.Item name="startTime" label="开始时间" required={true}>
                               <DatePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
                             </Form.Item>
-                            <Form.Item label="结束时间">
+                            <Form.Item name="endTime" label="结束时间">
                               <DatePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
                             </Form.Item>
                           </div>
@@ -523,36 +815,48 @@ const MyLayout = () => {
                             <Form.Item label="更新频率" required={true}>
                               <Input.Group compact>
                                 每
-                                <InputNumber
-                                  style={{
-                                    width: '10%',
-                                    marginLeft: '8px',  // 增加左边距
-                                    marginRight: '8px'  // 增加右边距
-                                  }}
-                                  placeholder="每多少"
-                                />
-                                <Select
-                                  defaultValue="小时"
-                                  style={{
-                                    width: '10%',
-                                    marginLeft: '8px',  // 增加左边距
-                                    marginRight: '8px'  // 增加右边距
-                                  }}
+                                <Form.Item
+                                  name="simpleCronValue"
+                                  noStyle
+                                  rules={[{required: true, message: '请输入更新频率'}]}
                                 >
-                                  <Option value="second">秒</Option>
-                                  <Option value="minute">分钟</Option>
-                                  <Option value="hour">小时</Option>
-                                  <Option value="day">天</Option>
-                                  <Option value="week">周</Option>
-                                  <Option value="month">月</Option>
-                                </Select>
+                                  <InputNumber
+                                    style={{
+                                      width: '10%',
+                                      marginLeft: '8px',  // 增加左边距
+                                      marginRight: '8px'  // 增加右边距
+                                    }}
+                                    placeholder="每多少"
+                                  />
+                                </Form.Item>
+                                <Form.Item
+                                  name="simpleCronType"
+                                  noStyle
+                                  rules={[{required: true, message: '请输入更新频率'}]}
+                                >
+                                  <Select
+                                    defaultValue="小时"
+                                    style={{
+                                      width: '10%',
+                                      marginLeft: '8px',  // 增加左边距
+                                      marginRight: '8px'  // 增加右边距
+                                    }}
+                                  >
+                                    <Option value="second">秒</Option>
+                                    <Option value="minute">分钟</Option>
+                                    <Option value="hour">小时</Option>
+                                    <Option value="day">天</Option>
+                                    <Option value="week">周</Option>
+                                    <Option value="month">月</Option>
+                                  </Select>
+                                </Form.Item>
                                 更新一次
                               </Input.Group>
                             </Form.Item>
-                            <Form.Item label="开始时间" required={true}>
+                            <Form.Item name="startTime" label="开始时间" required={true}>
                               <DatePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
                             </Form.Item>
-                            <Form.Item label="结束时间">
+                            <Form.Item name="endTime" label="结束时间">
                               <DatePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
                             </Form.Item>
                           </div>
@@ -565,7 +869,6 @@ const MyLayout = () => {
                 </ProCard>
               </>
             )}
-
             <div style={{marginTop: 24}}>
               {current < steps.length - 1 && (
                 <Button type="primary" onClick={next}>
@@ -586,7 +889,98 @@ const MyLayout = () => {
           </div>
         )}
 
-
+      </Drawer>
+      <Drawer
+        title="编辑数据表"
+        placement="right"
+        // closable={false}
+        onClose={onRightClose}
+        open={rightDrawerOpen}
+        height="100%"
+        width="50%"
+      >
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",  // 确保内容从顶部开始显示
+          height: "100%",
+          overflowY: "auto"
+        }}>
+          <Steps current={rightDrawerCurrent} items={RightDrawerSteps} size="small" style={{width: "40%"}}/>
+          {current === 0 && (
+            <>
+              <ProCard
+                title="基础信息"
+                headerBordered
+                style={{
+                  width: "80%",  // 缩小宽度
+                }}
+              >
+                <Form layout="vertical" form={rightDrawerForm} initialValues={ApiDefinition}>
+                  <Form.Item
+                    label="数据表名称"
+                    name="name"
+                    rules={[{required: true, message: '请输入数据表名称'}]}
+                  >
+                    <Input style={{width: "100%"}}></Input>
+                  </Form.Item>
+                  <Form.Item
+                    label="请求"
+                    required={true}
+                  >
+                    <Input.Group compact>
+                      <Form.Item noStyle name="method">
+                        <Select style={{width: "20%"}} defaultValue="GET">
+                          <Option value="GET">GET</Option>
+                          <Option value="POST">POST</Option>
+                        </Select>
+                      </Form.Item>
+                      <Form.Item noStyle rules={[{required: true, message: '请输入请求'}]} name="url">
+                        <Input style={{width: "80%"}}></Input>
+                      </Form.Item>
+                    </Input.Group>
+                  </Form.Item>
+                  <Tabs defaultActiveKey="1" items={queryItems} onChange={onChange}/>
+                  <Form.Item
+                    label="请求超时"
+                    required={true}
+                  >
+                    <Input.Group compact>
+                      <div style={{display: 'inline-block', width: '80%'}}>
+                        <Form.Item noStyle rules={[{required: true, message: '请输入请求超时时间'}]}  name="apiQueryTimeout">
+                          <InputNumber style={{width: '100%'}}/>
+                        </Form.Item>
+                      </div>
+                      <div style={{display: 'inline-block', width: '20%'}}>
+                        <Form.Item noStyle>
+                          <Input defaultValue="秒" disabled/>
+                        </Form.Item>
+                      </div>
+                    </Input.Group>
+                  </Form.Item>
+                </Form>
+              </ProCard>
+            </>
+          )}
+          <div style={{marginTop: 24}}>
+            {rightDrawerCurrent < RightDrawerSteps.length - 1 && (
+              <Button type="primary" onClick={rightDrawerNext}>
+                下一步
+              </Button>
+            )}
+            {rightDrawerCurrent > 0 && (
+              <Button style={{margin: '0 8px'}} onClick={rightDrawerPrev}>
+                上一步
+              </Button>
+            )}
+            {rightDrawerCurrent === RightDrawerSteps.length - 1 && (
+              <Button type="primary" onClick={() => message.success('处理完成！')}>
+                保存
+              </Button>
+            )}
+          </div>
+        </div>
       </Drawer>
     </Layout>
   )
