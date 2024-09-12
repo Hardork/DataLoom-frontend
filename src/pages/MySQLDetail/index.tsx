@@ -17,14 +17,18 @@ import {ProTable} from "@ant-design/pro-components";
 import {useParams} from "react-router";
 import {getSchemas} from "@/services/DataLoom/dataSourceController";
 import ProCard from "@ant-design/pro-card";
-import {checkDatasource, getDataSource, listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
+import {
+  checkDatasource,
+  getDataSource,
+  handleApiResponse,
+  listUserDataSource
+} from "@/services/DataLoom/coreDataSourceController";
 import {json} from "express";
 import {getByDatasource} from "@/services/DataLoom/coreDatasetTableController";
 import {Buffer} from "memfs/lib/internal/buffer";
 import {Radio} from 'antd/lib';
 import Cron from 'antd-cron';
 import moment from "moment";
-import {log} from "echarts/types/src/util/log";
 
 const {Content, Sider} = Layout;
 
@@ -43,6 +47,7 @@ const MyLayout = () => {
   const [dimension, setDimension] = useState<Record<string, any>[]>()
   const [measure, setMeasure] = useState<Record<string, any>[]>()
   const [ApiDefinitions, setApiDefinitions] = useState<Record<string, any>[]>()
+  const [newApiDefinitions, setnewApiDefinitions] = useState<Record<string, any>[]>()
   const [ApiDefinition, setApiDefinition] = useState<API.ApiDefinition>()
   const [DatasourceTask, setDatasourceTask] = useState<Record<string, any>>()
   const [bottomDrawerOpen, setbottomDrawerOpen] = useState(false);
@@ -52,6 +57,8 @@ const MyLayout = () => {
   const [updateFrequency, setUpdateFrequency] = useState('RIGHTNOW');
   const [updateType, setUpdateType] = useState('all_scope');
   const [headerItems, setHeaderItems] = useState<Record<string, any>[]>([]);
+  const [argumentsItems, setArgumentsItems] = useState<Record<string, any>[]>([]);
+
   const [form] = Form.useForm()
   const [rightDrawerForm] = Form.useForm()
 
@@ -85,28 +92,60 @@ const MyLayout = () => {
     console.log(rightDrawerForm.getFieldValue("name"))
   }, [ApiDefinition, rightDrawerForm])
 
-  useEffect(() => {
-    if (ApiDefinition?.request?.headers) {
+  const handleChange = (item:API.ApiDefinition) => {
+    if (item.request) {
       // 将数据转换为表单需要的结构
-      const headers = ApiDefinition.request.headers.map(header => ({
+      const headers = item?.request?.header?.map(header => ({
         key: Object.keys(header)[0],
         value: header[Object.keys(header)[0]]
       }));
+      const Arguments = item?.request?.argument?.flatMap(argument =>
+        Object.entries(argument).map(([key, value]) => ({
+          key,
+          value
+        }))
+      )
+      setArgumentsItems(Arguments);
       setHeaderItems(headers);
-    } else {
-      // 如果 ApiDefinition.request.headers 不存在，则设置为空数组
-      // TODO 存在问题
-      setHeaderItems([]);
-      console.log(headerItems)
     }
-  }, [ApiDefinition]);
+  }
+
+  const handleApi = async (value: API.ApiDefinition) => {
+    // 处理 headers，将数组转换为对象形式
+    const headersArray = value.request?.headers || [];
+    const headersObject = headersArray.reduce((acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {});
+
+    // 处理 arguments，将数组转换为单个对象形式
+    const argumentsArray = value.request?.arguments || [];
+    const argumentsObject = argumentsArray.reduce((acc, curr) => {
+      return { ...acc, [curr.key]: curr.value };
+    }, {});
+
+    // 将处理后的对象重新赋值到 request 中
+    value.request.headers = [headersObject];
+    value.request.arguments = [argumentsObject]; // 转换为单个对象的数组
+    console.log(value)
+    const res = await handleApiResponse(value);
+    if (res.code === 0) {
+      message.success('接口校验成功')
+      return true
+    } else {
+      message.error(res.message)
+      return false
+    }
+  }
 
   const next = () => {
     setCurrent(current + 1);
   };
 
-  const rightDrawerNext = () => {
-    setrightDrawerCurrent(rightDrawerCurrent + 1);
+  const rightDrawerNext = async (value) => {
+    const flag = await handleApi(value)
+    if (flag)
+      setrightDrawerCurrent(rightDrawerCurrent + 1);
   };
 
   const prev = () => {
@@ -204,12 +243,13 @@ const MyLayout = () => {
       key: '1',
       label: '请求头',
       children: <>
-        <Form.List name={['request', 'header']} initialValue={headerItems}>
+        <Form.List name={['request', 'headers']} initialValue={headerItems}>
           {(fields, { add: addHeader, remove: removeHeader }) => (
             <>
               {fields.map(({ key, name, fieldKey, ...restField }) => {
                 // 根据数据生成字段名
                 const headerItem = headerItems[name];
+                console.log(headerItem)
                 return (
                   <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                     <Form.Item
@@ -248,28 +288,39 @@ const MyLayout = () => {
       key: '2',
       label: 'QUERY参数',
       children: <>
-        <Form.List name="queryParams">
-          {(fields, {add: addQuery, remove: removeQuery}) => (
+        <Form.List name={['request', 'arguments']} initialValue={argumentsItems}>
+          {(fields, { add: addHeader, remove: removeHeader }) => (
             <>
-              {fields.map(({key, name, ...restField}) => (
-                <Space key={key} style={{display: 'flex', marginBottom: 8}} align="baseline">
-                  <Form.Item
-                    {...restField}
-                    name={[name, 'headersKey']}
-                  >
-                    <Input placeholder="键"/>
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    name={[name, 'headersValue']}
-                  >
-                    <Input placeholder="值"/>
-                  </Form.Item>
-                  <MinusCircleOutlined onClick={() => removeQuery(name)}/>
-                </Space>
-              ))}
+              {fields.map(({ key, name, fieldKey, ...restField }) => {
+                // 根据数据生成字段名
+                const argumentsItem = argumentsItems[name];
+                console.log(argumentsItem)
+                return (
+                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'key']}
+                      fieldKey={[fieldKey, 'key']}
+                      // initialValue={headerItem ? headerItem.key : ''}
+                      rules={[{ required: true, message: '请输入键' }]}
+                    >
+                      <Input placeholder="键" />
+                    </Form.Item>
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'value']}
+                      fieldKey={[fieldKey, 'value']}
+                      // initialValue={headerItem ? headerItem.value : ''}
+                      rules={[{ required: true, message: '请输入值' }]}
+                    >
+                      <Input placeholder="值" />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => removeHeader(name)} />
+                  </Space>
+                );
+              })}
               <Form.Item>
-                <Button type="dashed" onClick={() => addQuery()} block icon={<PlusOutlined/>}>
+                <Button type="dashed" onClick={() => addHeader()} block icon={<PlusOutlined />}>
                   添加参数
                 </Button>
               </Form.Item>
@@ -286,7 +337,6 @@ const MyLayout = () => {
           <Form.Item
             name={['request', 'bodyType']}
             label="请求体类型"
-            rules={[{required: true, message: '请选择请求体类型'}]}
           >
             <Radio.Group>
               <Radio value="formData">Form Data</Radio>
@@ -307,7 +357,7 @@ const MyLayout = () => {
 
               if (bodyType === 'formData') {
                 return (
-                  <Form.List name={['request', 'formDataBody']}>
+                  <Form.List name={['request', 'body', 'formData']}>
                     {(fields, {add, remove}) => (
                       <>
                         {fields.map(({key, name, fieldKey, ...restField}) => (
@@ -344,7 +394,7 @@ const MyLayout = () => {
 
               if (bodyType === 'urlEncoded') {
                 return (
-                  <Form.List name={['request', 'urlEncodedBody']}>
+                  <Form.List name={['request', 'body', 'urlEncoded']}>
                     {(fields, {add, remove}) => (
                       <>
                         {fields.map(({key, name, fieldKey, ...restField}) => (
@@ -382,7 +432,7 @@ const MyLayout = () => {
               if (['raw', 'xml', 'json'].includes(bodyType)) {
                 return (
                   <Form.Item
-                    name={['request', `${bodyType}Body`]}
+                    name={['request', 'body', `${bodyType}Body`]}
                     label={`${bodyType.toUpperCase()} 请求体`}
                   >
                     <Input.TextArea rows={4} placeholder={`请输入 ${bodyType.toUpperCase()} 格式的请求体`}/>
@@ -715,6 +765,8 @@ const MyLayout = () => {
                           style={{position: 'absolute', right: '250px', width: "80px", height: "35px", zIndex: 2}}
                           onClick={() => {
                             setApiDefinition(undefined)
+                            setHeaderItems([])
+                            setArgumentsItems([])
                             rightOpenEdit()
                           }}>
                     添加+
@@ -738,8 +790,8 @@ const MyLayout = () => {
                         }
                               onClick={() => {
                                 setApiDefinition(item)
+                                handleChange(item)
                                 rightOpenEdit()
-                                console.log(item)
                               }}
                         >
                           <div style={{marginBottom: 6}}>  {/* 减少底部间距 */}
@@ -965,7 +1017,13 @@ const MyLayout = () => {
           )}
           <div style={{marginTop: 24}}>
             {rightDrawerCurrent < RightDrawerSteps.length - 1 && (
-              <Button type="primary" onClick={rightDrawerNext}>
+              <Button type="primary" onClick={() => {
+                rightDrawerForm.validateFields().then((values) => {
+                  rightDrawerNext(values); // 将验证后的表单数据传递给 rightDrawerNext 函数
+                }).catch((errorInfo) => {
+                  console.log('验证失败:', errorInfo); // 处理验证失败的情况
+                });
+              }}>
                 下一步
               </Button>
             )}
