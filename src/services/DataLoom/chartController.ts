@@ -38,15 +38,22 @@ export async function editChart1(body: API.ChartEditRequest, options?: { [key: s
   });
 }
 
-/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq/coreDataSet */
-export async function genChartByAiWithCoreDataSet(
-  body: API.GenChartByAiWithDataRequest,
+/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq */
+export async function genChartByAiAsyncMq(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.genChartByAiAsyncMqParams,
+  body: {},
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseChartResponse>('/admin/chart/gen/async/mq/coreDataSet', {
+  return request<API.BaseResponseBiResponse>('/admin/chart/gen/async/mq', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+    },
+    params: {
+      ...params,
+      genChartByAiRequest: undefined,
+      ...params['genChartByAiRequest'],
     },
     data: body,
     ...(options || {}),
@@ -58,10 +65,32 @@ export async function genChartByAiWithDataAsyncMq(
   body: API.GenChartByAiWithDataRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseChartResponse>('/admin/chart/gen/async/mq/data', {
+  return request<API.BaseResponseBiResponse>('/admin/chart/gen/async/mq/data', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq/v3 */
+export async function genChartByAiAsyncMqV3(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.genChartByAiAsyncMqV3Params,
+  body: {},
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBiResponse>('/admin/chart/gen/async/mq/v3', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    params: {
+      ...params,
+      genChartByAiRequest: undefined,
+      ...params['genChartByAiRequest'],
     },
     data: body,
     ...(options || {}),
@@ -73,7 +102,7 @@ export async function reGenChartByAiAsync(
   body: API.ReGenChartRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseChartResponse>('/admin/chart/gen/retry', {
+  return request<API.BaseResponseBiResponse>('/admin/chart/gen/retry', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

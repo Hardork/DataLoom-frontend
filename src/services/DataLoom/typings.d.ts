@@ -532,11 +532,11 @@ declare namespace API {
   };
 
   type CoreDatasetTableField = {
-    id?: string;
-    datasourceId?: string;
-    datasetTableId?: string;
-    datasetGroupId?: string;
-    chartId?: string;
+    id?: number;
+    datasourceId?: number;
+    datasetTableId?: number;
+    datasetGroupId?: number;
+    chartId?: number;
     originName?: string;
     name?: string;
     description?: string;
@@ -549,37 +549,37 @@ declare namespace API {
   };
 
   type CoreDatasource = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
     type?: string;
-    pid?: string;
+    pid?: number;
     editType?: string;
     configuration?: string;
     status?: string;
     taskStatus?: string;
     enableDataFill?: number;
-    userId?: string;
+    userId?: number;
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
   };
 
   type CoreDatasourceTask = {
-    id?: string;
-    datasourceId?: string;
-    datasetTableId?: string;
+    id?: number;
+    datasourceId?: number;
+    datasetTableId?: number;
     name?: string;
     updateType?: string;
     startTime?: string;
     syncRate?: string;
     cron?: string;
-    simpleCronValue?: string;
+    simpleCronValue?: number;
     simpleCronType?: string;
     endLimit?: string;
     endTime?: string;
-    createTime?: string;
-    lastExecTime?: string;
+    createTime?: number;
+    lastExecTime?: number;
     lastExecStatus?: string;
     extraData?: string;
     taskStatus?: string;
@@ -652,14 +652,6 @@ declare namespace API {
     id?: string;
   };
 
-  type deleteChartParams = {
-    dashboardId: string;
-  };
-
-  type deleteDashboardParams = {
-    dashboardId: string;
-  };
-
   type DeleteDatasourceDirNodeRequest = {
     id: string;
   };
@@ -676,13 +668,6 @@ declare namespace API {
     dataId?: string;
     id?: string;
     data?: Record<string, any>;
-  };
-
-  type EditDashboardChartRequestDTO = {
-    id: string;
-    chartName: string;
-    chartOption?: string;
-    customSql?: string;
   };
 
   type FailedChart = {
@@ -818,7 +803,7 @@ declare namespace API {
   };
 
   type listAllChartParams = {
-    dashboardId: string;
+    addDashboardRequestDTO: AddDashboardRequestDTO;
   };
 
   type ListDatasourceTreeVO = {

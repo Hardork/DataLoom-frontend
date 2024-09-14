@@ -9,9 +9,8 @@ import * as failedChartController from './failedChartController';
 import * as dataSourceTreeController from './dataSourceTreeController';
 import * as dataSourceController from './dataSourceController';
 import * as dataController from './dataController';
-import * as yibiaopanjiekou from './yibiaopanjiekou';
 import * as coreDataSourceController from './coreDataSourceController';
-import * as shujujijiekou from './shujujijiekou';
+import * as coreDatasetGroupController from './coreDatasetGroupController';
 import * as chartController from './chartController';
 import * as aiRoleController from './aiRoleController';
 import * as aiController from './aiController';
@@ -25,9 +24,8 @@ export default {
   dataSourceTreeController,
   dataSourceController,
   dataController,
-  yibiaopanjiekou,
   coreDataSourceController,
-  shujujijiekou,
+  coreDatasetGroupController,
   chartController,
   aiRoleController,
   aiController,

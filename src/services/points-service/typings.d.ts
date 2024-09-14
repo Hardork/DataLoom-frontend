@@ -25,7 +25,7 @@ declare namespace API {
 
   type BaseResponseLong = {
     code?: number;
-    data?: string;
+    data?: number;
     message?: string;
   };
 
@@ -84,19 +84,19 @@ declare namespace API {
   };
 
   type CouponTask = {
-    id?: string;
-    batchId?: string;
+    id?: number;
+    batchId?: number;
     taskName?: string;
     sendNum?: number;
     userListFilePath?: string;
     notifyType?: string;
-    couponTemplateId?: string;
+    couponTemplateId?: number;
     sendType?: number;
     sendTime?: string;
     status?: number;
     completionTime?: string;
     createTime?: string;
-    operatorId?: string;
+    operatorId?: number;
     updateTime?: string;
     isDelete?: number;
   };
@@ -109,7 +109,7 @@ declare namespace API {
     /** 通知方式 */
     notifyType: string;
     /** 优惠券模板id */
-    couponTemplateId: string;
+    couponTemplateId: number;
     /** 发送类型 */
     sendType: number;
     /** 发送时间 */
@@ -117,18 +117,18 @@ declare namespace API {
   };
 
   type CouponTaskPageQueryReqDTO = {
-    current?: string;
-    pageSize?: string;
+    current?: number;
+    pageSize?: number;
     sortField?: string;
     sortOrder?: string;
     batchId?: string;
     taskName?: string;
-    couponTemplateId?: string;
+    couponTemplateId?: number;
     status?: number;
   };
 
   type CouponTemplate = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
     type?: number;
@@ -145,14 +145,14 @@ declare namespace API {
 
   type CouponTemplateNumberReqDTO = {
     /** 优惠券模板id */
-    couponTemplateId: string;
+    couponTemplateId: number;
     /** 增加发行数量 */
     number: number;
   };
 
   type CouponTemplatePageQueryReqDTO = {
-    current?: string;
-    pageSize?: string;
+    current?: number;
+    pageSize?: number;
     sortField?: string;
     sortOrder?: string;
     name?: string;
@@ -161,7 +161,7 @@ declare namespace API {
   };
 
   type CouponTemplateQueryVO = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
     type?: number;
@@ -176,7 +176,7 @@ declare namespace API {
   };
 
   type CouponTemplateRemindCreateReqDTO = {
-    couponTemplateId?: string;
+    couponTemplateId?: number;
     contact?: string;
     type?: number;
     remindTime?: number;
@@ -194,43 +194,43 @@ declare namespace API {
   };
 
   type DeleteRequest = {
-    id?: string;
+    id?: number;
   };
 
   type findCouponTaskByIdParams = {
-    taskId: string;
+    taskId: number;
   };
 
   type findCouponTemplateParams = {
-    couponTemplateId: string;
+    couponTemplateId: number;
   };
 
   type GetByTypeRequest = {
-    id?: string;
+    id?: number;
     type?: number;
   };
 
   type getProductPointInfoByIdParams = {
-    id: string;
+    id: number;
   };
 
   type GetProductPointInfoByTypeVO = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    total?: string;
+    total?: number;
   };
 
   type getProductVipInfoByIdParams = {
-    id: string;
+    id: number;
   };
 
   type getUserOrderByIdParams = {
-    id: string;
+    id: number;
   };
 
   type IdRequest = {
-    id?: string;
+    id?: number;
   };
 
   type listProductPointInfoByPageParams = {
@@ -242,12 +242,12 @@ declare namespace API {
   };
 
   type OrderAddRequest = {
-    productId?: string;
+    productId?: number;
     productType?: number;
   };
 
   type OrderCancelRequest = {
-    id?: string;
+    id?: number;
   };
 
   type OrderItem = {
@@ -256,94 +256,94 @@ declare namespace API {
   };
 
   type OrderPayRequest = {
-    id?: string;
+    id?: number;
   };
 
   type OrderQueryRequest = {
-    current?: string;
-    pageSize?: string;
+    current?: number;
+    pageSize?: number;
     sortField?: string;
     sortOrder?: string;
     orderNo?: string;
-    productId?: string;
+    productId?: number;
     orderName?: string;
-    total?: string;
+    total?: number;
     productType?: number;
     status?: string;
     payType?: string;
-    addPoints?: string;
+    addPoints?: number;
     expirationTime?: string;
     createTime?: string;
   };
 
   type PageCouponTask = {
     records?: CouponTask[];
-    total?: string;
-    size?: string;
-    current?: string;
+    total?: number;
+    size?: number;
+    current?: number;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: string;
-    pages?: string;
+    maxLimit?: number;
+    pages?: number;
   };
 
   type PageCouponTemplate = {
     records?: CouponTemplate[];
-    total?: string;
-    size?: string;
-    current?: string;
+    total?: number;
+    size?: number;
+    current?: number;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: string;
-    pages?: string;
+    maxLimit?: number;
+    pages?: number;
   };
 
   type PageProductOrder = {
     records?: ProductOrder[];
-    total?: string;
-    size?: string;
-    current?: string;
+    total?: number;
+    size?: number;
+    current?: number;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: string;
-    pages?: string;
+    maxLimit?: number;
+    pages?: number;
   };
 
   type PageProductPoint = {
     records?: ProductPoint[];
-    total?: string;
-    size?: string;
-    current?: string;
+    total?: number;
+    size?: number;
+    current?: number;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: string;
-    pages?: string;
+    maxLimit?: number;
+    pages?: number;
   };
 
   type PageProductVip = {
     records?: ProductVip[];
-    total?: string;
-    size?: string;
-    current?: string;
+    total?: number;
+    size?: number;
+    current?: number;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: string;
-    pages?: string;
+    maxLimit?: number;
+    pages?: number;
   };
 
   type pageQueryCouponTaskParams = {
@@ -355,31 +355,31 @@ declare namespace API {
   };
 
   type ProductOrder = {
-    id?: string;
+    id?: number;
     orderNo?: string;
     codeUrl?: string;
-    userId?: string;
-    productId?: string;
+    userId?: number;
+    productId?: number;
     orderName?: string;
-    total?: string;
+    total?: number;
     productType?: number;
     status?: string;
     payType?: string;
     productInfo?: string;
-    addPoints?: string;
+    addPoints?: number;
     expirationTime?: string;
     createTime?: string;
     updateTime?: string;
   };
 
   type ProductPoint = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    userId?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    userId?: number;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     status?: number;
     expirationTime?: string;
     createTime?: string;
@@ -390,25 +390,25 @@ declare namespace API {
   type ProductPointAddRequest = {
     name?: string;
     description?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     status?: number;
     expirationTime?: string;
   };
 
   type ProductPointQueryRequest = {
-    current?: string;
-    pageSize?: string;
+    current?: number;
+    pageSize?: number;
     sortField?: string;
     sortOrder?: string;
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    userId?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    userId?: number;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     status?: number;
     expirationTime?: string;
     createTime?: string;
@@ -417,24 +417,24 @@ declare namespace API {
   };
 
   type ProductPointUpdateRequest = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     status?: number;
     expirationTime?: string;
   };
 
   type ProductVip = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    userId?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    userId?: number;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     productType?: number;
     duration?: number;
     status?: number;
@@ -447,9 +447,9 @@ declare namespace API {
   type ProductVipAddRequest = {
     name?: string;
     description?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     duration?: number;
     productType?: number;
     status?: number;
@@ -457,17 +457,17 @@ declare namespace API {
   };
 
   type ProductVipQueryRequest = {
-    current?: string;
-    pageSize?: string;
+    current?: number;
+    pageSize?: number;
     sortField?: string;
     sortOrder?: string;
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    userId?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    userId?: number;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     productType?: number;
     duration?: number;
     status?: number;
@@ -478,12 +478,12 @@ declare namespace API {
   };
 
   type ProductVipUpdateRequest = {
-    id?: string;
+    id?: number;
     name?: string;
     description?: string;
-    total?: string;
-    originalTotal?: string;
-    addPoints?: string;
+    total?: number;
+    originalTotal?: number;
+    addPoints?: number;
     duration?: number;
     productType?: number;
     status?: number;
@@ -491,10 +491,10 @@ declare namespace API {
   };
 
   type terminateCouponTemplateParams = {
-    couponTemplateId: string;
+    couponTemplateId: number;
   };
 
   type UserClaimCouponDTO = {
-    couponTemplateId: string;
+    couponTemplateId: number;
   };
 }
