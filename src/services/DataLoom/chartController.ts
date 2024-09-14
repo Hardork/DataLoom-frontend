@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** 此处后端没有提供注释 POST /admin/chart/add */
-export async function addChart1(body: API.ChartAddRequest, options?: { [key: string]: any }) {
+export async function addChart(body: API.ChartAddRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseLong>('/admin/chart/add', {
     method: 'POST',
     headers: {
@@ -15,7 +15,7 @@ export async function addChart1(body: API.ChartAddRequest, options?: { [key: str
 }
 
 /** 此处后端没有提供注释 POST /admin/chart/delete */
-export async function deleteChart(body: API.DeleteRequest, options?: { [key: string]: any }) {
+export async function deleteChart1(body: API.DeleteRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/admin/chart/delete', {
     method: 'POST',
     headers: {
@@ -27,7 +27,7 @@ export async function deleteChart(body: API.DeleteRequest, options?: { [key: str
 }
 
 /** 此处后端没有提供注释 POST /admin/chart/edit */
-export async function editChart(body: API.ChartEditRequest, options?: { [key: string]: any }) {
+export async function editChart1(body: API.ChartEditRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/admin/chart/edit', {
     method: 'POST',
     headers: {

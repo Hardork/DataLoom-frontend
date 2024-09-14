@@ -4,9 +4,18 @@ declare namespace API {
     data?: Record<string, any>;
   };
 
+  type AddDashboardChartRequestDTO = {
+    dashboardId: string;
+    chartName: string;
+    chartOption?: string;
+    customSql?: string;
+  };
+
   type AddDashboardRequestDTO = {
-    pid?: string;
-    name?: string;
+    pid: string;
+    name: string;
+    datasourceId: string;
+    snapshot?: string;
   };
 
   type AddDatasourceDirRequest = {
@@ -186,6 +195,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseDashboard = {
+    code?: number;
+    data?: Dashboard;
+    message?: string;
+  };
+
   type BaseResponseDataPage = {
     code?: number;
     data?: DataPage;
@@ -210,6 +225,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseListChartOption = {
+    code?: number;
+    data?: ChartOption[];
+    message?: string;
+  };
+
   type BaseResponseListChatHistory = {
     code?: number;
     data?: ChatHistory[];
@@ -231,6 +252,12 @@ declare namespace API {
   type BaseResponseListCoreDatasource = {
     code?: number;
     data?: CoreDatasource[];
+    message?: string;
+  };
+
+  type BaseResponseListDashboard = {
+    code?: number;
+    data?: Dashboard[];
     message?: string;
   };
 
@@ -403,6 +430,18 @@ declare namespace API {
     chartType?: string;
   };
 
+  type ChartOption = {
+    id?: string;
+    dashboardId?: string;
+    chartName?: string;
+    chartOption?: string;
+    customSql?: string;
+    status?: number;
+    createTime?: string;
+    updateTime?: string;
+    isDelete?: number;
+  };
+
   type ChartQueryRequest = {
     current?: string;
     pageSize?: string;
@@ -547,6 +586,17 @@ declare namespace API {
     jobId?: number;
   };
 
+  type Dashboard = {
+    id?: string;
+    name?: string;
+    userId?: string;
+    datasourceId?: string;
+    snapshot?: string;
+    createTime?: string;
+    updateTime?: string;
+    isDelete?: number;
+  };
+
   type DataCollaboratorsVO = {
     userVO?: UserVO;
     permission?: number;
@@ -602,6 +652,14 @@ declare namespace API {
     id?: string;
   };
 
+  type deleteChartParams = {
+    dashboardId: string;
+  };
+
+  type deleteDashboardParams = {
+    dashboardId: string;
+  };
+
   type DeleteDatasourceDirNodeRequest = {
     id: string;
   };
@@ -618,6 +676,13 @@ declare namespace API {
     dataId?: string;
     id?: string;
     data?: Record<string, any>;
+  };
+
+  type EditDashboardChartRequestDTO = {
+    id: string;
+    chartName: string;
+    chartOption?: string;
+    customSql?: string;
   };
 
   type FailedChart = {
@@ -677,6 +742,10 @@ declare namespace API {
     serviceType?: string;
     serviceData?: string[];
     serviceDate?: string[];
+  };
+
+  type getDashboardByIdParams = {
+    dashboardId: string;
   };
 
   type getDataCollaboratorsParams = {
@@ -749,7 +818,7 @@ declare namespace API {
   };
 
   type listAllChartParams = {
-    addDashboardRequestDTO: AddDashboardRequestDTO;
+    dashboardId: string;
   };
 
   type ListDatasourceTreeVO = {
@@ -896,6 +965,12 @@ declare namespace API {
 
   type ReGenChartRequest = {
     chartId?: string;
+  };
+
+  type SaveDashboardRequestDTO = {
+    id: string;
+    name?: string;
+    snapshot?: string;
   };
 
   type saveParams = {

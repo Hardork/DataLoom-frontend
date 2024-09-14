@@ -1,47 +1,148 @@
-import React, { useState, useMemo } from "react";
+import React, {useState, useMemo, useEffect, useRef} from "react";
 import GridLayout from "react-grid-layout";
 import ReactEcharts from "echarts-for-react";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import {Button, Input, Menu, Modal, Popover, Select, Tabs} from "antd";
+import {Button, Dropdown, Input, Menu, message, Modal, Popover, Select, Tabs} from "antd";
 import TabPane from "antd/es/tabs/TabPane";
-import {SearchOutlined} from "@ant-design/icons";
+import {PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import ChartOption from "@/pages/Dashboard/components/ChartOptions";
+import {
+  addDashboard,
+  addDashboardChart, deleteChart, editChart,
+  getDashboardById,
+  listAllChart,
+  listAllDashboard, saveDashboard
+} from "@/services/DataLoom/yibiaopanjiekou";
+import {ModalForm, ProFormSelect, ProFormText} from "@ant-design/pro-components";
+import {getTablesByDatasourceId, listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
 
 const ResponsiveGridLayout = GridLayout.WidthProvider(GridLayout.Responsive);
 
-// 初始布局
-const initialLayouts = {
-  lg: [
-    { i: "chart1", x: 0, y: 0, w: 3, h: 2 },
-    { i: "chart2", x: 3, y: 0, w: 3, h: 2 },
-    { i: "chart3", x: 6, y: 0, w: 3, h: 2 },
-    { i: "chart4", x: 9, y: 0, w: 3, h: 2 },
-  ],
-};
-
-// 图表组件
-const Chart = ({type}) => {
-  // init
-  const option =  ChartOption(type)
-
-  return (
-    <ReactEcharts
-      option={option}
-      style={{ width: "100%", height: "100%" }}
-    />
-  );
-};
-
 const Dashboard = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // 控制对话框
+  const [isEditVisible, setIsEditVisible] = useState(false); // 控制对话框
   const [selectedChartType, setSelectedChartType] = useState(null); // 选择的图表类型
-  const [layouts, setLayouts] = useState(() => {
-    return initialLayouts;
-  });
+  const [layouts, setLayouts] = useState(undefined);
   const [hoveredChart, setHoveredChart] = useState(null); // 跟踪当前悬停的图表
   const [selectedChart, setSelectedChart] = useState(null); // 追踪被点击的div
   const [open, setOpen] = useState(false);
+  const [dashboards, setDashboards] = useState([])
+  const [datasources, setDatasources] = useState([])
+  const [selectedDashboard, setSelectedDashboard] = useState()
+  const [handleAddModal, setHandleAddModal] = useState(false)
+  const [charts, setCharts] = useState([]);
+  const addFormIndex = [
+    {
+      name: 'datasourceId',
+      required: true,
+      label: '数据源',
+      message: '数据源不得为空',
+      type: 'select',
+      selectItem: datasources
+    },
+    {
+      name: 'name',
+      required: true,
+      label: '仪表盘名称',
+      message: '仪表盘名称不得为空',
+      type: 'text'
+    }
+  ];
+
+
+  // 根据指定配置文件生成
+  const GenChart = (option) => {
+    // init
+    return (
+      <ReactEcharts
+        option={option}
+        style={{ width: "100%", height: "100%" }}
+      />
+    );
+  };
+
+
+  const loadAllDashboard = async () => {
+    const res = await listAllDashboard()
+    if (res.code === 0) {
+      const dashboardsMap = res.data?.map(item => {
+        return {
+          ...item,
+          key: item.id,
+          label: <>
+            <img src={'/chart/仪表盘.svg'}/>
+            <span style={{
+              marginLeft: '10px'
+            }}>{item.name}</span>
+          </>
+        }
+      })
+      setDashboards(dashboardsMap)
+    }
+  }
+
+  const loadAllDatasource = async () => {
+    const res = await listUserDataSource()
+    if (res.code === 0) {
+      const datasourceMap = res.data?.map(item => {
+        return {
+          label: <>
+            {item.type === 'excel' && <>
+              <img src={'/assets/Excel.svg'}/>
+              </>
+           }
+            {item.type === 'mysql' && <>
+              <img src={'/assets/Mysql.svg'}/>
+            </>}
+            {item.type === 'api' && <>
+              <img src={'/assets/API.svg'}/>
+            </>}
+            <span style={{
+              marginLeft: '10px'
+            }}>{item.name}</span>
+          </>,
+          value: item.id,
+        }
+      })
+      setDatasources(datasourceMap)
+    }
+  }
+
+
+  const loadDashboardAndChart = async (dashboardId) => {
+    const res2 = await listAllChart({dashboardId: dashboardId})
+    const res1 = await getDashboardById({dashboardId: dashboardId})
+    if (res1.code === 0) {
+      if (res1.data?.snapshot) {
+        setLayouts(JSON.parse(res1.data?.snapshot))
+        console.log(res1.data?.snapshot)
+      }
+    }
+    if (res2.code === 0) {
+      // 将所有图表加载到charts中
+      const chartsMap = res2.data?.map(item => {
+        return { i: item.id, component: <GenChart option={JSON.parse(item.chartOption)}/> };
+      })
+      console.log(chartsMap)
+      setCharts(chartsMap)
+    }
+  }
+
+  // 加载仪表盘
+  useEffect(() => {
+    loadAllDashboard()
+    loadAllDatasource()
+  }, []);
+
+  useEffect(() => {
+    if (selectedDashboard === undefined) {
+      return;
+    }
+    loadDashboardAndChart(selectedDashboard)
+    // 加载对应仪表盘配置（snap、charts）
+  }, [selectedDashboard]);
+
 
   const hide = () => {
     setOpen(false);
@@ -51,90 +152,98 @@ const Dashboard = () => {
     setOpen(newOpen);
   };
 
-  const [charts, setCharts] = useState(() => {
-    // 页面加载时从 后端 加载图表数据
-    return  [
-      { i: "chart1", component: <Chart type="0" /> },
-      { i: "chart2", component: <Chart type="1" /> },
-      { i: "chart3", component: <Chart type="2" /> },
-    ];
-  });
-
-  // 显示对话框
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  // 关闭对话框
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  // 选择图表类型
-  const handleSelectChart = (value) => {
-    setSelectedChartType(value);
-  };
 
   const onLayoutChange = (layout, allLayouts) => {
     setLayouts(allLayouts);
   };
 
-  // 动态添加图表
-  const addChart = () => {
-    const newChartId = `chart${charts.length + 1}`;
-    const newChart = { i: newChartId, component: <Chart id={newChartId} /> };
 
-    // 获取当前最大 y 坐标，确保新图表放在新行
-    // const maxY = layouts.lg.reduce((max, layout) => Math.max(max, layout.y + layout.h), 0);
-
-    // 假设 newChartW 是新图表的宽度，cols 是列数（如 lg: 12 列）
-    const newChartW = 3; // 新图表宽度为 4 列
-
-// 获取当前最大 y 坐标，以及布局的最大列数
-    const maxY = layouts.lg.reduce((max, layout) => Math.max(max, layout.y + layout.h), 0);
-
-// 查找插入空隙
-    let newChartX = null;
-    let newChartY = null;
-
-// 遍历所有 y 坐标，查找每一行的空余空间
-    for (let rowY = 0; rowY <= maxY; rowY++) {
-      // 计算每一行已占用的列数
-      const occupiedInRow = layouts.lg
-        .filter(layout => layout.y === rowY)
-        .reduce((sum, layout) => sum + layout.w, 0);
-
-      // 如果当前行有足够的空隙插入新图表
-      if (occupiedInRow + newChartW <= 12) {
-        newChartX = occupiedInRow;
-        newChartY = rowY;
-        break;
-      }
+// 保存布局到 localStorage
+  const saveLayout = async () => {
+    const res = await saveDashboard({id: selectedDashboard, snapshot: JSON.stringify(layouts)})
+    if (res.code === 0) {
+      // message.success('保存成功')
+    } else {
+      message.error('保存失败' + res.message)
     }
+  };
+
+
+  // 动态添加图表
+  const addChart = async () => {
+    // TODO: 将图表的配置存入后端
+    const res = await addDashboardChart({dashboardId: selectedDashboard, chartName: selectedChartType, chartOption: JSON.stringify(chartOption)})
+    if (res.code === 0) {
+      // res.data 图表的唯一标识
+      const newChartId = res.data;
+      const newChart = { i: newChartId, component: <GenChart option={chartOption}/> };
+
+      // 假设 newChartW 是新图表的宽度，cols 是列数（如 lg: 12 列）
+      const newChartW = 3; // 新图表宽度为 4 列
+
+      // 查找插入空隙
+      let newChartX = null;
+      let newChartY = null;
+      let maxY = null;
+
+      // 获取当前最大 y 坐标，以及布局的最大列数
+      if (layouts === undefined) {
+        newChartX = 0;
+        newChartY = 0;
+      } else {
+        maxY = layouts.lg.reduce((max, layout) => Math.max(max, layout.y + layout.h), 0);
+        // 遍历所有 y 坐标，查找每一行的空余空间
+        for (let rowY = 0; rowY <= maxY; rowY++) {
+          // 计算每一行已占用的列数
+          const occupiedInRow = layouts.lg
+            .filter(layout => layout.y === rowY)
+            .reduce((sum, layout) => sum + layout.w, 0);
+
+          // 如果当前行有足够的空隙插入新图表
+          if (occupiedInRow + newChartW <= 12) {
+            newChartX = occupiedInRow;
+            newChartY = rowY;
+            break;
+          }
+        }
+      }
+
 
 // 如果没有找到合适的空隙，则将新图表插入到下一行
-    if (newChartX === null) {
-      newChartX = 0; // 新行从第 0 列开始
-      newChartY = maxY + 1; // 插入到最大 y 坐标的下一行
+      if (newChartX === null) {
+        newChartX = 0; // 新行从第 0 列开始
+        newChartY = maxY === null ? 0: maxY + 1; // 插入到最大 y 坐标的下一行
+      }
+
+      if (layouts === undefined) {
+        setCharts([newChart]);
+        setLayouts({
+          lg: [{ i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }]
+        });
+      } else {
+        setCharts((prevCharts) => [...prevCharts, newChart]);
+        // 添加完成后自动保存
+        setLayouts((prevLayouts) => ({
+          ...prevLayouts,
+          lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }],
+        }));
+      }
     }
-
-    setCharts((prevCharts) => [...prevCharts, newChart]);
-    setLayouts((prevLayouts) => ({
-      ...prevLayouts,
-      lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }],
-    }));
   };
 
-  // 保存布局到 localStorage
-  const saveLayout = () => {
-    console.log(JSON.stringify(layouts))
-    // console.log(JSON.stringify(charts))
-    alert("仪表盘布局已保存！");
-  };
+  // 监听layouts变化，实时保存
+  useEffect(() => {
+    if (layouts) {
+      saveLayout();
+    }
+  }, [layouts]);
+
+
+
 
   const renderCharts = useMemo(() => charts, [charts]);
 
-
+  // 图表选择框
   const EchartsSelectCard = () => {
     const chartTypes = [
       { name: "柱状图", imgSrc: "/chart/柱状图.png", type: "bar" },
@@ -206,43 +315,142 @@ const Dashboard = () => {
 
   // 用户选择图表类型时，弹出Modal并生成初始配置
   const [chartOption, setChartOption] = useState(null); // 初始option配置
+
+  // 点击图表选择框触发
   const handleChartSelect = (type) => {
     setSelectedChartType(type);
-    setChartOption(generateInitialOption(type));
+    setChartOption(ChartOption(type));
     setIsModalVisible(true);
-  };
-
-  // 生成初始的option配置
-  const generateInitialOption = (type) => {
-    switch (type) {
-      case "bar":
-        return {
-          xAxis: { type: "category", data: ["A", "B", "C"] },
-          yAxis: { type: "value" },
-          series: [{ type: "bar", data: [10, 20, 30] }],
-        };
-      case "line":
-        return {
-          xAxis: { type: "category", data: ["A", "B", "C"] },
-          yAxis: { type: "value" },
-          series: [{ type: "line", data: [15, 25, 35] }],
-        };
-      case "pie":
-        return {
-          series: [{ type: "pie", data: [{ value: 30, name: "A" }, { value: 40, name: "B" }, { value: 50, name: "C" }] }],
-        };
-      default:
-        return {};
-    }
   };
 
   // 处理用户修改配置，动态更新图表option
   const handleOptionChange = (newOption) => {
+    // 展示新的
     setChartOption((prevOption) => ({
       ...prevOption,
       ...newOption, // 更新用户自定义的配置
     }));
   };
+
+  const handleDatasourceChange = async (datasource) => {
+    // 更新数据表
+    const param = {
+      datasourceId: datasource.datasourceId
+    }
+    const res = await getTablesByDatasourceId(param)
+    if (res.code === 0) {
+      // TODO: 更新表
+    }
+  };
+
+  const handleTableChange = (table) => {
+    // 更新字段
+  }
+
+  const handleFieleChange = (field) => {
+
+  }
+
+
+
+  const chartRef = useRef(null); // 初始值为 null，稍后将指向图表实例
+  const editChartRef = useRef(null); // 初始值为 null，稍后将指向图表实例
+
+  useEffect(() => {
+    if (isModalVisible) {
+      // 检查 chartRef.current 是否已经赋值为图表实例
+      const chartInstance = chartRef.current?.getEchartsInstance();
+      if (chartInstance) {
+        setTimeout(() => chartInstance.resize(), 0); // 延迟调用 resize
+      }
+    }
+  }, [isModalVisible]);
+
+  useEffect(() => {
+    if (isEditVisible) {
+      // 检查 chartRef.current 是否已经赋值为图表实例
+      const chartInstance = editChartRef.current?.getEchartsInstance();
+      if (chartInstance) {
+        setTimeout(() => chartInstance.resize(), 0); // 延迟调用 resize
+      }
+    }
+  }, [isEditVisible]);
+
+
+
+  const[readToEditChart, setReadToEditChart] = useState(null)
+
+  const handleEditChartItemByKey = ({key}) => {
+    console.log(key)
+    if (key === undefined) return;
+    if (key === 'edit') {
+      // todo: 编辑
+      setIsEditVisible(true)
+    }
+    if (key === 'delete') {
+      // todo: 删除
+    }
+    if (key === 'rename') {
+      // todo: 重命名
+
+    }
+
+  }
+
+  const warning = async (chart) => {
+    Modal.confirm({
+      title: '删除数据集',
+      content: '删除数据集后，系统不提供数据恢复的功能，确认删除吗？',
+      onOk: async () => {
+        const res = await deleteChart()
+        if (res.code === 0) {
+          message.success('删除成功')
+        } else {
+          message.error('删除失败')
+        }
+      }
+    });
+  };
+
+  const editChartItems = (chart) => [
+    {
+      label: <a onClick={() => {
+        setReadToEditChart(chart)
+        handleEditChartItemByKey({key: 'edit'})
+      }}>
+        编辑
+      </a>,
+      key: 'edit',
+    },
+    {
+      label: <a onClick={() => {
+        // renameEchart()
+      }}>
+        重命名
+      </a>,
+      key: 'rename',
+    },
+    {
+      label: <a onClick={() => {
+
+      }}>
+    编辑
+  </a>,
+      key: 'delete',
+    }
+  ]
+
+
+  const updateChartById = async (chart) => {
+    const res = await editChart({id: chart.i, chartOption: JSON.stringify(chart.props.option)})
+    if (res.code === 0) {
+      message.success('更新成功')
+    } else {
+      message.error('更新失败')
+    }
+  }
+
+
 
   return (
     <div style={{ display: "flex", width: "100%" , margin: '-32px -40px'}}>
@@ -253,23 +461,31 @@ const Dashboard = () => {
         flexDirection: "column",
         borderRight: "1px solid #eee", // 添加右侧边框来分隔左右区域
         height: "100vh", // 左侧高度占满整个页面
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        backgroundColor: "#fff"
       }}>
         <div style={{padding: '16px'}}>
-          <h4 style={{paddingBottom: '10px'}}>仪表盘</h4>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between"
+          }}>
+            <h4 style={{paddingBottom: '10px'}}>仪表盘</h4>
+            <a onClick={() => {
+              setHandleAddModal(true)
+            }}><PlusOutlined/></a>
+          </div>
           <Input placeholder={'搜索'} addonBefore={<SearchOutlined/>}></Input>
+
         </div>
 
         <div style={{overflow: 'auto', padding: '16px'}}>
           <Menu
             style={{width: '100%'}}
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
             onClick={(record) => {
-              // setSelectDatasource(record.key)
+              setSelectedDashboard(record.key)
             }}
             mode="inline"
-            // items={datasources}
+            items={dashboards}
           />
         </div>
       </div>
@@ -344,74 +560,252 @@ const Dashboard = () => {
                     <div>
                       {(hoveredChart === chart.i || selectedChart === chart.i) && (  // 只有当当前图表被悬停时，显示按钮
                         <>
-                          <Button size={"small"} style={{marginRight: "4px"}}>
-                            💡 智能分析
-                          </Button>
-                          <Button size={"small"}>
-                            <img src={"/系统配置.svg"} alt="系统配置"/>
-                          </Button>
+                          <div>
+                            <Button size={"small"} style={{marginRight: "4px"}}>
+                              💡 智能分析
+                            </Button>
+
+                            <Dropdown menu={{ items: editChartItems(chart)}}>
+                              <Button size={"small"} onClick={(event) => {
+                                event.preventDefault()
+                              }}>
+                                {/*TODO: 编辑、删除、重命名图表*/}
+                                <img src={"/系统配置.svg"} alt="系统配置"/>
+                              </Button>
+                            </Dropdown>
+                          </div>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
-                {chart.component}
+                <div style={{
+                  height: "100%",
+                  width: "100%"
+                }}>
+                  {chart.component.props.option ? (
+                    <div style={{ height: "100%", width: "100%" }}>
+                      <ReactEcharts option={chart.component.props.option}></ReactEcharts>
+                    </div>
+                  ) : (
+                    <div>{JSON.stringify(chart)}</div>  // 如果没有 component 显示其他内容
+                  )}
+                </div>
               </div>
             ))}
           </ResponsiveGridLayout>
 
 
-          {/* 弹出 Modal */}
+          {/* 弹出 新增图表 Modal */}
           <Modal
             visible={isModalVisible}
             title="自定义图表"
             width="80%"
             onCancel={() => setIsModalVisible(false)} // 关闭Modal
             footer={[
-              <Button key="submit" type="primary" onClick={() => setIsModalVisible(false)}>
+              <Button key="submit" type="primary" onClick={() => {
+                // 添加图表
+                addChart()
+                setIsModalVisible(false)
+              }}>
                 确定
               </Button>,
             ]}
           >
-            <div style={{display: "flex", width: "100%", height: "500px"}}>
-              {/* 左侧80%区域显示图表 */}
-              <div style={{flex: "80%", borderRight: "1px solid #f0f0f0", paddingRight: "20px"}}>
-                <div style={{
-                  height: "100%",
-                  width: "100%"
-                }}>
-                  <ReactEcharts option={chartOption} style={{height: "100%", width: "100%"}}/>
+            {
+              chartOption !== null && <>
+                <div style={{display: "flex", width: "100%", height: "500px"}}>
+                  {/* 左侧80%区域显示图表 */}
+                  <div style={{flex: "80%", borderRight: "1px solid #f0f0f0", paddingRight: "20px"}}>
+                    <div style={{
+                      height: "500px",
+                      width: "100%"
+                    }}>
+                      <ReactEcharts ref={chartRef} option={chartOption} style={{height: "100%", width: "100%"}}/>
+                    </div>
+                  </div>
+
+                  {/* 右侧20%区域显示选项卡 + 选择框 */}
+                  <div style={{flex: "20%", paddingLeft: "20px"}}>
+                    <Tabs defaultActiveKey="1">
+                      <TabPane tab="类型与数据" key="1">
+                        <div style={{marginBottom: "6px"}}>数据源</div>
+                        <Select
+                          defaultValue="category"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                        >
+                          {/* TODO: 动态显示数据源 */}
+                        </Select>
+
+                        <div style={{marginBottom: "6px"}}>数据表</div>
+                        <Select
+                          defaultValue="category"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                        >
+                          {/* TODO: 动态显示数据表 */}
+                        </Select>
+
+                        <div style={{marginBottom: "6px"}}>选择横轴字段</div>
+                        <Select
+                          defaultValue="category"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                        >
+                          {/* 展示横轴字段 */}
+                        </Select>
+
+                        <div style={{marginTop: "6px"}}>选择纵轴数据</div>
+                        <Select
+                          defaultValue="value"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({yAxis: {type: value}})}
+                        >
+                          <Option value="value">数值轴</Option>
+                          <Option value="log">对数轴</Option>
+                        </Select>
+                      </TabPane>
+                    </Tabs>
+                  </div>
                 </div>
-              </div>
-
-              {/* 右侧20%区域显示选项卡 + 选择框 */}
-              <div style={{flex: "20%", paddingLeft: "20px"}}>
-                <Tabs defaultActiveKey="1">
-                  <TabPane tab="轴配置" key="1">
-                    <div style={{marginBottom: "16px"}}>选择X轴类型</div>
-                    <Select
-                      defaultValue="category"
-                      style={{width: "100%"}}
-                      onChange={(value) => handleOptionChange({xAxis: {type: value}})}
-                    >
-                      <Option value="category">类目轴</Option>
-                      <Option value="value">数值轴</Option>
-                    </Select>
-
-                    <div style={{marginTop: "16px"}}>选择Y轴类型</div>
-                    <Select
-                      defaultValue="value"
-                      style={{width: "100%"}}
-                      onChange={(value) => handleOptionChange({yAxis: {type: value}})}
-                    >
-                      <Option value="value">数值轴</Option>
-                      <Option value="log">对数轴</Option>
-                    </Select>
-                  </TabPane>
-                </Tabs>
-              </div>
-            </div>
+              </>
+            }
           </Modal>
+
+          {/* 弹出 编辑图表Modal */}
+          <Modal
+            visible={isEditVisible}
+            title="编辑图表"
+            width="80%"
+            onCancel={() => setIsEditVisible(false)} // 关闭Modal
+            footer={[
+              <Button key="submit" type="primary" onClick={() => {
+                // todo: 更新图表
+                updateChartById(readToEditChart)
+                setIsEditVisible(false)
+              }}>
+                确定
+              </Button>,
+            ]}
+          >
+            {
+              readToEditChart !== null && <>
+                <div style={{display: "flex", width: "100%", height: "500px"}}>
+                  {/* 左侧80%区域显示图表 */}
+                  <div style={{flex: "80%", borderRight: "1px solid #f0f0f0", paddingRight: "20px"}}>
+                    <div style={{
+                      height: "500px",
+                      width: "100%"
+                    }}>
+                      <ReactEcharts ref={editChartRef} option={readToEditChart?.component.props.option} style={{height: "100%", width: "100%"}}/>
+                    </div>
+                  </div>
+
+                  {/* 右侧20%区域显示选项卡 + 选择框 */}
+                  <div style={{flex: "20%", paddingLeft: "20px"}}>
+                    <Tabs defaultActiveKey="1">
+                      <TabPane tab="类型与数据" key="1">
+                        <div style={{marginBottom: "6px"}}>数据源</div>
+                        <Select
+                          defaultValue="category"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                        >
+                          {/* TODO: 动态显示数据源 */}
+                        </Select>
+
+                        <div style={{marginBottom: "6px"}}>数据表</div>
+                        <Select
+                          defaultValue="category"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                        >
+                          {/* TODO: 动态显示数据表 */}
+                        </Select>
+
+                        <div style={{marginBottom: "6px"}}>选择横轴字段</div>
+                        <Select
+                          defaultValue="category"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                        >
+                          {/* 展示横轴字段 */}
+                        </Select>
+
+                        <div style={{marginTop: "6px"}}>选择纵轴数据</div>
+                        <Select
+                          defaultValue="value"
+                          style={{width: "100%", marginBottom: "16px"}}
+                          onChange={(value) => handleOptionChange({yAxis: {type: value}})}
+                        >
+                          <Option value="value">数值轴</Option>
+                          <Option value="log">对数轴</Option>
+                        </Select>
+                      </TabPane>
+                    </Tabs>
+                  </div>
+                </div>
+              </>
+            }
+          </Modal>
+
+
+          <ModalForm
+            title={'添加仪表盘'}
+            width="600px"
+            modalProps={{
+              destroyOnClose: true,
+            }}
+            open={handleAddModal}
+            onOpenChange={setHandleAddModal}
+            onFinish={async (value) => {
+              const res = await addDashboard({...value, pid: 0});
+              if (res.code === 0) {
+                message.success('新建成功');
+                setHandleAddModal(false);
+                loadAllDashboard()
+              } else {
+                message.error(res.message);
+              }
+            }}
+          >
+            {addFormIndex.map((item, index) => (
+              <div key={index}>
+                {item.type === 'text' && (
+                  <>
+                    <ProFormText
+                      rules={[
+                        {
+                          required: item.required,
+                          message: item.message,
+                        },
+                      ]}
+                      width="md"
+                      name={item.name}
+                      label={item.label}
+                    />
+                  </>
+                )}
+                {item.type === 'select' && (
+                  <>
+                    <ProFormSelect
+                      rules={[
+                        {
+                          required: item.required,
+                          message: item.message,
+                        },
+                      ]}
+                      request={async () => item.selectItem ?? []}
+                      width="md"
+                      name={item.name}
+                      label={item.label}
+                    />
+                  </>
+                )}
+              </div>
+            ))}
+          </ModalForm>
         </div>
 
       </div>

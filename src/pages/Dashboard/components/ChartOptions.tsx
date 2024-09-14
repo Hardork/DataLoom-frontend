@@ -4,7 +4,7 @@ const ChartOption = (type) => {
   const getOption = () => {
     switch (type) {
       // 柱状图
-      case 1:
+      case 'bar':
         return {
           tooltip: {},
           xAxis: {
@@ -22,9 +22,8 @@ const ChartOption = (type) => {
             },
           ],
         };
-
       // 折线图
-      case 2:
+      case 'line':
         return {
           tooltip: {
             trigger: 'axis',
@@ -47,7 +46,7 @@ const ChartOption = (type) => {
         };
 
       // 饼图
-      case 3:
+      case 'pie':
         return {
           tooltip: {
             trigger: 'item',
@@ -73,7 +72,7 @@ const ChartOption = (type) => {
         };
 
       // 散点图
-      case 4:
+      case 'scatter':
         return {
           xAxis: {},
           yAxis: {},

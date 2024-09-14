@@ -15,12 +15,6 @@ import OmsViewMarkdown from "@/components/OmsViewMarkdown";
  * @constructor
  */
 const ChartDetail: React.FC = () => {
-  const initSearchParams = {
-    current: 1,
-    pageSize: 4,
-    sortField: 'createTime',
-    sortOrder: 'desc',
-  };
 
   const [chart, setChart] = useState<API.Chart>();
   const [loading, setLoading] = useState<boolean>(true);
