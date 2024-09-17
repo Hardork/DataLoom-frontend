@@ -6,18 +6,18 @@ declare namespace API {
   };
 
   type Category = {
-    id?: number;
+    id?: string;
     name?: string;
   };
 
   type deleteOrderParams = {
     /** ID of the order that needs to be deleted */
-    orderId: number;
+    orderId: string;
   };
 
   type deletePetParams = {
     /** Pet id to delete */
-    petId: number;
+    petId: string;
   };
 
   type deleteUserParams = {
@@ -37,12 +37,12 @@ declare namespace API {
 
   type getOrderByIdParams = {
     /** ID of pet that needs to be fetched */
-    orderId: number;
+    orderId: string;
   };
 
   type getPetByIdParams = {
     /** ID of pet to return */
-    petId: number;
+    petId: string;
   };
 
   type getUserByNameParams = {
@@ -58,8 +58,8 @@ declare namespace API {
   };
 
   type Order = {
-    id?: number;
-    petId?: number;
+    id?: string;
+    petId?: string;
     quantity?: number;
     shipDate?: string;
     /** Order Status */
@@ -68,7 +68,7 @@ declare namespace API {
   };
 
   type Pet = {
-    id?: number;
+    id?: string;
     category?: Category;
     name: string;
     photoUrls: string[];
@@ -78,13 +78,13 @@ declare namespace API {
   };
 
   type Tag = {
-    id?: number;
+    id?: string;
     name?: string;
   };
 
   type updatePetWithFormParams = {
     /** ID of pet that needs to be updated */
-    petId: number;
+    petId: string;
   };
 
   type updateUserParams = {
@@ -94,11 +94,11 @@ declare namespace API {
 
   type uploadFileParams = {
     /** ID of pet to update */
-    petId: number;
+    petId: string;
   };
 
   type User = {
-    id?: number;
+    id?: string;
     username?: string;
     firstName?: string;
     lastName?: string;

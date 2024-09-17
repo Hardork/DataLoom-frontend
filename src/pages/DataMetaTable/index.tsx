@@ -43,6 +43,7 @@ import {
   saveDataSourceMetaInfo
 } from "@/services/DataLoom/dataSourceController";
 import { AES_Encrypt } from '../../utils/AES'
+import {addDatasource} from "@/services/DataLoom/coreDataSourceController";
 
 
 
@@ -88,7 +89,7 @@ export default () => {
   const text = <span style={{padding: '10px'}}>数据协作者</span>;
 
   const getShareLink = async (id : string | undefined, permission : number)=> {
-      setLoading(true)
+    setLoading(true)
     try {
       const res = await shareUserData({ id, permission });
       if (res.code === 0) {
@@ -198,25 +199,25 @@ export default () => {
                     dataLength={dataCollaborators.length}
                     next={getDataCollaborators}
                     hasMore={dataCollaborators.length < 50}
-                  loader={<></>}
-                  endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
-                  scrollableTarget="scrollableDiv"
-                >
-                  <List
-                    dataSource={dataCollaborators}
-                    renderItem={(item:API.DataCollaboratorsVO) => (
-                      <List.Item key={item.userVO?.id}>
-                        <List.Item.Meta
-                          avatar={<Avatar src={item.userVO?.userAvatar}/>}
-                          title={<a href="https://ant.design">{item.permission === 0 ? '可阅读' : '可编辑'}</a>}
-                          description={item.userVO?.userName}
-                        />
-                      </List.Item>
-                    )}
-                  />
-                </InfiniteScroll>
-              </Card>
-            </>
+                    loader={<></>}
+                    endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
+                    scrollableTarget="scrollableDiv"
+                  >
+                    <List
+                      dataSource={dataCollaborators}
+                      renderItem={(item:API.DataCollaboratorsVO) => (
+                        <List.Item key={item.userVO?.id}>
+                          <List.Item.Meta
+                            avatar={<Avatar src={item.userVO?.userAvatar}/>}
+                            title={<a href="https://ant.design">{item.permission === 0 ? '可阅读' : '可编辑'}</a>}
+                            description={item.userVO?.userName}
+                          />
+                        </List.Item>
+                      )}
+                    />
+                  </InfiniteScroll>
+                </Card>
+              </>
           }
         </div>
         <Divider></Divider>
@@ -351,22 +352,22 @@ export default () => {
       <Tooltip title="日期" key="date">
         <CalendarOutlined/>
       </Tooltip>
-      , // 日期时间类型对应日历图标
+    , // 日期时间类型对应日历图标
     'LONG':
       <Tooltip title="整数" key="number">
         <NumberOutlined/>
       </Tooltip>
-      ,       // 长整型对应数字图标
+    ,       // 长整型对应数字图标
     'TEXT':
       <Tooltip title="文本" key="text">
         <FileTextOutlined/>
       </Tooltip>
-      ,     // 文本类型对应文本文件图标
+    ,     // 文本类型对应文本文件图标
     'DOUBLE':
       <Tooltip title="浮点数" key="text">
         <DashboardOutlined/>
       </Tooltip>
-      , // 双精度浮点型对应仪表盘图标
+    , // 双精度浮点型对应仪表盘图标
     // ... 其他类型与图标的映射
   };
 
@@ -536,10 +537,21 @@ export default () => {
             message.error('文件未上传');
             return;
           }
-          const uploadFileParams = {
-            ...values,
+          const formData = new FormData();
+          formData.append("file", file);
+          const param = {
+            pid: 0,
+            name: values.name,
+            type: 'excel',
+            configuration: '',
+            file: file
           }
-          const res = await uploadFileToMongo(uploadFileParams, {}, file);
+          //json部分
+          const datasourceDTO = JSON.stringify(param);
+          formData.append('datasourceDTO', new Blob([datasourceDTO], {type: "application/json"}));
+          // file
+          console.log(formData)
+          const res = await addDatasource(formData);
           if (res.code === 0) {
             setChange(!change)
             setFileVisible(false);
@@ -580,9 +592,9 @@ export default () => {
           }}
         >
           <ProFormText
-            name="dataName"
+            name="name"
             width="md"
-            label="数据集名称"
+            label="数据源名称"
             placeholder="请输入名称"
             rules={[{ required: true }]}
           />

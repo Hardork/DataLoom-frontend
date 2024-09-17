@@ -3,19 +3,24 @@ import GridLayout from "react-grid-layout";
 import ReactEcharts from "echarts-for-react";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import {Button, Dropdown, Input, Menu, message, Modal, Popover, Select, Tabs} from "antd";
+import {Alert, Button, Dropdown, Input, Menu, message, Modal, Popover, Select, Spin, Tabs} from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import {PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import ChartOption from "@/pages/Dashboard/components/ChartOptions";
 import {
   addDashboard,
-  addDashboardChart, deleteChart, editChart,
+  addDashboardChart, deleteChart, editChart, getChartData, getChartDataById,
   getDashboardById,
   listAllChart,
   listAllDashboard, saveDashboard
 } from "@/services/DataLoom/yibiaopanjiekou";
 import {ModalForm, ProFormSelect, ProFormText} from "@ant-design/pro-components";
-import {getTablesByDatasourceId, listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
+import {
+  getDataSource,
+  getTableFieldsByDatasourceIdAndTableName,
+  getTablesByDatasourceId,
+  listUserDataSource
+} from "@/services/DataLoom/coreDataSourceController";
 
 const ResponsiveGridLayout = GridLayout.WidthProvider(GridLayout.Responsive);
 
@@ -75,8 +80,7 @@ const Dashboard = () => {
             <span style={{
               marginLeft: '10px'
             }}>{item.name}</span>
-          </>
-        }
+          </>}
       })
       setDashboards(dashboardsMap)
     }
@@ -110,20 +114,30 @@ const Dashboard = () => {
   }
 
 
-  const loadDashboardAndChart = async (dashboardId) => {
-    const res2 = await listAllChart({dashboardId: dashboardId})
-    const res1 = await getDashboardById({dashboardId: dashboardId})
-    if (res1.code === 0) {
-      if (res1.data?.snapshot) {
-        setLayouts(JSON.parse(res1.data?.snapshot))
-        console.log(res1.data?.snapshot)
-      }
-    }
+  // 加载仪表盘所有图表
+  const loadDashboardAndChart = async (selectedDashboard) => {
+    const res2 = await listAllChart({dashboardId: selectedDashboard})
+    const res1 = await getDashboardById({dashboardId: selectedDashboard})
     if (res2.code === 0) {
       // 将所有图表加载到charts中
-      const chartsMap = res2.data?.map(item => {
-        return { i: item.id, component: <GenChart option={JSON.parse(item.chartOption)}/> };
+      const chartsMapPromises = res2.data?.map(async (item) => {
+        const chartDataRes = await getChartDataById({chartId: item.id});  // 直接使用 await 等待返回
+        if (chartDataRes.code === 0 && chartDataRes.data) {
+          return {
+            i: item.id,
+            type: item.chartName,
+            component: <GenChart option={ChartOption(item.chartName, chartDataRes.data)}/>,
+            dataOption: JSON.parse(item.dataOption)
+          };
+        }
+        return undefined;  // 如果数据不满足条件，返回 undefined
       })
+      const chartsMap = (await Promise.all(chartsMapPromises)).filter(item => item !== undefined);
+      if (res1.code === 0) {
+        if (res1.data?.snapshot) {
+          setLayouts(JSON.parse(res1.data?.snapshot))
+        }
+      }
       console.log(chartsMap)
       setCharts(chartsMap)
     }
@@ -172,7 +186,7 @@ const Dashboard = () => {
   // 动态添加图表
   const addChart = async () => {
     // TODO: 将图表的配置存入后端
-    const res = await addDashboardChart({dashboardId: selectedDashboard, chartName: selectedChartType, chartOption: JSON.stringify(chartOption)})
+    const res = await addDashboardChart({dashboardId: selectedDashboard, chartName: selectedChartType, chartOption: JSON.stringify(chartOption), dataOption: JSON.stringify(dataOption)})
     if (res.code === 0) {
       // res.data 图表的唯一标识
       const newChartId = res.data;
@@ -239,9 +253,138 @@ const Dashboard = () => {
   }, [layouts]);
 
 
-
-
   const renderCharts = useMemo(() => charts, [charts]);
+
+  const [tables, setTables] = useState<API.CoreDatasetTable[]>([])
+  const [fields, setFields] = useState<API.CoreDatasetTableField[]>([])
+  const [addChartDefaultDatasource, setAddChartDefaultDatasource] = useState<API.CoreDatasource>()
+  const [addChartDefaultTable, setAddChartDefaultTable] = useState<API.CoreDatasetTable>()
+  const [addChartDefaultField, setAddChartDefaultField] = useState<API.CoreDatasetTableField>()
+
+  const getTableFieldAndSetDefaultByTableId = async ({datasourceId, tableName}) => {
+    const parma: API.GetTableFieldsDTO = {datasourceId: datasourceId, tableName: tableName}
+    const res = await getTableFieldsByDatasourceIdAndTableName(parma)
+    if (res.code === 0 && res.data) {
+      setFields(res.data)
+      // 找出第一个字段
+      if (res.data.length > 0) {
+        setAddChartDefaultField(res.data[0].originName)
+        return res.data[0]
+      }
+    }
+    return null;
+  }
+
+  const setEditDataOption = async (chart) => {
+    if (chart === undefined) return;
+    console.log(chart)
+    console.log(chart.type)
+    setSelectedChartType(chart.type)
+    console.log(chart.dataOption)
+    const datasourceId = chart.dataOption.datasourceId
+    setAddChartDefaultDatasource(datasourceId)
+    setAddChartDefaultTable(chart.dataOption.dataTableName)
+    setAddChartDefaultField(chart.dataOption.group[0].fieldName)
+    const datasourceTables = await getTablesByDatasourceId({datasourceId: datasourceId || ''});
+    if (datasourceTables.code === 0 && datasourceTables.data) {
+      setTables(datasourceTables.data)
+      // 获取第一个表所有的字段
+      if (datasourceTables.data.length > 0) {
+        setAddChartDefaultTable(datasourceTables.data[0].tableName)
+        const parma: API.GetTableFieldsDTO = {datasourceId: datasourceId, tableName: datasourceTables.data[0].tableName}
+        const res = await getTableFieldsByDatasourceIdAndTableName(parma)
+        if (res.code === 0 && res.data) {
+          setFields(res.data)
+        }
+      }
+    }
+    setChartOption(chart.component.props.option)
+  }
+
+  // 设置默认配置
+  const setDefaultDataOption = async (type) => {
+    // 获取默认数据源的信息
+    if (selectedDashboard === undefined) return;
+    const dashboardInfo = dashboards.filter(item => item.id === selectedDashboard).pop()
+    const res = await getDataSource({datasourceId: dashboardInfo.datasourceId})
+    // 获取当前数据源所有的表
+    let tableInfo;
+    let fieldInfo;
+    if (res.code === 0 && res.data) {
+      setAddChartDefaultDatasource(res.data.id)
+      const datasourceTables = await getTablesByDatasourceId({datasourceId: res.data.id || ''});
+      if (datasourceTables.code === 0 && datasourceTables.data) {
+        setTables(datasourceTables.data)
+        // 获取第一个表所有的字段
+        if (datasourceTables.data.length > 0) {
+          tableInfo = datasourceTables.data[0]
+          setAddChartDefaultTable(datasourceTables.data[0].tableName)
+          fieldInfo = await getTableFieldAndSetDefaultByTableId({datasourceId: res.data.id, tableName: datasourceTables.data[0].tableName})
+        }
+      }
+    }
+    // 获取数据源配置
+    if (tableInfo !== undefined && fieldInfo !== undefined) {
+      const dataOption= {
+        dashboardId: selectedDashboard?.id,
+        datasourceId: dashboardInfo?.datasourceId,
+        dataTableName: tableInfo?.tableName,
+        seriesArrayType: 0,
+        // 数值列字段
+        seriesArray: [
+          { fieldName: fieldInfo?.originName, rollup: "COUNT" }
+        ],
+        // 分组字段
+        group: [
+          { fieldName: fieldInfo?.originName, mode: "integrated" }
+        ],
+        source: { type: "ALL", filterInfo: null },
+        includeRecordIds: false,
+        includeArchiveTable: false
+      };
+      // 请求数据
+      setDataOption(dataOption)
+    }
+
+  }
+
+  // 用户选择图表类型时，弹出Modal并生成初始配置
+  const [addChartDataLoading, setAddChartDataLoading] = useState(false)
+  const [dataOption, setDataOption] = useState()
+  const [chartOption, setChartOption] = useState(null); // 初始option配置
+
+  useEffect(() => {
+    // 请求数据
+    if (dataOption === undefined) return;
+    getChartData({dataOption: JSON.stringify(dataOption)})
+      .then(res => {
+        console.log(selectedChartType)
+        console.log(ChartOption(selectedChartType, res.data))
+        setChartOption(ChartOption(selectedChartType, res.data))
+    }).finally(() => {
+      setAddChartDataLoading(false)
+    })
+
+  }, [dataOption]);
+
+
+
+  // 点击图表选择框触发
+  const handleChartSelect = (type) => {
+    setDefaultDataOption(type)
+    setSelectedChartType(type);
+    setAddChartDataLoading(true)
+    setIsModalVisible(true);
+    // 请求数据
+    loadAllDatasource()
+  };
+
+  useEffect(() => {
+    if (addChartDefaultDatasource === undefined || addChartDefaultTable === undefined || addChartDefaultField === undefined) return;
+    // 构造请求数据
+    // seriesArrayType === 0代表是统计记录总数
+
+  }, [addChartDefaultDatasource, addChartDefaultField, addChartDefaultTable]);
 
   // 图表选择框
   const EchartsSelectCard = () => {
@@ -300,6 +443,9 @@ const Dashboard = () => {
           {chartTypes.map((chart, index) => (
             <div key={index} style={cardStyle} onClick={() =>  {
               hide()
+              // todo: 加载数据源
+              // loadAllDatasource()
+              // todo: 选择当前仪表盘默认的数据源
               handleChartSelect(chart.type)
             }}>
               {/* 图表图片 */}
@@ -313,45 +459,117 @@ const Dashboard = () => {
     );
   }
 
-  // 用户选择图表类型时，弹出Modal并生成初始配置
-  const [chartOption, setChartOption] = useState(null); // 初始option配置
 
-  // 点击图表选择框触发
-  const handleChartSelect = (type) => {
-    setSelectedChartType(type);
-    setChartOption(ChartOption(type));
-    setIsModalVisible(true);
+  // 处理数据源变化
+  const handleDatasourceChange = async (newDatasource) => {
+    setAddChartDataLoading(true)
+    setAddChartDefaultDatasource(newDatasource)
+    if (newDatasource === undefined) return;
+
+    // 获取当前数据源所有的表
+    let tableInfo;
+    let fieldInfo;
+    const datasourceTables = await getTablesByDatasourceId({datasourceId: newDatasource || ''});
+    if (datasourceTables.code === 0 && datasourceTables.data) {
+      setTables(datasourceTables.data)
+      // 获取第一个表所有的字段
+      if (datasourceTables.data.length > 0) {
+        tableInfo = datasourceTables.data[0]
+        setAddChartDefaultTable(datasourceTables.data[0].tableName)
+        fieldInfo = await getTableFieldAndSetDefaultByTableId({datasourceId: newDatasource, tableName: datasourceTables.data[0].tableName})
+      }
+    }
+    // 获取数据源配置
+    if (tableInfo !== undefined && fieldInfo !== undefined) {
+      const dataOption= {
+        dashboardId: selectedDashboard?.id,
+        datasourceId: newDatasource,
+        dataTableName: tableInfo?.tableName,
+        seriesArrayType: 0,
+        // 数值列字段
+        seriesArray: [
+          { fieldName: fieldInfo?.originName, rollup: "COUNT" }
+        ],
+        // 分组字段
+        group: [
+          { fieldName: fieldInfo?.originName, mode: "integrated" }
+        ],
+        source: { type: "ALL", filterInfo: null },
+        includeRecordIds: false,
+        includeArchiveTable: false
+      };
+      // 请求数据
+      setDataOption(dataOption)
+    }
+  }
+
+  // 处理表变化
+  const handleTableChange = async (newTable) => {
+    // 展示新的
+    if (newTable === undefined) return;
+    setAddChartDataLoading(true)
+    setAddChartDefaultTable(newTable)
+    // 获取第一个表所有的字段
+    const fieldInfo = await getTableFieldAndSetDefaultByTableId({datasourceId: addChartDefaultDatasource, tableName: newTable})
+    // 获取数据源配置
+    if (fieldInfo !== undefined) {
+      const dataOption= {
+        dashboardId: selectedDashboard?.id,
+        datasourceId: addChartDefaultDatasource,
+        dataTableName: newTable,
+        seriesArrayType: 0,
+        // 数值列字段
+        seriesArray: [
+          { fieldName: fieldInfo?.originName, rollup: "COUNT" }
+        ],
+        // 分组字段
+        group: [
+          { fieldName: fieldInfo?.originName, mode: "integrated" }
+        ],
+        source: { type: "ALL", filterInfo: null },
+        includeRecordIds: false,
+        includeArchiveTable: false
+      };
+      // 请求数据
+      setDataOption(dataOption)
+    }
   };
 
+  // 处理字段变化
+  const handleFieldChange = async (newField) => {
+    if (newField === undefined) return;
+    setAddChartDataLoading(true)
+    setAddChartDefaultField(newField)
+    const dataOption= {
+      dashboardId: selectedDashboard?.id,
+      datasourceId: addChartDefaultDatasource,
+      dataTableName: addChartDefaultTable,
+      seriesArrayType: 0,
+      // 数值列字段
+      seriesArray: [
+        { fieldName: newField, rollup: "COUNT" }
+      ],
+      // 分组字段
+      group: [
+        { fieldName: newField, mode: "integrated" }
+      ],
+      source: { type: "ALL", filterInfo: null },
+      includeRecordIds: false,
+      includeArchiveTable: false
+    };
+    // 请求数据
+    setDataOption(dataOption)
+  }
+
+
   // 处理用户修改配置，动态更新图表option
-  const handleOptionChange = (newOption) => {
+  const handleOptionChange = async (newOption) => {
     // 展示新的
     setChartOption((prevOption) => ({
       ...prevOption,
       ...newOption, // 更新用户自定义的配置
     }));
   };
-
-  const handleDatasourceChange = async (datasource) => {
-    // 更新数据表
-    const param = {
-      datasourceId: datasource.datasourceId
-    }
-    const res = await getTablesByDatasourceId(param)
-    if (res.code === 0) {
-      // TODO: 更新表
-    }
-  };
-
-  const handleTableChange = (table) => {
-    // 更新字段
-  }
-
-  const handleFieleChange = (field) => {
-
-  }
-
-
 
   const chartRef = useRef(null); // 初始值为 null，稍后将指向图表实例
   const editChartRef = useRef(null); // 初始值为 null，稍后将指向图表实例
@@ -380,34 +598,28 @@ const Dashboard = () => {
 
   const[readToEditChart, setReadToEditChart] = useState(null)
 
-  const handleEditChartItemByKey = ({key}) => {
-    console.log(key)
-    if (key === undefined) return;
-    if (key === 'edit') {
+  const handleEditChartItemByKey = (chart) => {
+    if (chart === undefined) return;
       // todo: 编辑
+      loadAllDatasource()
+      setEditDataOption(chart)
       setIsEditVisible(true)
-    }
-    if (key === 'delete') {
-      // todo: 删除
-    }
-    if (key === 'rename') {
-      // todo: 重命名
-
-    }
-
   }
 
   const warning = async (chart) => {
     Modal.confirm({
-      title: '删除数据集',
-      content: '删除数据集后，系统不提供数据恢复的功能，确认删除吗？',
+      title: '删除图表',
+      content: '删除图表后，系统不提供数据恢复的功能！',
       onOk: async () => {
-        const res = await deleteChart()
+        const res = await deleteChart({dashboardId: chart.i})
         if (res.code === 0) {
           message.success('删除成功')
+          // 重新加载
+          loadDashboardAndChart(selectedDashboard)
         } else {
           message.error('删除失败')
         }
+
       }
     });
   };
@@ -416,7 +628,7 @@ const Dashboard = () => {
     {
       label: <a onClick={() => {
         setReadToEditChart(chart)
-        handleEditChartItemByKey({key: 'edit'})
+        handleEditChartItemByKey(chart)
       }}>
         编辑
       </a>,
@@ -432,9 +644,9 @@ const Dashboard = () => {
     },
     {
       label: <a onClick={() => {
-
+        warning(chart)
       }}>
-    编辑
+    删除
   </a>,
       key: 'delete',
     }
@@ -449,7 +661,6 @@ const Dashboard = () => {
       message.error('更新失败')
     }
   }
-
 
 
   return (
@@ -525,7 +736,8 @@ const Dashboard = () => {
             onLayoutStop={onLayoutChange}
             margin={[10, 10]}
           >
-            {renderCharts.map((chart) => (
+
+            {renderCharts.length > 0 && renderCharts.map((chart) => (
               <div key={chart.i} style={{
                 backgroundColor: '#ffffff',
                 borderRadius: '12px',
@@ -588,7 +800,13 @@ const Dashboard = () => {
                       <ReactEcharts option={chart.component.props.option}></ReactEcharts>
                     </div>
                   ) : (
-                    <div>{JSON.stringify(chart)}</div>  // 如果没有 component 显示其他内容
+                    <Spin tip="Loading...">
+                      <Alert
+                        message="Alert message title"
+                        description="Further details about the context of this alert."
+                        type="info"
+                      />
+                    </Spin>  // 如果没有 component 显示其他内容
                   )}
                 </div>
               </div>
@@ -621,7 +839,19 @@ const Dashboard = () => {
                       height: "500px",
                       width: "100%"
                     }}>
-                      <ReactEcharts ref={chartRef} option={chartOption} style={{height: "100%", width: "100%"}}/>
+                      {
+                        addChartDataLoading ? <>
+                          <Spin tip="Loading...">
+                            <Alert
+                              message="Alert message title"
+                              description="Further details about the context of this alert."
+                              type="info"
+                            />
+                          </Spin>
+                        </> : <>
+                          <ReactEcharts ref={chartRef} option={chartOption} style={{height: "100%", width: "100%"}}/>
+                        </>
+                      }
                     </div>
                   </div>
 
@@ -629,41 +859,68 @@ const Dashboard = () => {
                   <div style={{flex: "20%", paddingLeft: "20px"}}>
                     <Tabs defaultActiveKey="1">
                       <TabPane tab="类型与数据" key="1">
-                        <div style={{marginBottom: "6px"}}>数据源</div>
-                        <Select
-                          defaultValue="category"
-                          style={{width: "100%", marginBottom: "16px"}}
-                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
-                        >
-                          {/* TODO: 动态显示数据源 */}
-                        </Select>
+                        {
+                          addChartDefaultDatasource && <>
+                            <div style={{marginBottom: "6px"}}>数据源</div>
+                            <Select
+                              defaultValue={addChartDefaultDatasource}
+                              style={{width: "100%", marginBottom: "16px"}}
+                              onChange={(value) => {
+                                handleDatasourceChange(value)
+                              }}
+                            >
+                              {/* TODO: 动态显示数据源 */}
+                              {datasources && datasources.map(item => {
+                                return <Option value={item.value}>{item.label}</Option>
+                              })}
+                            </Select>
+                          </>
+                        }
 
-                        <div style={{marginBottom: "6px"}}>数据表</div>
-                        <Select
-                          defaultValue="category"
-                          style={{width: "100%", marginBottom: "16px"}}
-                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
-                        >
-                          {/* TODO: 动态显示数据表 */}
-                        </Select>
+                        {
+                          addChartDefaultTable && <>
+                            <div style={{marginBottom: "6px"}}>数据表</div>
+                            <Select
+                              value={addChartDefaultTable}
+                              style={{width: "100%", marginBottom: "16px"}}
+                              onChange={(value) => handleTableChange(value)}
+                            >
+                              {/* TODO: 动态显示数据表 */}
+                              {
+                              tables && tables.map(item => {
+                                  return <Option value={item.tableName}>{item.tableName}</Option>
+                                })
+                              }
+                            </Select>
+                          </>
+                        }
 
-                        <div style={{marginBottom: "6px"}}>选择横轴字段</div>
-                        <Select
-                          defaultValue="category"
-                          style={{width: "100%", marginBottom: "16px"}}
-                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
-                        >
-                          {/* 展示横轴字段 */}
-                        </Select>
+                        {
+                          addChartDefaultField && <>
+                            <div style={{marginBottom: "6px"}}>横轴</div>
+                            <Select
+                              value={addChartDefaultField}
+                              style={{width: "100%", marginBottom: "16px"}}
+                              onChange={(value) => handleFieldChange(value)}
+                            >
+                              {
+                                fields && fields.map(item => {
+                                  return <Option value={item.originName}>{item.originName}</Option>
+                                })
+                              }
+                              {/* 展示横轴字段 */}
+                            </Select>
+                          </>
+                        }
 
-                        <div style={{marginTop: "6px"}}>选择纵轴数据</div>
+                        <div style={{marginTop: "6px"}}>纵轴</div>
                         <Select
-                          defaultValue="value"
+                          value="value"
                           style={{width: "100%", marginBottom: "16px"}}
                           onChange={(value) => handleOptionChange({yAxis: {type: value}})}
                         >
-                          <Option value="value">数值轴</Option>
-                          <Option value="log">对数轴</Option>
+                          <Option value="value">统计记录总数</Option>
+                          <Option value="log">统计字段数值</Option>
                         </Select>
                       </TabPane>
                     </Tabs>
@@ -690,7 +947,7 @@ const Dashboard = () => {
             ]}
           >
             {
-              readToEditChart !== null && <>
+              chartOption !== null && <>
                 <div style={{display: "flex", width: "100%", height: "500px"}}>
                   {/* 左侧80%区域显示图表 */}
                   <div style={{flex: "80%", borderRight: "1px solid #f0f0f0", paddingRight: "20px"}}>
@@ -698,7 +955,19 @@ const Dashboard = () => {
                       height: "500px",
                       width: "100%"
                     }}>
-                      <ReactEcharts ref={editChartRef} option={readToEditChart?.component.props.option} style={{height: "100%", width: "100%"}}/>
+                      {
+                        addChartDataLoading ? <>
+                          <Spin tip="Loading...">
+                            <Alert
+                              message="Alert message title"
+                              description="Further details about the context of this alert."
+                              type="info"
+                            />
+                          </Spin>
+                        </> : <>
+                          <ReactEcharts ref={editChartRef} option={chartOption} style={{height: "100%", width: "100%"}}/>
+                        </>
+                      }
                     </div>
                   </div>
 
@@ -708,39 +977,52 @@ const Dashboard = () => {
                       <TabPane tab="类型与数据" key="1">
                         <div style={{marginBottom: "6px"}}>数据源</div>
                         <Select
-                          defaultValue="category"
+                          value={addChartDefaultDatasource}
                           style={{width: "100%", marginBottom: "16px"}}
-                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                          onChange={(value) => handleDatasourceChange(value)}
                         >
                           {/* TODO: 动态显示数据源 */}
+                          {datasources && datasources.map(item => {
+                            return <Option value={item.value}>{item.label}</Option>
+                          })}
                         </Select>
 
                         <div style={{marginBottom: "6px"}}>数据表</div>
                         <Select
-                          defaultValue="category"
+                          value={addChartDefaultTable}
                           style={{width: "100%", marginBottom: "16px"}}
-                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                          onChange={(value) => handleTableChange(value)}
                         >
                           {/* TODO: 动态显示数据表 */}
+                          {
+                            tables && tables.map(item => {
+                              return <Option value={item.tableName}>{item.tableName}</Option>
+                            })
+                          }
                         </Select>
 
-                        <div style={{marginBottom: "6px"}}>选择横轴字段</div>
+                        <div style={{marginBottom: "6px"}}>横轴字段</div>
                         <Select
-                          defaultValue="category"
+                          value={addChartDefaultField}
                           style={{width: "100%", marginBottom: "16px"}}
-                          onChange={(value) => handleOptionChange({xAxis: {type: value}})}
+                          onChange={(value) => handleFieldChange(value)}
                         >
                           {/* 展示横轴字段 */}
+                          {
+                            fields && fields.map(item => {
+                              return <Option value={item.originName}>{item.originName}</Option>
+                            })
+                          }
                         </Select>
 
-                        <div style={{marginTop: "6px"}}>选择纵轴数据</div>
+                        <div style={{marginTop: "6px"}}>纵轴数据</div>
                         <Select
                           defaultValue="value"
                           style={{width: "100%", marginBottom: "16px"}}
                           onChange={(value) => handleOptionChange({yAxis: {type: value}})}
                         >
-                          <Option value="value">数值轴</Option>
-                          <Option value="log">对数轴</Option>
+                          <Option value="value">统计记录总数</Option>
+                          <Option value="log">统计字段数值</Option>
                         </Select>
                       </TabPane>
                     </Tabs>

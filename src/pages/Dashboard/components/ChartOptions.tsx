@@ -1,5 +1,5 @@
 
-const ChartOption = (type) => {
+const ChartOption = (type : any, responseData: any) => {
   // 获取存储在后端的配置文件
   const getOption = () => {
     switch (type) {
@@ -9,18 +9,19 @@ const ChartOption = (type) => {
           tooltip: {},
           xAxis: {
             type: 'category',
-            data: ['A', 'B', 'C', 'D', 'E'],
+            data: responseData.xarrayData.values.filter(Boolean),
+          },
+          legend: {
+            data: responseData.xarrayData.values.filter(Boolean)
           },
           yAxis: {
             type: 'value',
           },
-          series: [
-            {
-              name: '销量',
-              type: 'bar',
-              data: [5, 20, 36, 10, 10],
-            },
-          ],
+          series: responseData.seriesDataList.map((seriesItem: { title: any; data: any; }) => ({
+            name: seriesItem.title,
+            type: 'bar', // 假设这里是柱状图，如果是其他类型可以根据实际情况修改
+            data: seriesItem.data
+          })),
         };
       // 折线图
       case 'line':
@@ -31,18 +32,19 @@ const ChartOption = (type) => {
           xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            data: responseData.xarrayData.values.filter(Boolean),
+          },
+          legend: {
+            data: responseData.xarrayData.values.filter(Boolean)
           },
           yAxis: {
             type: 'value',
           },
-          series: [
-            {
-              name: '销量',
-              type: 'line',
-              data: [150, 230, 224, 218, 135, 147, 260],
-            },
-          ],
+          series: responseData.seriesDataList.map((seriesItem: { title: any; data: any; }) => ({
+            name: seriesItem.title,
+            type: 'line', // 假设这里是柱状图，如果是其他类型可以根据实际情况修改
+            data: seriesItem.data
+          })),
         };
 
       // 饼图

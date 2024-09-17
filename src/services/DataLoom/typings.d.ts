@@ -8,6 +8,7 @@ declare namespace API {
     dashboardId: string;
     chartName: string;
     chartOption?: string;
+    dataOption?: string;
     customSql?: string;
   };
 
@@ -210,6 +211,12 @@ declare namespace API {
   type BaseResponseDatasourceDTO = {
     code?: number;
     data?: DatasourceDTO;
+    message?: string;
+  };
+
+  type BaseResponseGetChartDataVO = {
+    code?: number;
+    data?: GetChartDataVO;
     message?: string;
   };
 
@@ -435,6 +442,7 @@ declare namespace API {
     dashboardId?: string;
     chartName?: string;
     chartOption?: string;
+    dataOption?: string;
     customSql?: string;
     status?: number;
     createTime?: string;
@@ -532,11 +540,11 @@ declare namespace API {
   };
 
   type CoreDatasetTableField = {
-    id?: number;
-    datasourceId?: number;
-    datasetTableId?: number;
-    datasetGroupId?: number;
-    chartId?: number;
+    id?: string;
+    datasourceId?: string;
+    datasetTableId?: string;
+    datasetGroupId?: string;
+    chartId?: string;
     originName?: string;
     name?: string;
     description?: string;
@@ -549,37 +557,37 @@ declare namespace API {
   };
 
   type CoreDatasource = {
-    id?: number;
+    id?: string;
     name?: string;
     description?: string;
     type?: string;
-    pid?: number;
+    pid?: string;
     editType?: string;
     configuration?: string;
     status?: string;
     taskStatus?: string;
     enableDataFill?: number;
-    userId?: number;
+    userId?: string;
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
   };
 
   type CoreDatasourceTask = {
-    id?: number;
-    datasourceId?: number;
-    datasetTableId?: number;
+    id?: string;
+    datasourceId?: string;
+    datasetTableId?: string;
     name?: string;
     updateType?: string;
     startTime?: string;
     syncRate?: string;
     cron?: string;
-    simpleCronValue?: number;
+    simpleCronValue?: string;
     simpleCronType?: string;
     endLimit?: string;
     endTime?: string;
-    createTime?: number;
-    lastExecTime?: number;
+    createTime?: string;
+    lastExecTime?: string;
     lastExecStatus?: string;
     extraData?: string;
     taskStatus?: string;
@@ -652,6 +660,14 @@ declare namespace API {
     id?: string;
   };
 
+  type deleteChartParams = {
+    dashboardId: string;
+  };
+
+  type deleteDashboardParams = {
+    dashboardId: string;
+  };
+
   type DeleteDatasourceDirNodeRequest = {
     id: string;
   };
@@ -668,6 +684,14 @@ declare namespace API {
     dataId?: string;
     id?: string;
     data?: Record<string, any>;
+  };
+
+  type EditDashboardChartRequestDTO = {
+    id: string;
+    chartName: string;
+    chartOption?: string;
+    dataOption?: string;
+    customSql?: string;
   };
 
   type FailedChart = {
@@ -719,6 +743,19 @@ declare namespace API {
     id: string;
   };
 
+  type getChartDataByIdParams = {
+    chartId: string;
+  };
+
+  type GetChartDataRequestDTO = {
+    dataOption: string;
+  };
+
+  type GetChartDataVO = {
+    seriesDataList?: SeriesData[];
+    xarrayData?: XArrayData;
+  };
+
   type GetChatRequest = {
     chatId?: string;
   };
@@ -753,10 +790,6 @@ declare namespace API {
 
   type getSchemasParams = {
     id: string;
-  };
-
-  type getTableFieldsByDatasourceIdAndTableNameParams = {
-    getTableFieldsDTO: GetTableFieldsDTO;
   };
 
   type GetTableFieldsDTO = {
@@ -803,7 +836,7 @@ declare namespace API {
   };
 
   type listAllChartParams = {
-    addDashboardRequestDTO: AddDashboardRequestDTO;
+    dashboardId: string;
   };
 
   type ListDatasourceTreeVO = {
@@ -967,6 +1000,11 @@ declare namespace API {
     columnName?: string;
     comment?: string;
     type?: string;
+  };
+
+  type SeriesData = {
+    title?: string;
+    data?: number[];
   };
 
   type ShareUserDataRequest = {
@@ -1213,5 +1251,10 @@ declare namespace API {
     userProfile?: string;
     userRole?: string;
     createTime?: string;
+  };
+
+  type XArrayData = {
+    title?: string;
+    values?: string[];
   };
 }

@@ -77,6 +77,36 @@ export async function editChart(
   });
 }
 
+/** 根据配置获取图表数据 POST /admin/dashboard/getChartData */
+export async function getChartData(
+  body: API.GetChartDataRequestDTO,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseGetChartDataVO>('/admin/dashboard/getChartData', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 根据id获取图表数据 GET /admin/dashboard/getChartDataById */
+export async function getChartDataById(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getChartDataByIdParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseGetChartDataVO>('/admin/dashboard/getChartDataById', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 根据id查询仪表盘 GET /admin/dashboard/getDashboardById */
 export async function getDashboardById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
