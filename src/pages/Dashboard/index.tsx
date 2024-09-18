@@ -174,13 +174,23 @@ const Dashboard = () => {
 
 // 保存布局到 localStorage
   const saveLayout = async () => {
+    console.log(layouts)
     const res = await saveDashboard({id: selectedDashboard, snapshot: JSON.stringify(layouts)})
     if (res.code === 0) {
-      // message.success('保存成功')
+      message.success('保存成功')
     } else {
       message.error('保存失败' + res.message)
     }
   };
+
+  const saveLayoutAfterAddChart = async (curLayout) => {
+    const res = await saveDashboard({id: selectedDashboard, snapshot: JSON.stringify(curLayout)})
+    if (res.code === 0) {
+      message.success('保存成功')
+    } else {
+      message.error('保存失败' + res.message)
+    }
+  }
 
 
   // 动态添加图表
@@ -237,10 +247,16 @@ const Dashboard = () => {
       } else {
         setCharts((prevCharts) => [...prevCharts, newChart]);
         // 添加完成后自动保存
-        setLayouts((prevLayouts) => ({
-          ...prevLayouts,
-          lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }],
-        }));
+        setLayouts((prevLayouts) => {
+          saveLayoutAfterAddChart({
+            ...prevLayouts,
+            lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }]
+          })
+          return {
+            ...prevLayouts,
+            lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }],
+          }
+        });
       }
     }
   };
@@ -248,7 +264,7 @@ const Dashboard = () => {
   // 监听layouts变化，实时保存
   useEffect(() => {
     if (layouts) {
-      saveLayout();
+      // saveLayout();
     }
   }, [layouts]);
 
@@ -733,7 +749,8 @@ const Dashboard = () => {
             breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480}}
             cols={{lg: 12, md: 10, sm: 6, xs: 4}}
             rowHeight={150}
-            onLayoutStop={onLayoutChange}
+            onLayoutChange={onLayoutChange}
+            // onLayoutStop={onLayoutChange}
             margin={[10, 10]}
           >
 
