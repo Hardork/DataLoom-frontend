@@ -134,12 +134,12 @@ export default defineConfig({
       projectName: 'DataLoom',
       mock: false,
     },
-    {
-      requestLibPath: "import { request } from '@umijs/max'",
-      schemaPath: "http://localhost:8082/api/v3/api-docs",
-      projectName: 'points-service',
-      mock: false,
-    },
+    // {
+    //   requestLibPath: "import { request } from '@umijs/max'",
+    //   schemaPath: "http://localhost:8082/api/v3/api-docs",
+    //   projectName: 'points-service',
+    //   mock: false,
+    // },
     {
       requestLibPath: "import { request } from '@umijs/max'",
       schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',

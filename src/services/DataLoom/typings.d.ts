@@ -1,11 +1,11 @@
 declare namespace API {
   type AddChardDataRecordRequest = {
-    dataId?: number;
+    dataId?: string;
     data?: Record<string, any>;
   };
 
   type AddDashboardChartRequestDTO = {
-    dashboardId: number;
+    dashboardId: string;
     chartName: string;
     chartOption?: string;
     dataOption?: string;
@@ -13,36 +13,36 @@ declare namespace API {
   };
 
   type AddDashboardRequestDTO = {
-    pid: number;
+    pid: string;
     name: string;
-    datasourceId: number;
+    datasourceId: string;
     snapshot?: string;
   };
 
   type AddDatasourceDirRequest = {
     name: string;
     type: string;
-    pid: number;
+    pid: string;
     wight?: number;
   };
 
   type AddUserAskSqlHistoryRequest = {
-    dataId?: number;
+    dataId?: string;
   };
 
   type AddUserChatHistory = {
-    modelId?: number;
+    modelId?: string;
   };
 
   type AiChatRequest = {
     text?: string;
-    assistantId?: number;
+    assistantId?: string;
   };
 
   type AiRole = {
-    id?: number;
+    id?: string;
     assistantName?: string;
-    userId?: number;
+    userId?: string;
     type?: string;
     historyTalk?: number;
     functionDes?: string;
@@ -71,11 +71,11 @@ declare namespace API {
   };
 
   type AiRoleQueryRequest = {
-    current?: number;
-    pageSize?: number;
+    current?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
-    id?: number;
+    id?: string;
     assistantName?: string;
     type?: string;
     historyTalk?: number;
@@ -90,7 +90,7 @@ declare namespace API {
   };
 
   type AiRoleUpdateRequest = {
-    id?: number;
+    id?: string;
     assistantName?: string;
     type?: string;
     historyTalk?: number;
@@ -136,7 +136,7 @@ declare namespace API {
     reName?: boolean;
     orgName?: string;
     showApiStructure?: boolean;
-    updateTime?: number;
+    updateTime?: string;
     type?: string;
   };
 
@@ -318,7 +318,7 @@ declare namespace API {
 
   type BaseResponseLong = {
     code?: number;
-    data?: number;
+    data?: string;
     message?: string;
   };
 
@@ -401,17 +401,17 @@ declare namespace API {
   };
 
   type Chart = {
-    id?: number;
+    id?: string;
     goal?: string;
     name?: string;
     chartData?: string;
-    userDataId?: number;
+    userDataId?: string;
     chartType?: string;
     genChart?: string;
     genResult?: string;
     status?: string;
     execMessage?: string;
-    userId?: number;
+    userId?: string;
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
@@ -431,15 +431,15 @@ declare namespace API {
 
   type ChartEditRequest = {
     name?: string;
-    id?: number;
+    id?: string;
     goal?: string;
     chartData?: string;
     chartType?: string;
   };
 
   type ChartOption = {
-    id?: number;
-    dashboardId?: number;
+    id?: string;
+    dashboardId?: string;
     chartName?: string;
     chartOption?: string;
     dataOption?: string;
@@ -451,25 +451,25 @@ declare namespace API {
   };
 
   type ChartQueryRequest = {
-    current?: number;
-    pageSize?: number;
+    current?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
-    id?: number;
+    id?: string;
     name?: string;
     goal?: string;
     chartType?: string;
-    userId?: number;
+    userId?: string;
   };
 
   type ChartResponse = {
     genChart?: string;
     genResult?: string;
-    chartId?: number;
+    chartId?: string;
   };
 
   type ChartUpdateRequest = {
-    id?: number;
+    id?: string;
     name?: string;
     goal?: string;
     chartData?: string;
@@ -482,15 +482,15 @@ declare namespace API {
   };
 
   type ChatForSQLRequest = {
-    chatId?: number;
+    chatId?: string;
     question?: string;
   };
 
   type ChatHistory = {
-    id?: number;
+    id?: string;
     chatRole?: number;
-    chatId?: number;
-    modelId?: number;
+    chatId?: string;
+    modelId?: string;
     content?: string;
     execMessage?: string;
     status?: number;
@@ -501,7 +501,7 @@ declare namespace API {
 
   type ChatWithModelRequest = {
     text?: string;
-    chatId?: number;
+    chatId?: string;
   };
 
   type ColumnsVO = {
@@ -510,9 +510,9 @@ declare namespace API {
   };
 
   type CoreDatasetGroupDTO = {
-    id?: number;
+    id?: string;
     name?: string;
-    pid?: number;
+    pid?: string;
     level?: number;
     nodeType?: string;
     type?: string;
@@ -525,26 +525,26 @@ declare namespace API {
     data?: Record<string, any>;
     allFields?: CoreDatasetTableField[];
     sql?: string;
-    total?: number;
+    total?: string;
   };
 
   type CoreDatasetTable = {
-    id?: number;
+    id?: string;
     name?: string;
     tableName?: string;
-    datasourceId?: number;
-    datasetGroupId?: number;
+    datasourceId?: string;
+    datasetGroupId?: string;
     type?: string;
     info?: string;
     sqlVariableDetails?: string;
   };
 
   type CoreDatasetTableField = {
-    id?: number;
-    datasourceId?: number;
-    datasetTableId?: number;
-    datasetGroupId?: number;
-    chartId?: number;
+    id?: string;
+    datasourceId?: string;
+    datasetTableId?: string;
+    datasetGroupId?: string;
+    chartId?: string;
     originName?: string;
     name?: string;
     description?: string;
@@ -552,42 +552,42 @@ declare namespace API {
     type?: string;
     checked?: number;
     columnIndex?: number;
-    lastSyncTime?: number;
+    lastSyncTime?: string;
     isUnique?: number;
   };
 
   type CoreDatasource = {
-    id?: number;
+    id?: string;
     name?: string;
     description?: string;
     type?: string;
-    pid?: number;
+    pid?: string;
     editType?: string;
     configuration?: string;
     status?: string;
     taskStatus?: string;
     enableDataFill?: number;
-    userId?: number;
+    userId?: string;
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
   };
 
   type CoreDatasourceTask = {
-    id?: number;
-    datasourceId?: number;
-    datasetTableId?: number;
+    id?: string;
+    datasourceId?: string;
+    datasetTableId?: string;
     name?: string;
     updateType?: string;
     startTime?: string;
     syncRate?: string;
     cron?: string;
-    simpleCronValue?: number;
+    simpleCronValue?: string;
     simpleCronType?: string;
     endLimit?: string;
     endTime?: string;
-    createTime?: number;
-    lastExecTime?: number;
+    createTime?: string;
+    lastExecTime?: string;
     lastExecStatus?: string;
     extraData?: string;
     taskStatus?: string;
@@ -595,10 +595,10 @@ declare namespace API {
   };
 
   type Dashboard = {
-    id?: number;
+    id?: string;
     name?: string;
-    userId?: number;
-    datasourceId?: number;
+    userId?: string;
+    datasourceId?: string;
     snapshot?: string;
     createTime?: string;
     updateTime?: string;
@@ -611,25 +611,25 @@ declare namespace API {
   };
 
   type DataPage = {
-    current?: number;
-    size?: number;
-    total?: number;
+    current?: string;
+    size?: string;
+    total?: string;
     dataList?: ChartData[];
     tableFieldInfosList?: TableFieldInfo[];
   };
 
   type DataQueryRequest = {
-    current?: number;
-    pageSize?: number;
+    current?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
-    dataId?: number;
+    dataId?: string;
     chartData?: ChartData;
   };
 
   type DatasourceDTO = {
-    id?: number;
-    pid?: number;
+    id?: string;
+    pid?: string;
     name?: string;
     description?: string;
     type?: string;
@@ -639,8 +639,8 @@ declare namespace API {
     configuration?: string;
     apiConfigurationStr?: string;
     paramsStr?: string;
-    createTime?: number;
-    updateTime?: number;
+    createTime?: string;
+    updateTime?: string;
     userId?: string;
     status?: string;
     syncSetting?: TaskDTO;
@@ -649,45 +649,45 @@ declare namespace API {
     action?: string;
     fileName?: string;
     size?: string;
-    lastSyncTime?: number;
+    lastSyncTime?: string;
     multipartFile?: string;
     taskStatus?: string;
     enableDataFill?: boolean;
   };
 
   type DeleteChartDataRecordRequest = {
-    dataId?: number;
+    dataId?: string;
     id?: string;
   };
 
   type deleteChartParams = {
-    dashboardId: number;
+    dashboardId: string;
   };
 
   type deleteDashboardParams = {
-    dashboardId: number;
+    dashboardId: string;
   };
 
   type DeleteDatasourceDirNodeRequest = {
-    id: number;
+    id: string;
   };
 
   type DeleteRequest = {
-    id?: number;
+    id?: string;
   };
 
   type DeleteUserDataRequest = {
-    id?: number;
+    id?: string;
   };
 
   type EditChartDataRecordRequest = {
-    dataId?: number;
+    dataId?: string;
     id?: string;
     data?: Record<string, any>;
   };
 
   type EditDashboardChartRequestDTO = {
-    id: number;
+    id: string;
     chartName: string;
     chartOption?: string;
     dataOption?: string;
@@ -695,11 +695,11 @@ declare namespace API {
   };
 
   type FailedChart = {
-    id?: number;
-    chartId?: number;
+    id?: string;
+    chartId?: string;
     status?: string;
     execMessage?: string;
-    userId?: number;
+    userId?: string;
     retryNum?: number;
     createTime?: string;
     updateTime?: string;
@@ -707,15 +707,15 @@ declare namespace API {
   };
 
   type FailedChartQueryRequest = {
-    current?: number;
-    pageSize?: number;
+    current?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
-    id?: number;
-    chartId?: number;
+    id?: string;
+    chartId?: string;
     status?: string;
     execMessage?: string;
-    userId?: number;
+    userId?: string;
     createTime?: string;
     updateTime?: string;
   };
@@ -724,31 +724,27 @@ declare namespace API {
     name?: string;
     goal?: string;
     chartType?: string;
-    dataId?: number;
+    dataId?: string;
   };
 
   type getAiRoleByIdParams = {
-    id: number;
+    id: string;
   };
 
   type getByDatasourceParams = {
-    datasourceId: number;
+    datasourceId: string;
   };
 
   type getCaptchaParams = {
     emailAccount: string;
   };
 
-  type getChartAnalysisParams = {
-    chartId: number;
-  };
-
   type getChartByIdParams = {
-    id: number;
+    id: string;
   };
 
   type getChartDataByIdParams = {
-    chartId: number;
+    chartId: string;
   };
 
   type GetChartDataRequestDTO = {
@@ -761,100 +757,100 @@ declare namespace API {
   };
 
   type GetChatRequest = {
-    chatId?: number;
+    chatId?: string;
   };
 
   type GetCurMonthServiceRecordVO = {
     serviceType?: string;
-    serviceData?: number[];
+    serviceData?: string[];
     serviceDate?: string[];
   };
 
   type getDashboardByIdParams = {
-    dashboardId: number;
+    dashboardId: string;
   };
 
   type getDataCollaboratorsParams = {
-    dataId: number;
+    dataId: string;
   };
 
   type getDataSourceParams = {
-    datasourceId: number;
+    datasourceId: string;
   };
 
   type getOtherUserDataParams = {
-    dataId: number;
+    dataId: string;
     type: number;
     secret: string;
   };
 
   type getParams = {
-    id: number;
+    id: string;
   };
 
   type getSchemasParams = {
-    id: number;
+    id: string;
   };
 
   type GetTableFieldsDTO = {
-    datasourceId: number;
+    datasourceId: string;
     tableName: string;
   };
 
   type getTablesByDatasourceIdParams = {
-    datasourceId: number;
+    datasourceId: string;
   };
 
   type getUserAiRoleByIdParams = {
-    id: number;
+    id: string;
   };
 
   type getUserByIdParams = {
-    id: number;
+    id: string;
   };
 
   type GetUserChatHistoryVO = {
-    chatId?: number;
+    chatId?: string;
     assistantName?: string;
     functionDes?: string;
   };
 
   type GetUserChatRecordRequest = {
-    chatId?: number;
+    chatId?: string;
   };
 
   type GetUserSQLChatRecordVO = {
-    id?: number;
+    id?: string;
     chatRole?: number;
     content?: string;
     columns?: ColumnsVO[];
     res?: Record<string, any>[];
     sql?: string;
-    chatId?: number;
-    modelId?: number;
+    chatId?: string;
+    modelId?: string;
     status?: number;
   };
 
   type getUserVOByIdParams = {
-    id: number;
+    id: string;
   };
 
   type listAllChartParams = {
-    dashboardId: number;
+    dashboardId: string;
   };
 
   type ListDatasourceTreeVO = {
-    id?: number;
+    id?: string;
     name?: string;
     type?: string;
-    datasourceId?: number;
+    datasourceId?: string;
     children?: ListDatasourceTreeVO[];
-    pid?: number;
+    pid?: string;
     wight?: number;
   };
 
   type LoginUserVO = {
-    id?: number;
+    id?: string;
     userName?: string;
     userAvatar?: string;
     userProfile?: string;
@@ -867,8 +863,8 @@ declare namespace API {
   };
 
   type MoveDatasourceDirNodeRequest = {
-    id: number;
-    newPid: number;
+    id: string;
+    newPid: string;
     wight?: number;
   };
 
@@ -879,86 +875,86 @@ declare namespace API {
 
   type PageAiRole = {
     records?: AiRole[];
-    total?: number;
-    size?: number;
-    current?: number;
+    total?: string;
+    size?: string;
+    current?: string;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: number;
-    pages?: number;
+    maxLimit?: string;
+    pages?: string;
   };
 
   type PageChart = {
     records?: Chart[];
-    total?: number;
-    size?: number;
-    current?: number;
+    total?: string;
+    size?: string;
+    current?: string;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: number;
-    pages?: number;
+    maxLimit?: string;
+    pages?: string;
   };
 
   type PageFailedChart = {
     records?: FailedChart[];
-    total?: number;
-    size?: number;
-    current?: number;
+    total?: string;
+    size?: string;
+    current?: string;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: number;
-    pages?: number;
+    maxLimit?: string;
+    pages?: string;
   };
 
   type PageUser = {
     records?: User[];
-    total?: number;
-    size?: number;
-    current?: number;
+    total?: string;
+    size?: string;
+    current?: string;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: number;
-    pages?: number;
+    maxLimit?: string;
+    pages?: string;
   };
 
   type PageUserCreateAssistant = {
     records?: UserCreateAssistant[];
-    total?: number;
-    size?: number;
-    current?: number;
+    total?: string;
+    size?: string;
+    current?: string;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: number;
-    pages?: number;
+    maxLimit?: string;
+    pages?: string;
   };
 
   type PageUserVO = {
     records?: UserVO[];
-    total?: number;
-    size?: number;
-    current?: number;
+    total?: string;
+    size?: string;
+    current?: string;
     orders?: OrderItem[];
     optimizeCountSql?: boolean;
     searchCount?: boolean;
     optimizeJoinOfCountSql?: boolean;
     countId?: string;
-    maxLimit?: number;
-    pages?: number;
+    maxLimit?: string;
+    pages?: string;
   };
 
   type PreviewData = {
@@ -981,16 +977,16 @@ declare namespace API {
   };
 
   type previewSqlParams = {
-    datasourceId: number;
+    datasourceId: string;
     sql: string;
   };
 
   type ReGenChartRequest = {
-    chartId?: number;
+    chartId?: string;
   };
 
   type SaveDashboardRequestDTO = {
-    id: number;
+    id: string;
     name?: string;
     snapshot?: string;
   };
@@ -1012,7 +1008,7 @@ declare namespace API {
   };
 
   type ShareUserDataRequest = {
-    id?: number;
+    id?: string;
     permission?: number;
   };
 
@@ -1065,10 +1061,10 @@ declare namespace API {
   };
 
   type TaskDTO = {
-    id?: number;
+    id?: string;
     updateType?: string;
     syncRate?: string;
-    simpleCronValue?: number;
+    simpleCronValue?: string;
     simpleCronType?: string;
     startTime?: string;
     endTime?: string;
@@ -1078,7 +1074,7 @@ declare namespace API {
 
   type UnionDTO = {
     currentDs?: CoreDatasetTable;
-    currentDsField?: number[];
+    currentDsField?: string[];
     currentDsFields?: CoreDatasetTableField[];
     unionToParent?: UnionParamDTO;
     allChildCount?: number;
@@ -1113,7 +1109,7 @@ declare namespace API {
   };
 
   type User = {
-    id?: number;
+    id?: string;
     userAccount?: string;
     userPassword?: string;
     userName?: string;
@@ -1125,12 +1121,12 @@ declare namespace API {
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
-    svipexpirationTime?: string;
     vipexpirationTime?: string;
+    svipexpirationTime?: string;
   };
 
   type UserAddChatRequest = {
-    modelId?: number;
+    modelId?: string;
   };
 
   type UserAddRequest = {
@@ -1141,9 +1137,9 @@ declare namespace API {
   };
 
   type UserCreateAssistant = {
-    id?: number;
+    id?: string;
     assistantName?: string;
-    userId?: number;
+    userId?: string;
     type?: string;
     historyTalk?: number;
     functionDes?: string;
@@ -1160,8 +1156,8 @@ declare namespace API {
   };
 
   type UserData = {
-    id?: number;
-    userId?: number;
+    id?: string;
+    userId?: string;
     dataName?: string;
     description?: string;
     uploadType?: number;
@@ -1192,8 +1188,8 @@ declare namespace API {
   };
 
   type UserMessage = {
-    id?: number;
-    userId?: number;
+    id?: string;
+    userId?: string;
     title?: string;
     description?: string;
     type?: number;
@@ -1205,7 +1201,7 @@ declare namespace API {
   };
 
   type UserMessageAddRequest = {
-    userId?: number;
+    userId?: string;
     title?: string;
     description?: string;
     type?: number;
@@ -1214,11 +1210,11 @@ declare namespace API {
   };
 
   type UserQueryRequest = {
-    current?: number;
-    pageSize?: number;
+    current?: string;
+    pageSize?: string;
     sortField?: string;
     sortOrder?: string;
-    id?: number;
+    id?: string;
     unionId?: string;
     mpOpenId?: string;
     userName?: string;
@@ -1239,7 +1235,7 @@ declare namespace API {
   };
 
   type UserUpdateRequest = {
-    id?: number;
+    id?: string;
     userName?: string;
     userAvatar?: string;
     userProfile?: string;
@@ -1247,7 +1243,7 @@ declare namespace API {
   };
 
   type UserVO = {
-    id?: number;
+    id?: string;
     userName?: string;
     userAvatar?: string;
     email?: string;
