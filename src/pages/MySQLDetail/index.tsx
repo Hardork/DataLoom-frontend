@@ -10,22 +10,20 @@ import {
   DescriptionsProps,
   Row,
   Col,
-  Card, Tag, Button, Drawer, Steps, Form, Select, InputNumber, Dropdown, DatePicker, Space
+  Card, Tag, Button, Drawer, Steps, Form, Select, InputNumber, Dropdown, DatePicker, Space, Table, TableColumnsType
 } from 'antd';
 import {MinusCircleOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
-import {ProTable} from "@ant-design/pro-components";
 import {useParams} from "react-router";
 import {getSchemas} from "@/services/DataLoom/dataSourceController";
 import ProCard from "@ant-design/pro-card";
 import {
+  addDatasource,
   checkDatasource,
   getDataSource,
   handleApiResponse,
   listUserDataSource
 } from "@/services/DataLoom/coreDataSourceController";
-import {json} from "express";
 import {getByDatasource} from "@/services/DataLoom/coreDatasetTableController";
-import {Buffer} from "memfs/lib/internal/buffer";
 import {Radio} from 'antd/lib';
 import Cron from 'antd-cron';
 import moment from "moment";
@@ -43,11 +41,9 @@ const MyLayout = () => {
   const [dataList, setDataList] = useState<Record<string, any>[]>()
   const [datasources, setDatasources] = useState<[]>()
   const [fieldList, setFieldList] = useState<Record<string, any>[]>()
-  const [columns, setColumns] = useState([])
   const [dimension, setDimension] = useState<Record<string, any>[]>()
   const [measure, setMeasure] = useState<Record<string, any>[]>()
   const [ApiDefinitions, setApiDefinitions] = useState<Record<string, any>[]>()
-  const [newApiDefinitions, setnewApiDefinitions] = useState<Record<string, any>[]>()
   const [ApiDefinition, setApiDefinition] = useState<API.ApiDefinition>()
   const [DatasourceTask, setDatasourceTask] = useState<Record<string, any>>()
   const [bottomDrawerOpen, setbottomDrawerOpen] = useState(false);
@@ -58,6 +54,16 @@ const MyLayout = () => {
   const [updateType, setUpdateType] = useState('all_scope');
   const [headerItems, setHeaderItems] = useState<Record<string, any>[]>([]);
   const [argumentsItems, setArgumentsItems] = useState<Record<string, any>[]>([]);
+  const [jsonFields, setjsonFields] = useState<Record<string, any>[]>([]);
+  const [isNewApiDefinition, setIsNewApiDefinition] = useState(false);
+  const [rightDrawerValue, setrightDrawerValue] = useState<Record<string, any>>({});
+// 初始化选中的行，基于 checked 字段
+  const [selectedRowKeys, setSelectedRowKeys] = useState(
+    jsonFields.flatMap(item =>
+      item.checked ? [item.name] : item.children ? item.children.filter(child => child.checked).map(child => child.name) : []
+    )
+  );
+
 
   const [form] = Form.useForm()
   const [rightDrawerForm] = Form.useForm()
@@ -92,7 +98,7 @@ const MyLayout = () => {
     console.log(rightDrawerForm.getFieldValue("name"))
   }, [ApiDefinition, rightDrawerForm])
 
-  const handleChange = (item:API.ApiDefinition) => {
+  const handleChange = (item: API.ApiDefinition) => {
     if (item.request) {
       // 将数据转换为表单需要的结构
       const headers = item?.request?.header?.map(header => ({
@@ -121,7 +127,7 @@ const MyLayout = () => {
     // 处理 arguments，将数组转换为单个对象形式
     const argumentsArray = value.request?.arguments || [];
     const argumentsObject = argumentsArray.reduce((acc, curr) => {
-      return { ...acc, [curr.key]: curr.value };
+      return {...acc, [curr.key]: curr.value};
     }, {});
 
     // 将处理后的对象重新赋值到 request 中
@@ -131,6 +137,13 @@ const MyLayout = () => {
     const res = await handleApiResponse(value);
     if (res.code === 0) {
       message.success('接口校验成功')
+      if (res?.data?.jsonFields) {
+        setjsonFields(res.data.jsonFields)
+      } else {
+        setjsonFields([])
+      }
+      value.status = "success"
+      setrightDrawerValue(value)
       return true
     } else {
       message.error(res.message)
@@ -155,6 +168,94 @@ const MyLayout = () => {
   const rightDrawerPrev = () => {
     setrightDrawerCurrent(rightDrawerCurrent - 1);
   };
+
+// 递归更新 checked 状态，确保父子节点一起更新
+  const updateCheckedState = (fields, selectedKeys) => {
+    return fields.map(item => {
+      const isSelected = selectedKeys.includes(item.name);
+      return {
+        ...item,
+        checked: isSelected,
+        // 如果有子元素，递归更新子元素的 checked 状态
+        children: item.children ? updateCheckedState(item.children, selectedKeys) : undefined
+      };
+    });
+  };
+
+// 递归获取所有子元素的 name
+  const getAllChildKeys = (item) => {
+    let childKeys = [];
+    if (item.children) {
+      childKeys = item.children.map(child => child.name);
+      item.children.forEach(child => {
+        childKeys = [...childKeys, ...getAllChildKeys(child)];
+      });
+    }
+    return childKeys;
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedKeys, selectedRows) => {
+      let updatedSelectedKeys = [...selectedKeys]; // 工作在一个可修改的副本上
+
+      jsonFields.forEach(item => {
+        if (selectedKeys.includes(item.name)) {
+          // 如果选中父节点，选中所有子节点
+          const childKeys = getAllChildKeys(item);
+          updatedSelectedKeys = [...new Set([...updatedSelectedKeys, ...childKeys])];
+        } else {
+          // 如果取消父节点，取消所有子节点
+          const childKeys = getAllChildKeys(item);
+          updatedSelectedKeys = updatedSelectedKeys.filter(key => !childKeys.includes(key));
+        }
+      });
+
+      setSelectedRowKeys(updatedSelectedKeys);
+
+      // 更新 jsonFields 中的 checked 状态
+      const updatedFields = updateCheckedState(jsonFields, updatedSelectedKeys);
+      setjsonFields(updatedFields);
+    },
+    getCheckboxProps: (record) => ({
+      name: record.name,
+    }),
+  };
+
+  const addApiDefinition = (values) => {
+    if (isNewApiDefinition) {
+      console.log("-------------------")
+      console.log(values)
+      setApiDefinitions(prevDefinitions => [...prevDefinitions, values]);
+    } else {
+      setApiDefinitions(ApiDefinitions?.map((item) => (item.name === values.name ? values : item)));
+    }
+  }
+
+  const submitDatasource = async (values) => {
+    const res = await addDatasource({
+      ...values,ApiDefinitions
+    })
+    if (res.code === 200) {
+      console.log(1)
+    } else {
+      message.error(res.message);
+    }
+  }
+
+  const columns = [
+    {
+      title: '字段名',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: '字段类型',
+      dataIndex: 'type',
+      width: "40%",
+      key: 'type',
+    },
+  ];
 
   const mysqlDatasourceConfItems: DescriptionsProps['items'] = [
     {
@@ -244,38 +345,33 @@ const MyLayout = () => {
       label: '请求头',
       children: <>
         <Form.List name={['request', 'headers']} initialValue={headerItems}>
-          {(fields, { add: addHeader, remove: removeHeader }) => (
+          {(fields, {add: addHeader, remove: removeHeader}) => (
             <>
-              {fields.map(({ key, name, fieldKey, ...restField }) => {
-                // 根据数据生成字段名
-                const headerItem = headerItems[name];
-                console.log(headerItem)
-                return (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+              {headerItems ? (
+                fields.map(({key, name, fieldKey, ...restField}) => (
+                  <Space key={key} style={{display: 'flex', marginBottom: 8}} align="baseline">
                     <Form.Item
                       {...restField}
                       name={[name, 'key']}
                       fieldKey={[fieldKey, 'key']}
-                      // initialValue={headerItem ? headerItem.key : ''}
-                      rules={[{ required: true, message: '请输入键' }]}
+                      rules={[{required: true, message: '请输入键'}]}
                     >
-                      <Input placeholder="键" />
+                      <Input placeholder="键"/>
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'value']}
                       fieldKey={[fieldKey, 'value']}
-                      // initialValue={headerItem ? headerItem.value : ''}
-                      rules={[{ required: true, message: '请输入值' }]}
+                      rules={[{required: true, message: '请输入值'}]}
                     >
-                      <Input placeholder="值" />
+                      <Input placeholder="值"/>
                     </Form.Item>
-                    <MinusCircleOutlined onClick={() => removeHeader(name)} />
+                    <MinusCircleOutlined onClick={() => removeHeader(name)}/>
                   </Space>
-                );
-              })}
+                ))
+              ) : null}
               <Form.Item>
-                <Button type="dashed" onClick={() => addHeader()} block icon={<PlusOutlined />}>
+                <Button type="dashed" onClick={() => addHeader()} block icon={<PlusOutlined/>}>
                   添加参数
                 </Button>
               </Form.Item>
@@ -289,38 +385,38 @@ const MyLayout = () => {
       label: 'QUERY参数',
       children: <>
         <Form.List name={['request', 'arguments']} initialValue={argumentsItems}>
-          {(fields, { add: addHeader, remove: removeHeader }) => (
+          {(fields, {add: addHeader, remove: removeHeader}) => (
             <>
-              {fields.map(({ key, name, fieldKey, ...restField }) => {
+              {fields.map(({key, name, fieldKey, ...restField}) => {
                 // 根据数据生成字段名
                 const argumentsItem = argumentsItems[name];
                 console.log(argumentsItem)
                 return (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                  <Space key={key} style={{display: 'flex', marginBottom: 8}} align="baseline">
                     <Form.Item
                       {...restField}
                       name={[name, 'key']}
                       fieldKey={[fieldKey, 'key']}
                       // initialValue={headerItem ? headerItem.key : ''}
-                      rules={[{ required: true, message: '请输入键' }]}
+                      rules={[{required: true, message: '请输入键'}]}
                     >
-                      <Input placeholder="键" />
+                      <Input placeholder="键"/>
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'value']}
                       fieldKey={[fieldKey, 'value']}
                       // initialValue={headerItem ? headerItem.value : ''}
-                      rules={[{ required: true, message: '请输入值' }]}
+                      rules={[{required: true, message: '请输入值'}]}
                     >
-                      <Input placeholder="值" />
+                      <Input placeholder="值"/>
                     </Form.Item>
-                    <MinusCircleOutlined onClick={() => removeHeader(name)} />
+                    <MinusCircleOutlined onClick={() => removeHeader(name)}/>
                   </Space>
                 );
               })}
               <Form.Item>
-                <Button type="dashed" onClick={() => addHeader()} block icon={<PlusOutlined />}>
+                <Button type="dashed" onClick={() => addHeader()} block icon={<PlusOutlined/>}>
                   添加参数
                 </Button>
               </Form.Item>
@@ -650,15 +746,15 @@ const MyLayout = () => {
         }
       </>,
     },
-    {
-      key: '2',
-      label: '数据源表',
-      children: <>
-        <ProTable
-          virtual
-          scroll={{x: 1000, y: 600}} dataSource={dataList} columns={columns} pagination={false} search={false}/>
-      </>
-    }
+    // {
+    //   key: '2',
+    //   label: '数据源表',
+    //   children: <>
+    //     <ProTable
+    //       virtual
+    //       scroll={{x: 1000, y: 600}} dataSource={dataList} columns={columns} pagination={false} search={false}/>
+    //   </>
+    // }
   ];
 
 
@@ -764,10 +860,12 @@ const MyLayout = () => {
                   <Button type="primary"
                           style={{position: 'absolute', right: '250px', width: "80px", height: "35px", zIndex: 2}}
                           onClick={() => {
+                            setrightDrawerCurrent(0)
                             setApiDefinition(undefined)
                             setHeaderItems([])
                             setArgumentsItems([])
                             rightOpenEdit()
+                            setIsNewApiDefinition(true)
                           }}>
                     添加+
                   </Button>
@@ -789,9 +887,11 @@ const MyLayout = () => {
                           </div>
                         }
                               onClick={() => {
+                                setrightDrawerCurrent(0)
                                 setApiDefinition(item)
                                 handleChange(item)
                                 rightOpenEdit()
+                                setIsNewApiDefinition(false)
                               }}
                         >
                           <div style={{marginBottom: 6}}>  {/* 减少底部间距 */}
@@ -933,7 +1033,14 @@ const MyLayout = () => {
                 </Button>
               )}
               {current === steps.length - 1 && (
-                <Button type="primary" onClick={() => message.success('处理完成！')}>
+                <Button type="primary" onClick={() => {
+                  form.validateFields().then((values) => {
+                    submitDatasource(values)
+                  }).catch((errorInfo) => {
+                    console.log('保存失败:', errorInfo); // 处理验证失败的情况
+                  });
+                  message.success('处理完成！')
+                }}>
                   保存
                 </Button>
               )}
@@ -960,7 +1067,7 @@ const MyLayout = () => {
           overflowY: "auto"
         }}>
           <Steps current={rightDrawerCurrent} items={RightDrawerSteps} size="small" style={{width: "40%"}}/>
-          {current === 0 && (
+          {rightDrawerCurrent === 0 && (
             <>
               <ProCard
                 title="基础信息"
@@ -1000,7 +1107,8 @@ const MyLayout = () => {
                   >
                     <Input.Group compact>
                       <div style={{display: 'inline-block', width: '80%'}}>
-                        <Form.Item noStyle rules={[{required: true, message: '请输入请求超时时间'}]}  name="apiQueryTimeout">
+                        <Form.Item noStyle rules={[{required: true, message: '请输入请求超时时间'}]}
+                                   name="apiQueryTimeout">
                           <InputNumber style={{width: '100%'}}/>
                         </Form.Item>
                       </div>
@@ -1012,6 +1120,24 @@ const MyLayout = () => {
                     </Input.Group>
                   </Form.Item>
                 </Form>
+              </ProCard>
+            </>
+          )}
+          {rightDrawerCurrent === 1 && (
+            <>
+              <ProCard
+                title="数据结构"
+                headerBordered
+                style={{
+                  width: "80%",  // 缩小宽度
+                }}
+              >
+                <Table
+                  columns={columns}
+                  rowSelection={rowSelection}
+                  dataSource={jsonFields}
+                  rowKey="name"
+                />
               </ProCard>
             </>
           )}
@@ -1033,7 +1159,13 @@ const MyLayout = () => {
               </Button>
             )}
             {rightDrawerCurrent === RightDrawerSteps.length - 1 && (
-              <Button type="primary" onClick={() => message.success('处理完成！')}>
+              <Button type="primary" onClick={() => {
+                addApiDefinition(rightDrawerValue);
+                message.success('保存完成！')
+                console.log(selectedRowKeys)
+                console.log(jsonFields)
+                setrightDrawerOpen(false);
+              }}>
                 保存
               </Button>
             )}

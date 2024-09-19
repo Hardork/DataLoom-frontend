@@ -3,7 +3,12 @@
 import { request } from '@umijs/max';
 
 /** 此处后端没有提供注释 POST /admin/coreDatasource/add */
-export async function addDatasource(body: API.DatasourceDTO, options?: { [key: string]: any }) {
+export async function addDatasource(
+  body: {
+    datasourceDTO: API.DatasourceDTO;
+  },
+  options?: { [key: string]: any },
+) {
   return request<API.BaseResponseLong>('/admin/coreDatasource/add', {
     method: 'POST',
     headers: {
@@ -41,21 +46,19 @@ export async function getDataSource(
   });
 }
 
-/** 此处后端没有提供注释 GET /admin/coreDatasource/getTableFields */
+/** 此处后端没有提供注释 POST /admin/coreDatasource/getTableFields */
 export async function getTableFieldsByDatasourceIdAndTableName(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getTableFieldsByDatasourceIdAndTableNameParams,
+  body: API.GetTableFieldsDTO,
   options?: { [key: string]: any },
 ) {
   return request<API.BaseResponseListCoreDatasetTableField>(
     '/admin/coreDatasource/getTableFields',
     {
-      method: 'GET',
-      params: {
-        ...params,
-        getTableFieldsDTO: undefined,
-        ...params['getTableFieldsDTO'],
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      data: body,
       ...(options || {}),
     },
   );

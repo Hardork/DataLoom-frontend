@@ -15,7 +15,7 @@ export async function addChart(body: API.ChartAddRequest, options?: { [key: stri
 }
 
 /** 此处后端没有提供注释 POST /admin/chart/delete */
-export async function deleteChart(body: API.DeleteRequest, options?: { [key: string]: any }) {
+export async function deleteChart1(body: API.DeleteRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/admin/chart/delete', {
     method: 'POST',
     headers: {
@@ -27,7 +27,7 @@ export async function deleteChart(body: API.DeleteRequest, options?: { [key: str
 }
 
 /** 此处后端没有提供注释 POST /admin/chart/edit */
-export async function editChart(body: API.ChartEditRequest, options?: { [key: string]: any }) {
+export async function editChart1(body: API.ChartEditRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/admin/chart/edit', {
     method: 'POST',
     headers: {
@@ -38,22 +38,15 @@ export async function editChart(body: API.ChartEditRequest, options?: { [key: st
   });
 }
 
-/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq */
-export async function genChartByAiAsyncMq(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.genChartByAiAsyncMqParams,
-  body: {},
+/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq/coreDataSet */
+export async function genChartByAiWithCoreDataSet(
+  body: API.GenChartByAiWithDataRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseBiResponse>('/admin/chart/gen/async/mq', {
+  return request<API.BaseResponseChartResponse>('/admin/chart/gen/async/mq/coreDataSet', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-    },
-    params: {
-      ...params,
-      genChartByAiRequest: undefined,
-      ...params['genChartByAiRequest'],
     },
     data: body,
     ...(options || {}),
@@ -65,32 +58,10 @@ export async function genChartByAiWithDataAsyncMq(
   body: API.GenChartByAiWithDataRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseBiResponse>('/admin/chart/gen/async/mq/data', {
+  return request<API.BaseResponseChartResponse>('/admin/chart/gen/async/mq/data', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq/v3 */
-export async function genChartByAiAsyncMqV3(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.genChartByAiAsyncMqV3Params,
-  body: {},
-  options?: { [key: string]: any },
-) {
-  return request<API.BaseResponseBiResponse>('/admin/chart/gen/async/mq/v3', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    params: {
-      ...params,
-      genChartByAiRequest: undefined,
-      ...params['genChartByAiRequest'],
     },
     data: body,
     ...(options || {}),
@@ -102,7 +73,7 @@ export async function reGenChartByAiAsync(
   body: API.ReGenChartRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseBiResponse>('/admin/chart/gen/retry', {
+  return request<API.BaseResponseChartResponse>('/admin/chart/gen/retry', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
