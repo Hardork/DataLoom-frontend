@@ -214,6 +214,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseGetChartAnalysisVO = {
+    code?: number;
+    data?: GetChartAnalysisVO;
+    message?: string;
+  };
+
   type BaseResponseGetChartDataVO = {
     code?: number;
     data?: GetChartDataVO;
@@ -444,6 +450,8 @@ declare namespace API {
     chartOption?: string;
     dataOption?: string;
     customSql?: string;
+    analysisRes?: string;
+    analysisLastFlag?: boolean;
     status?: number;
     createTime?: string;
     updateTime?: string;
@@ -737,6 +745,18 @@ declare namespace API {
 
   type getCaptchaParams = {
     emailAccount: string;
+  };
+
+  type getChartAnalysisFluxParams = {
+    chartId: string;
+  };
+
+  type getChartAnalysisParams = {
+    chartId: string;
+  };
+
+  type GetChartAnalysisVO = {
+    analysisRes?: string;
   };
 
   type getChartByIdParams = {

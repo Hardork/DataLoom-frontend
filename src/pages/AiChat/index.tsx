@@ -186,7 +186,6 @@ const AiChat: React.FC = () => {
   useEffect(() => {
     if (submitting) {
       const arr = chatRecord
-      console.log(result)
       arr[arr.length - 1].content = result
       setChatRecord(arr)
       autoScroll()
@@ -309,11 +308,11 @@ const AiChat: React.FC = () => {
                         <>
                           <div>
                             <Space direction="horizontal">
-                              {item.chatRole == 0 && <>
+                              {item.chatRole === 0 && <>
                                 <img src={currentUser?.userAvatar} style={{width: '30px',borderRadius: '50%'}}/>
                                 <div style={{marginTop: '5px',padding: '10px' , background: '#e7f7ff', borderRadius: '10px'}}>{item.content}</div>
                               </>}
-                              {item.chatRole == 1 && <>
+                              {item.chatRole === 1 && <>
                                   <img src={'/model.png'} style={{width: '30px'}}/>
                                 <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}><OmsViewMarkdown textContent={item.content ?? ''} darkMode></OmsViewMarkdown></div>
                               </>}

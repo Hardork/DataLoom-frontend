@@ -534,7 +534,7 @@ const AiAskData: React.FC = () => {
                       onChange={(e) => {
                         setContent(e.target.value)
                       }}
-                      onPressEnter={(e) => {
+                      onPressEnter={() => {
                         sendQuestion()
                       }}
                       suffix={
