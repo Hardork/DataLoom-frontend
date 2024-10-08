@@ -21,17 +21,8 @@ import {
   getTablesByDatasourceId,
   listUserDataSource
 } from "@/services/DataLoom/coreDataSourceController";
-import AnalysisPopover from "@/pages/Dashboard/components/AnalysisPopover";
 
 const ResponsiveGridLayout = GridLayout.WidthProvider(GridLayout.Responsive);
-
-type chartType = {
-  i: string,
-  type: string,
-  component: any,
-  dataOption: any,
-  analysisLastFlag: boolean
-}
 
 const Dashboard = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // 控制对话框
@@ -45,7 +36,7 @@ const Dashboard = () => {
   const [datasources, setDatasources] = useState([])
   const [selectedDashboard, setSelectedDashboard] = useState()
   const [handleAddModal, setHandleAddModal] = useState(false)
-  const [charts, setCharts] = useState<chartType[]>([]);
+  const [charts, setCharts] = useState([]);
   const addFormIndex = [
     {
       name: 'datasourceId',
@@ -136,8 +127,7 @@ const Dashboard = () => {
             i: item.id,
             type: item.chartName,
             component: <GenChart option={ChartOption(item.chartName, chartDataRes.data)}/>,
-            dataOption: JSON.parse(item.dataOption),
-            analysisLastFlag: item.analysisLastFlag
+            dataOption: JSON.parse(item.dataOption)
           };
         }
         return undefined;  // 如果数据不满足条件，返回 undefined
@@ -210,7 +200,7 @@ const Dashboard = () => {
     if (res.code === 0) {
       // res.data 图表的唯一标识
       const newChartId = res.data;
-      const newChart = { i: newChartId, component: <GenChart option={chartOption}/>, analysisLastFlag: false};
+      const newChart = { i: newChartId, component: <GenChart option={chartOption}/> };
 
       // 假设 newChartW 是新图表的宽度，cols 是列数（如 lg: 12 列）
       const newChartW = 3; // 新图表宽度为 4 列
@@ -800,7 +790,10 @@ const Dashboard = () => {
                       {(hoveredChart === chart.i || selectedChart === chart.i) && (  // 只有当当前图表被悬停时，显示按钮
                         <>
                           <div>
-                            <AnalysisPopover chart={chart}></AnalysisPopover>
+                            <Button size={"small"} style={{marginRight: "4px"}}>
+                              💡 智能分析
+                            </Button>
+
                             <Dropdown menu={{ items: editChartItems(chart)}}>
                               <Button size={"small"} onClick={(event) => {
                                 event.preventDefault()

@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, coyWithoutShadows, darcula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+// darcula webstorm
+// vscDarkPlus vscode暗色主题
 
 type tProps = {
   textContent: string
@@ -35,7 +37,7 @@ const OmsViewMarkdown = (props: tProps) => {
               PreTag='div'
               {...props}
             >
-              {String(children).replace(/\n$/, '</br>')}
+              {String(children).replace(/\n$/, '')}
             </SyntaxHighlighter>
           ) : (
             <code className={className} {...props}>
