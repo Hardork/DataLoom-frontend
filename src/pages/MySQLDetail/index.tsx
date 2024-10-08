@@ -23,10 +23,10 @@ import {
   Space,
   Table,
   TableColumnsType,
-  Modal, Tooltip
+  Modal, Tooltip, MenuProps
 } from 'antd';
 import {
-  CalendarOutlined, DashboardOutlined,
+  CalendarOutlined, DashboardOutlined, DownOutlined,
   FileOutlined, FileTextOutlined,
   InboxOutlined,
   MinusCircleOutlined, NumberOutlined,
@@ -178,21 +178,6 @@ const MyLayout = () => {
     }
   };
 
-  const addNewDatasource = (values: any) => {
-    console.log(values)
-    if (values === 'file') { // 文件上传
-      setFileVisible(true)
-      setSelectValue('上传数据集')
-    } else if (values === 'api') { // API上传
-      setApiDefinitions([])
-      form.resetFields()
-      rightDrawerForm.resetFields()
-      setnewBottomDrawerOpen(true)
-    } else if (values === 'db') {
-      setDatabaseVisible(true)
-      setSelectValue('上传数据集')
-    }
-  }
 
   // 定义字段类型与图标的映射关系
   const fieldTypeToIconMap = {
@@ -435,6 +420,29 @@ const MyLayout = () => {
       dataIndex: 'type',
       width: "40%",
       key: 'type',
+    },
+  ];
+
+  const excelDatasourceConfItems: DescriptionsProps['items'] = [
+    {
+      key: '1',
+      label: '数据源名称',
+      children: datasource?.name,
+    },
+    {
+      key: '2',
+      label: '类型',
+      children: datasource?.type,
+    },
+    {
+      key: '3',
+      label: '文件名',
+      children: configuration?.filename,
+    },
+    {
+      key: '4',
+      label: '文件大小',
+      children: configuration?.size,
     },
   ];
 
@@ -776,6 +784,8 @@ const MyLayout = () => {
       } else if (res.data.type === 'api') {
         setApiDefinitions(JSON.parse(res.data.configuration))
         await getTaskByDatasource(selectDatasource)
+      } else {
+        setConfiguration(JSON.parse(res.data.configuration))
       }
     }
   }
@@ -872,6 +882,10 @@ const MyLayout = () => {
               datasource?.type === 'api' &&
               <Descriptions title="API数据源配置" layout="vertical" items={apiDatasourceConfItems}/>
             }
+            {
+              datasource?.type === 'excel' &&
+              <Descriptions title="Excel数据源配置" layout="vertical" items={excelDatasourceConfItems}/>
+            }
           </div>
         </ProCard>
         {
@@ -948,21 +962,66 @@ const MyLayout = () => {
   ];
 
 
+  const typeItems: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <a onClick={() => {
+          setFileVisible(true)
+          setSelectValue('上传数据集')
+        }}>
+          文件
+        </a>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <a onClick={() => {
+          setApiDefinitions([])
+          form.resetFields()
+          rightDrawerForm.resetFields()
+          setnewBottomDrawerOpen(true)
+        }}>
+          API
+        </a>
+      ),
+    },
+    {
+      key: '3',
+      label: (
+        <a onClick={() => {
+          setDatabaseVisible(true)
+          setSelectValue('上传数据集')
+        }}>
+          数据库
+        </a>
+      ),
+    }
+  ];
+
   return (
     <Layout style={{minHeight: '100vh', margin: '-32px -40px'}}>
       <Sider width={250} style={{background: '#fff'}}>
-
         <div style={{padding: '16px'}}>
-          <h4 style={{paddingBottom: '10px', paddingTop: '20px'}}>数据源 <Select
-            style={{width: 120, marginLeft: 50}}
-            value={selectValue}
-            onChange={addNewDatasource}
-            options={[
-              {value: 'file', label: '文件'},
-              {value: 'db', label: '数据库'},
-              {value: 'api', label: 'API上传'}
-            ]}
-          />
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between"
+          }}>
+            <h4>
+              数据源
+            </h4>
+            <div>
+              <Dropdown menu={{ items: typeItems }}>
+                <a onClick={(e) => e.preventDefault()}>
+                  <Space>
+                    <PlusOutlined />
+                  </Space>
+                </a>
+              </Dropdown>
+            </div>
+          </div>
+          <h4>
             <StepsForm
               onFinish={async (values) => {
                 if (file === undefined) {

@@ -702,7 +702,6 @@ const Dashboard = () => {
             }}><PlusOutlined/></a>
           </div>
           <Input placeholder={'搜索'} addonBefore={<SearchOutlined/>}></Input>
-
         </div>
 
         <div style={{overflow: 'auto', padding: '16px'}}>

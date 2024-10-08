@@ -7,7 +7,7 @@
   { path: '/mysql_detail/:id', name: '数据源', icon: 'barChart', component: './MySQLDetail'},
   { path: '/dashboard', name: '仪表盘', icon: 'barChart', component: './Dashboard'},
   { path: '/add_other_data/:dataId/:type/:secret', name: '添加共享数据', icon: 'barChart', component: './AddOtherDataResult' , hideInMenu: true},
-  { path: '/data_meta_table', name: '数据源', icon: 'database', component: './DataMetaTable' },
+  // { path: '/data_meta_table', name: '数据源', icon: 'database', component: './DataMetaTable' },
   // { path: '/add_chart_mq', name: '智能分析（MQ）', icon: 'barChart', component: './AddChartMq' },
   // { path: '/my_chart', name: '历史分析', icon: 'pieChart', component: './MyChart' },
   { path: '/chart_detail/:id', name: '分析详情', icon: 'pieChart', component: './ChartDetail', hideInMenu: true},
