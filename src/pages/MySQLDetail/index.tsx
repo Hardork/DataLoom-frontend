@@ -1192,7 +1192,7 @@ const MyLayout = () => {
                 <ProFormText
                   name="name"
                   width="md"
-                  label="数据集名称"
+                  label="数据源名称"
                   placeholder="请输入名称"
                   rules={[{required: true}]}
                 />

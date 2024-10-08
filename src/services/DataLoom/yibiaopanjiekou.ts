@@ -83,7 +83,22 @@ export async function getChartAnalysis(
   params: API.getChartAnalysisParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseGetChartDataVO>('/admin/dashboard/getChartAnalysis', {
+  return request<API.BaseResponseGetChartAnalysisVO>('/admin/dashboard/getChartAnalysis', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 根据id图表流式获取智能分析报告 GET /admin/dashboard/getChartAnalysisFlux */
+export async function getChartAnalysisFlux(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getChartAnalysisFluxParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBoolean>('/admin/dashboard/getChartAnalysisFlux', {
     method: 'GET',
     params: {
       ...params,
