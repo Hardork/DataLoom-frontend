@@ -57,6 +57,7 @@ const MyLayout = () => {
   const [jsonFields, setjsonFields] = useState<Record<string, any>[]>([]);
   const [isNewApiDefinition, setIsNewApiDefinition] = useState(false);
   const [rightDrawerValue, setrightDrawerValue] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState({});
 // 初始化选中的行，基于 checked 字段
   const [selectedRowKeys, setSelectedRowKeys] = useState(
     jsonFields.flatMap(item =>
@@ -89,6 +90,10 @@ const MyLayout = () => {
       console.log(form.getFieldValue("name"))
     }
   }, [datasource, form])
+
+  useEffect(() => {
+    form.setFieldsValue(datasource); // Populate the form with the current datasource values
+  }, [current, datasource]);
 
   useEffect(() => {
     // 在数据获取后，设置表单的初始值
@@ -152,7 +157,14 @@ const MyLayout = () => {
   }
 
   const next = () => {
-    setCurrent(current + 1);
+    form.validateFields()
+      .then(values => {
+        setDatasource(prev => ({...prev, ...values})); // Merge the current form values into the datasource object
+        setCurrent(current + 1); // Move to the next step
+      })
+      .catch(errorInfo => {
+        console.log('Validation failed:', errorInfo);
+      });
   };
 
   const rightDrawerNext = async (value) => {
@@ -162,7 +174,14 @@ const MyLayout = () => {
   };
 
   const prev = () => {
-    setCurrent(current - 1);
+    form.validateFields()
+      .then(values => {
+        setDatasource(prev => ({...prev, ...values})); // Merge the current form values into the datasource object
+        setCurrent(current - 1); // Move to the previous step
+      })
+      .catch(errorInfo => {
+        console.log('Validation failed:', errorInfo);
+      });
   };
 
   const rightDrawerPrev = () => {
@@ -232,10 +251,13 @@ const MyLayout = () => {
     }
   }
 
-  const submitDatasource = async (values) => {
-    const res = await addDatasource({
-      ...values,ApiDefinitions
-    })
+  const submitDatasource = async (values: API.DatasourceDTO) => {
+    const formData = new FormData();
+    console.log(values)
+    values.configuration = JSON.stringify(ApiDefinitions)
+    formData.append("file", new Blob([], {type: 'text/plain'}));
+    formData.append('datasourceDTO', new Blob([JSON.stringify(values)], {type: "application/json"}));
+    const res = await addDatasource(formData)
     if (res.code === 200) {
       console.log(1)
     } else {
@@ -848,10 +870,10 @@ const MyLayout = () => {
                       <Form.Item
                         label="描述"
                         name="description"
-                        rules={[{required: true, message: '请输入描述信息'}]}
+                        rules={[{message: '请输入描述信息'}]}
                       >
                         <Input.TextArea style={{height: "4em"}} showCount
-                                        maxLength={100}></Input.TextArea> {/* 缩小文本框高度 */}
+                                        maxLength={100}></Input.TextArea>
                       </Form.Item>
                     </Form>
                   </div>
@@ -1034,12 +1056,17 @@ const MyLayout = () => {
               )}
               {current === steps.length - 1 && (
                 <Button type="primary" onClick={() => {
-                  form.validateFields().then((values) => {
-                    submitDatasource(values)
-                  }).catch((errorInfo) => {
-                    console.log('保存失败:', errorInfo); // 处理验证失败的情况
-                  });
-                  message.success('处理完成！')
+                  form.validateFields()
+                    .then(values => {
+                      // Update the datasource with the final step values
+                      const updatedDatasource = {...datasource, ...values};
+                      setDatasource(updatedDatasource); // Optionally update the datasource state
+                      submitDatasource(updatedDatasource);  // Submit the entire datasource object
+                    })
+                    .catch(errorInfo => {
+                      console.log('保存失败:', errorInfo); // Handle validation errors
+                    });
+                  message.success('处理完成！');
                 }}>
                   保存
                 </Button>
