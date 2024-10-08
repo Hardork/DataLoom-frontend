@@ -146,7 +146,9 @@ const AnalysisPopover = (props: Props) => {
       onVisibleChange={(newVisible) => setVisible(newVisible)} // 使用onVisibleChange来控制显示和隐藏
     >
       <Badge dot={showBudge}>
-        <Button size={"small"} style={{marginRight: "4px"}}>
+        <Button size={"small"} style={{marginRight: "4px"}} onClick={(event) => {
+          event.preventDefault()
+        }}>
           💡 智能分析
         </Button>
       </Badge>
