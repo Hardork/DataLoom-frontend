@@ -148,7 +148,6 @@ const Dashboard = () => {
           setLayouts(JSON.parse(res1.data?.snapshot))
         }
       }
-      console.log(chartsMap)
       setCharts(chartsMap)
     }
   }
@@ -184,7 +183,6 @@ const Dashboard = () => {
 
 // 保存布局到 localStorage
   const saveLayout = async () => {
-    console.log(layouts)
     const res = await saveDashboard({id: selectedDashboard, snapshot: JSON.stringify(layouts)})
     if (res.code === 0) {
       message.success('保存成功')
@@ -213,7 +211,7 @@ const Dashboard = () => {
       const newChart = { i: newChartId, component: <GenChart option={chartOption}/>, analysisLastFlag: false};
 
       // 假设 newChartW 是新图表的宽度，cols 是列数（如 lg: 12 列）
-      const newChartW = 3; // 新图表宽度为 4 列
+      const newChartW = 4; // 新图表宽度为 4 列
 
       // 查找插入空隙
       let newChartX = null;
@@ -242,8 +240,7 @@ const Dashboard = () => {
         }
       }
 
-
-// 如果没有找到合适的空隙，则将新图表插入到下一行
+      // 如果没有找到合适的空隙，则将新图表插入到下一行
       if (newChartX === null) {
         newChartX = 0; // 新行从第 0 列开始
         newChartY = maxY === null ? 0: maxY + 1; // 插入到最大 y 坐标的下一行
@@ -252,7 +249,7 @@ const Dashboard = () => {
       if (layouts === undefined) {
         setCharts([newChart]);
         setLayouts({
-          lg: [{ i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }]
+          lg: [{ i: newChartId, x: newChartX, y: newChartY, w: 4, h: 2 }]
         });
       } else {
         setCharts((prevCharts) => [...prevCharts, newChart]);
@@ -260,11 +257,11 @@ const Dashboard = () => {
         setLayouts((prevLayouts) => {
           saveLayoutAfterAddChart({
             ...prevLayouts,
-            lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }]
+            lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 4, h: 2 }]
           })
           return {
             ...prevLayouts,
-            lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 3, h: 2 }],
+            lg: [...prevLayouts.lg, { i: newChartId, x: newChartX, y: newChartY, w: 4, h: 2 }],
           }
         });
       }
@@ -303,12 +300,9 @@ const Dashboard = () => {
 
   const setEditDataOption = async (chart) => {
     if (chart === undefined) return;
-    console.log(chart)
-    console.log(chart.type)
     setSelectedChartType(chart.type)
-    console.log(chart.dataOption)
     const datasourceId = chart.dataOption.datasourceId
-    setAddChartDefaultDatasource(datasourceId)
+    setAddChartDefaultDatasource(datasourceId.toString())
     setAddChartDefaultTable(chart.dataOption.dataTableName)
     setAddChartDefaultField(chart.dataOption.group[0].fieldName)
     const datasourceTables = await getTablesByDatasourceId({datasourceId: datasourceId || ''});
@@ -325,6 +319,7 @@ const Dashboard = () => {
       }
     }
     setChartOption(chart.component.props.option)
+    setAddChartDataLoading(false)
   }
 
   // 设置默认配置
@@ -384,8 +379,6 @@ const Dashboard = () => {
     if (dataOption === undefined) return;
     getChartData({dataOption: JSON.stringify(dataOption)})
       .then(res => {
-        console.log(selectedChartType)
-        console.log(ChartOption(selectedChartType, res.data))
         setChartOption(ChartOption(selectedChartType, res.data))
       }).finally(() => {
       setAddChartDataLoading(false)
@@ -625,6 +618,7 @@ const Dashboard = () => {
   const[readToEditChart, setReadToEditChart] = useState(null)
 
   const handleEditChartItemByKey = (chart) => {
+    setAddChartDataLoading(true)
     if (chart === undefined) return;
     // todo: 编辑
     loadAllDatasource()
@@ -730,28 +724,47 @@ const Dashboard = () => {
       {/* 右侧详细的仪表盘布局 */}
       <div style={{width: "85%", padding: "10px"}}>
         <div>
-          <div style={{
-            display: "flex"
-          }}>
-            <Popover
-              content={<><EchartsSelectCard></EchartsSelectCard></>}
-              title=""
-              placement="rightBottom"
-              trigger="click"
-              open={open}
-              onOpenChange={handleOpenChange}
-            >
-              <Button style={{
-                backgroundColor: '#1456F0',
-                color: '#ffffff'
-              }}>+添加图表
-              </Button>
-            </Popover>
+          {selectedDashboard !== undefined && <>
+            <div style={{
+              display: "flex"
+            }}>
+              <Popover
+                content={<><EchartsSelectCard></EchartsSelectCard></>}
+                title=""
+                placement="rightBottom"
+                trigger="click"
+                open={open}
+                onOpenChange={handleOpenChange}
+              >
+                <Button style={{
+                  backgroundColor: '#1456F0',
+                  color: '#ffffff'
+                }}>+添加图表
+                </Button>
+              </Popover>
 
-            <Button onClick={saveLayout} style={{
-              marginLeft: "10px"
-            }}>保存仪表盘</Button>
-          </div>
+              <Button onClick={saveLayout} style={{
+                marginLeft: "10px"
+              }}>保存仪表盘</Button>
+            </div>
+          </>}
+
+          {
+            charts === undefined || charts.length === 0 && <>
+              <div style={{
+                width: '100%',
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+                paddingTop: '100px'
+              }}>
+                <h2>可以点击左上角添加图表，开始搭建你的数据看板</h2>
+                <p style={{color: '#646A73'}}>快速插入柱状图、折线图、饼图等多种组件类型，直观展示数据，让业务动态一目了然</p>
+                <Button size={"large"}>一键生成图表</Button>
+              </div>
+            </>
+          }
 
           <ResponsiveGridLayout
             className="layout"
@@ -763,7 +776,6 @@ const Dashboard = () => {
             // onLayoutStop={onLayoutChange}
             margin={[10, 10]}
           >
-
             {renderCharts.length > 0 && renderCharts.map((chart) => (
               <div key={chart.i} style={{
                 backgroundColor: '#ffffff',
@@ -1010,7 +1022,6 @@ const Dashboard = () => {
                             return <Option value={item.value}>{item.label}</Option>
                           })}
                         </Select>
-
                         <div style={{marginBottom: "6px"}}>数据表</div>
                         <Select
                           value={addChartDefaultTable}
