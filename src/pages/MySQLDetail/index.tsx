@@ -950,15 +950,15 @@ const MyLayout = () => {
         }
       </>,
     },
-    // {
-    //   key: '2',
-    //   label: '数据源表',
-    //   children: <>
-    //     <ProTable
-    //       virtual
-    //       scroll={{x: 1000, y: 600}} dataSource={dataList} columns={columns} pagination={false} search={false}/>
-    //   </>
-    // }
+    {
+      key: '2',
+      label: '数据源表',
+      children: <>
+        <ProTable
+          virtual
+          scroll={{x: 1000, y: 600}} pagination={false} search={false}/>
+      </>
+    }
   ];
 
 
