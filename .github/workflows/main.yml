@@ -1,5 +1,5 @@
 name: Continuous Deploy #action名称
-on: [push] #在推送的时候运行此action
+on: [push] #在推送的时候运行
 
 jobs:
   deploy_job: # 工作名称
