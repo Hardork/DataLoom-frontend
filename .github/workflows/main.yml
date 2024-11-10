@@ -20,7 +20,7 @@ jobs:
         uses: wlixcc/SFTP-Deploy-Action@v1.0
         with:
           username: 'root'   #ssh user name
-          server: '${{ secrets.SERVER_HOST }}' #引用之前创建好的secret
+          server: ${{ secrets.SERVER_HOST }} #引用之前创建好的secret
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }} #引用之前创建好的secret
           local_path: './dist/*'  # 对应我们项目build的文件夹路径
           remote_path: './home/nginx/html/dataloom-front'  # 将项目build文件夹部署到远程文件夹
