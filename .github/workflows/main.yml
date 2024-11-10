@@ -14,13 +14,21 @@ jobs:
         run: yarn #执行的命令
       - name: Build
         run: yarn build
-
-      # 利用action把build好的文件上传到服务器/workspace/react-note路径下,需要确认此目录已在服务端创建
-      - name: deploy file to server
-        uses: wlixcc/SFTP-Deploy-Action@v1.0
+#
+#      # 利用action把build好的文件上传到服务器/workspace/react-note路径下,需要确认此目录已在服务端创建
+#      - name: deploy file to server
+#        uses: wlixcc/SFTP-Deploy-Action@v1.0
+#        with:
+#          username: 'root'   #ssh user name
+#          server: ${{ secrets.SERVER_HOST }} #引用之前创建好的secret
+#          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }} #引用之前创建好的secret
+#          local_path: './dist/*'  # 对应我们项目build的文件夹路径
+#          remote_path: './home/nginx/html/dataloom-front'  # 将项目build文件夹部署到远程文件夹
+      - name: Appleboy
+        uses: appleboy/scp-action@master
         with:
-          username: 'root'   #ssh user name
-          server: ${{ secrets.SERVER_HOST }} #引用之前创建好的secret
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }} #引用之前创建好的secret
-          local_path: './dist/*'  # 对应我们项目build的文件夹路径
-          remote_path: './home/nginx/html/dataloom-front'  # 将项目build文件夹部署到远程文件夹
+          host: ${{ secrets.SERVER_HOST }} # 服务器地址：xxx.xxx.xxx.xxx
+          username: 'root' # 服务器名字 一般是root
+          key: ${{ secrets.SSH_PRIVATE_KEY }} # 服务器连接密钥
+          source: './dist' # 拷贝文件目录
+          target: '/home/nginx/html/dataloom-front' # 服务器目标目录
