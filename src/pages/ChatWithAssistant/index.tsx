@@ -1,7 +1,6 @@
 import { Button, Card, Col, Form, message, Row, Space } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'antd/es/form/Form';
 import { useModel } from '@@/exports';
 import AiWebSocket from '@/components/WebSocket/AiWebSocket';
 import { chatWithAssistant } from '@/services/DataLoom/aiController';
@@ -15,25 +14,10 @@ import WebSocketComponent from "@/components/WebSocket";
  * @constructor
  */
 
-const mock = [
-  {
-    id: 1,
-    title: '你好',
-  },
-  {
-    id: 2,
-    title: '你好',
-  },
-  {
-    id: 3,
-    title: '你好',
-  },
-];
 
 const ChatWithAssistant: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [form] = useForm();
-  const { initialState, setInitialState } = useModel('@@initialState');
+  const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
   const [result, setResult] = useState('');
   const [assistant, setAssistant] = useState<API.AiRole>({});
@@ -69,20 +53,22 @@ const ChatWithAssistant: React.FC = () => {
       }
     };
 
-    // 假设ws是已经创建好的WebSocket实例
-    const ws = new WebSocket('ws://localhost:8081/api/websocket/ai/' + currentUser?.id);
+    if (currentUser && currentUser?.id !== undefined) {
+      // 假设ws是已经创建好的WebSocket实例
+      const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/ai/' : 'ws://101.126.147.234:8081/api/websocket/ai/'  + currentUser?.id);
 
-    ws.onmessage = (event: any) => {
-      handleMessage(event);
-    };
+      ws.onmessage = (event: any) => {
+        handleMessage(event);
+      };
 
-    ws.onopen = (event: any) => {
-      console.log('连接已建立');
-    };
+      ws.onopen = (event: any) => {
+        console.log('连接已建立');
+      };
 
-    return () => {
-      ws.close();
-    };
+      return () => {
+        ws.close();
+      };
+    }
   }, []);
 
   /**

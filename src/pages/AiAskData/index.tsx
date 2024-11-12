@@ -10,32 +10,24 @@ import {
 } from "@ant-design/icons";
 import {
   addUserAskSqlHistory,
-  addUserChatHistory, getChatById,
+  getChatById,
   getUserChatHistory,
   getUserSqlChatRecord, userChatForSql
 } from "@/services/DataLoom/aiController";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {useLocation} from "umi";
-import {listUserMySqlDataInfo} from "@/services/DataLoom/dataController";
 import {listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
 /**
  * 我的图表页面
  * @constructor
  */
 const AiAskData: React.FC = () => {
-  const initSearchParams = {
-    current: 1,
-    pageSize: 4,
-    sortField: 'createTime',
-    sortOrder: 'desc',
-  };
 
   const location = useLocation();
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
-  const [searchParams, setSearchParams] = useState<API.AiRoleQueryRequest>({ ...initSearchParams });
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
   // 当前聊天模型
@@ -65,7 +57,6 @@ const AiAskData: React.FC = () => {
       selectItem: selectItem
     },
   ];
-
 
   // 加载页面数据
   const loadData = async () => {
@@ -233,11 +224,10 @@ const AiAskData: React.FC = () => {
     loadData();
     const handleMessage = (event:any) => {
       // 处理收到的消息
-      console.log('收到消息：', event.data);
       const res = JSON.parse(event.data)
       if (res.type === 'start') { //会话开始
         // 增加系统回答框
-        const addItem : API.GetUserSQLChatRecordVO = {
+        const addItem : any = {
           chatRole: 1,
           res: [],
           columns: [],
@@ -252,7 +242,6 @@ const AiAskData: React.FC = () => {
         setColumns(undefined)
       } else {
         const t_columns =  res.columns.map((item: any) => {
-          console.log(item)
           return {
             title: item,
             dataIndex: item
@@ -265,14 +254,14 @@ const AiAskData: React.FC = () => {
     };
 
     // 假设ws是已经创建好的WebSocket实例
-    const ws = new WebSocket('ws://localhost:8081/api/websocket/sql/' + currentUser?.id);
+    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/sql/' : 'ws://101.126.147.234:8081/api/websocket/sql/'  + currentUser?.id);
 
     ws.onmessage = (event: any) => {
       handleMessage(event);
     };
 
     ws.onopen = (event: any) => {
-      console.log('连接已建立')
+      console.log('连接已建立', event)
     }
 
     return () => {
@@ -401,7 +390,7 @@ const AiAskData: React.FC = () => {
                     onChange={(e) => {
                       setContent(e.target.value)
                     }}
-                    onPressEnter={(e) => {
+                    onPressEnter={() => {
                       sendQuestion()
                     }}
                     suffix={
@@ -534,7 +523,7 @@ const AiAskData: React.FC = () => {
                       onChange={(e) => {
                         setContent(e.target.value)
                       }}
-                      onPressEnter={(e) => {
+                      onPressEnter={() => {
                         sendQuestion()
                       }}
                       suffix={

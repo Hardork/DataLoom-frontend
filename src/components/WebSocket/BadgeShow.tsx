@@ -30,7 +30,8 @@ const BadgeShow: React.FC<BadgeShowProps> = ({ userId, onShow }) => {
     // 假设ws是已经创建好的WebSocket实例
 
     console.log('用户' + userId)
-    const ws = new WebSocket('ws://localhost:8081/api/websocket/' + userId);
+    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/' : 'ws://101.126.147.234:8081/api/websocket/'  + userId);
+
 
     ws.onmessage = (event) => {
       handleMessage(event);

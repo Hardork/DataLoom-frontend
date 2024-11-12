@@ -43,7 +43,8 @@ const AiTalk: React.FC = () => {
     };
 
     // 假设ws是已经创建好的WebSocket实例
-    const ws = new WebSocket('ws://localhost:8081/api/websocket/ai/' + currentUser?.id);
+    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/ai/' : 'ws://101.126.147.234:8081/api/websocket/ai/'  + currentUser?.id);
+
 
     ws.onmessage = (event: any) => {
       handleMessage(event);

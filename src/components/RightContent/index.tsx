@@ -63,7 +63,8 @@ export const Message = () => {
 
   useEffect(() => {
     queryUnReadMessage()
-    const ws = new WebSocket('ws://localhost:8081/api/websocket/budge/' + currentUser?.id);
+    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/budge/' : 'ws://101.126.147.234:8081/api/websocket/budge/'  + currentUser?.id);
+
 
     ws.onmessage = () => {
       setShow(true)
