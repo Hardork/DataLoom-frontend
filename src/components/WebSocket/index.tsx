@@ -6,8 +6,8 @@ import {useModel} from "@umijs/max";
 const WebSocketComponent = (userId: any) => {
 
 
-  const { initialState, setInitialState } = useModel('@@initialState');
-  const { currentUser, webSocket } = initialState ?? {};
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState ?? {};
 
   const [msg, setMsg] = useState({
     title: undefined,
@@ -47,8 +47,8 @@ const WebSocketComponent = (userId: any) => {
     };
 
     // 假设ws是已经创建好的WebSocket实例
-    console.log(userId.userId)
-    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/' : 'ws://101.126.147.234:8081/api/websocket/'  + currentUser?.id);
+    const wsPath = REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/' : 'ws://101.126.147.234:8081/api/websocket/';
+    const ws = new WebSocket(wsPath + currentUser?.id);
 
     ws.onmessage = (event: any) => {
       handleMessage(event);

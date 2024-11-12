@@ -14,7 +14,7 @@ import {
   getUserChatHistory,
   getUserSqlChatRecord, userChatForSql
 } from "@/services/DataLoom/aiController";
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea, ProSkeleton} from "@ant-design/pro-components";
 import {useLocation} from "umi";
 import {listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
 /**
@@ -22,11 +22,8 @@ import {listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
  * @constructor
  */
 const AiAskData: React.FC = () => {
-
   const location = useLocation();
-
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
-
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
@@ -60,7 +57,6 @@ const AiAskData: React.FC = () => {
 
   // 加载页面数据
   const loadData = async () => {
-    console.log(location)
     setLoading(true);
     setSelectItem([])
     // 加载用户数据集
@@ -161,7 +157,7 @@ const AiAskData: React.FC = () => {
     loadRecord()
   },[curModel])
 
-
+  // 自动滚动
   let timeoutTimer: number | NodeJS.Timeout | null | undefined = null
   let intervalTimer: number | NodeJS.Timeout | undefined
   const autoScroll = () => {
@@ -189,7 +185,6 @@ const AiAskData: React.FC = () => {
   useEffect(() => {
     if (submitting) { // 在submitting中，不断追加
       const arr = chatRecord
-      console.log(result)
       arr[arr.length - 1].res = result
       setChatRecord(arr)
       autoScroll()
@@ -200,7 +195,6 @@ const AiAskData: React.FC = () => {
   useEffect(() => {
     if (submitting) { // 在submitting中，不断追加
       const arr = chatRecord
-      console.log(result)
       arr[arr.length - 1].columns = columns
       setChatRecord(arr)
       autoScroll()
@@ -254,14 +248,19 @@ const AiAskData: React.FC = () => {
     };
 
     // 假设ws是已经创建好的WebSocket实例
-    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/sql/' : 'ws://101.126.147.234:8081/api/websocket/sql/'  + currentUser?.id);
+    const wsPath = REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/sql/' : 'ws://101.126.147.234:8081/api/websocket/sql/';
+    const ws = new WebSocket(wsPath  + currentUser?.id);
 
     ws.onmessage = (event: any) => {
       handleMessage(event);
     };
 
     ws.onopen = (event: any) => {
-      console.log('连接已建立', event)
+      console.log('sql连接已建立', event)
+    }
+
+    ws.onerror = (e) => {
+      console.log('链接错误',e)
     }
 
     return () => {
@@ -323,7 +322,7 @@ const AiAskData: React.FC = () => {
                   height: '84vh',
                   overflowY: 'auto',
                   scrollbarWidth: 'thin',
-                  scrollbarColor: 'grey blue'
+                  scrollbarColor: 'grey'
                 }} ref={scrollDomRef}>
                   <div style={{width: '100%', textAlign: "center"}}>
                     <h3 style={{fontWeight: "bold"}}>{curModel?.assistantName}</h3>
@@ -343,20 +342,27 @@ const AiAskData: React.FC = () => {
                       </div>
                     </>
                   }
-
+                  {
+                    chatRecord === undefined && <>
+                      <ProSkeleton type="result" />
+                    </>
+                  }
                   {
                     chatRecord?.map(item => (
                       <>
                         <div>
                           <Space direction="horizontal">
-                            {item.chatRole === 0 && <>
-                              <img src={currentUser?.userAvatar} style={{width: '30px',borderRadius: '50%'}}/>
-                              <div style={{marginTop: '5px',padding: '10px' , background: '#e7f7ff', borderRadius: '10px'}}>{item.content}</div>
-                            </>}
-                            {item.chatRole === 1 && <>
-                              <img src={'/model.png'} style={{width: '30px'}}/>
-                              <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}>
+                            {item.chatRole === 0 && <div style={{display: "flex"}}>
+                              <img src={currentUser?.userAvatar} style={{width: '30px', height: '30px', borderRadius: '50%'}}/>
+                              <div style={{marginLeft: "10px" , padding: '10px', background: '#e7f7ff', borderRadius: '10px'}}>{item.content}</div>
+                            </div>}
+                            {item.chatRole === 1 && <div style={{display: "flex"}}>
+                              <img src={'/model.png'} style={{width: '30px', height: '30px'}}/>
+                              <div style={{marginLeft: "10px" , padding: '10px', background: '#f4f6f8', borderRadius: '10px'}}>
                                 <Table
+                                  style={{
+                                    minWidth: '300px'
+                                  }}
                                   columns={item.columns}
                                   dataSource={item.res}
                                   pagination={false}
@@ -374,7 +380,7 @@ const AiAskData: React.FC = () => {
                               </div>
                               <div>
                               </div>
-                            </>}
+                            </div>}
                           </Space>
                           <div className="margin-16" />
                         </div>

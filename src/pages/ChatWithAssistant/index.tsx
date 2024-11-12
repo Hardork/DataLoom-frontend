@@ -55,7 +55,8 @@ const ChatWithAssistant: React.FC = () => {
 
     if (currentUser && currentUser?.id !== undefined) {
       // 假设ws是已经创建好的WebSocket实例
-      const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/ai/' : 'ws://101.126.147.234:8081/api/websocket/ai/'  + currentUser?.id);
+      const wsPath = REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/ai/' : 'ws://101.126.147.234:8081/api/websocket/ai/';
+      const ws = new WebSocket(wsPath + currentUser?.id);
 
       ws.onmessage = (event: any) => {
         handleMessage(event);

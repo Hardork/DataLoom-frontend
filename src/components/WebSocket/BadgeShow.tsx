@@ -30,20 +30,24 @@ const BadgeShow: React.FC<BadgeShowProps> = ({ userId, onShow }) => {
     // 假设ws是已经创建好的WebSocket实例
 
     console.log('用户' + userId)
-    const ws = new WebSocket(REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/' : 'ws://101.126.147.234:8081/api/websocket/'  + userId);
+    if (userId !== undefined) {
+      const wsPath = REACT_APP_ENV === 'dev' ? 'ws://localhost:8081/api/websocket/' : 'ws://101.126.147.234:8081/api/websocket/';
+      const ws = new WebSocket(wsPath  + userId);
+      ws.onmessage = (event) => {
+        handleMessage(event);
+      };
 
+      ws.onopen = (event) => {
+        console.log('连接已建立')
+      }
 
-    ws.onmessage = (event) => {
-      handleMessage(event);
-    };
-
-    ws.onopen = (event) => {
-      console.log('连接已建立')
+      return () => {
+        ws.close();
+      };
     }
 
-    return () => {
-      ws.close();
-    };
+
+
   }, []);
 
   return<></>;
