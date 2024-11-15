@@ -1,5 +1,5 @@
-import { useModel } from '@@/exports';
-import {Button, Card, Col, Collapse, Dropdown, Input, message, Modal, Result, Row, Space, Spin, Table, Tag} from 'antd';
+import {useLocation, useModel} from '@@/exports';
+import {Card, Col, Collapse, Input, message, Modal, Result, Row, Space, Spin, Table, Tag} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
@@ -9,6 +9,7 @@ import {
   PlusOutlined,
   SearchOutlined
 } from "@ant-design/icons";
+import { history } from '@umijs/max';
 import {
   addUserAskSqlHistory,
   getChatById,
@@ -16,7 +17,6 @@ import {
   getUserSqlChatRecord, userChatForSql
 } from "@/services/DataLoom/aiController";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea, ProSkeleton} from "@ant-design/pro-components";
-import {useLocation} from "umi";
 import {listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
 /**
  * 我的图表页面
@@ -430,9 +430,13 @@ const AiAskData: React.FC = () => {
                   >
                     <div style={{ width: '100%', textAlign: 'center' }}>
                       <h3 style={{ fontWeight: 'bold' }}>{curModel?.assistantName}</h3>
-                      <Tag icon={<DatabaseOutlined />} color="#55acee">
-                        {curModel.datasourceName}
-                      </Tag>
+                      <a onClick={() => {
+                        history.push('/mysql_detail/' + curModel?.datasourceId)
+                      }}>
+                        <Tag icon={<DatabaseOutlined />} color="#55acee">
+                          {curModel.datasourceName}
+                        </Tag>
+                      </a>
                     </div>
 
                     <div className="margin-16" />
