@@ -1,0 +1,4 @@
+/* 外部CSS文件 */
+.scrollable-content::-webkit-scrollbar {
+  display: none;
+}

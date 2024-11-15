@@ -7,7 +7,6 @@ import * as userController from './userController';
 import * as userMessageController from './userMessageController';
 import * as failedChartController from './failedChartController';
 import * as dataSourceTreeController from './dataSourceTreeController';
-import * as dataSourceController from './dataSourceController';
 import * as dataController from './dataController';
 import * as yibiaopanjiekou from './yibiaopanjiekou';
 import * as coreDataSourceController from './coreDataSourceController';
@@ -23,7 +22,6 @@ export default {
   userMessageController,
   failedChartController,
   dataSourceTreeController,
-  dataSourceController,
   dataController,
   yibiaopanjiekou,
   coreDataSourceController,

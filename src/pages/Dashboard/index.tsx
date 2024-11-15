@@ -22,7 +22,7 @@ import {
   listUserDataSource
 } from "@/services/DataLoom/coreDataSourceController";
 import AnalysisPopover from "@/pages/Dashboard/components/AnalysisPopover";
-
+import "./index.css"
 const ResponsiveGridLayout = GridLayout.WidthProvider(GridLayout.Responsive);
 
 type chartType = {
@@ -722,7 +722,7 @@ const Dashboard = () => {
       </div>
 
       {/* 右侧详细的仪表盘布局 */}
-      <div style={{width: "85%", padding: "10px"}}>
+      <div className="scrollable-content" style={{width: "85%", padding: "10px", maxHeight: "100vh", overflow: 'scroll'}}>
         <div>
           {selectedDashboard !== undefined && <>
             <div style={{
@@ -808,10 +808,15 @@ const Dashboard = () => {
                     boxSizing: "border-box" // 确保边框不会改变元素的大小
                   }}>
                     <div>图表</div>
-                    <div>
+                    <div style={{
+                    }}>
                       {(hoveredChart === chart.i || selectedChart === chart.i) && (  // 只有当当前图表被悬停时，显示按钮
                         <>
-                          <div>
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                          }}>
                             <AnalysisPopover chart={chart}></AnalysisPopover>
                             <Dropdown menu={{ items: editChartItems(chart)}}>
                               <Button size={"small"} onClick={(event) => {

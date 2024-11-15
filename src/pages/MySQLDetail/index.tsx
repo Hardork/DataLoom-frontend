@@ -22,11 +22,10 @@ import {
   DatePicker,
   Space,
   Table,
-  TableColumnsType,
   Modal, Tooltip, MenuProps
 } from 'antd';
 import {
-  CalendarOutlined, DashboardOutlined, DownOutlined,
+  CalendarOutlined, DashboardOutlined,
   FileOutlined, FileTextOutlined,
   InboxOutlined,
   MinusCircleOutlined, NumberOutlined,
@@ -34,7 +33,6 @@ import {
   SearchOutlined
 } from "@ant-design/icons";
 import {useParams} from "react-router";
-import {checkConnect, getSchemas, previewData, saveDataSourceMetaInfo} from "@/services/DataLoom/dataSourceController";
 import ProCard from "@ant-design/pro-card";
 import {
   addDatasource,
@@ -45,11 +43,9 @@ import {
 } from "@/services/DataLoom/coreDataSourceController";
 import {getByDatasource} from "@/services/DataLoom/coreDatasetTableController";
 import {Radio} from 'antd/lib';
-import Cron from 'antd-cron';
 import moment from "moment";
 import {FormInstance, ProFormText, ProFormTextArea, ProTable, StepsForm} from "@ant-design/pro-components";
 import Dragger from 'antd/es/upload/Dragger';
-import {file} from "@babel/types";
 import {RcFile, UploadProps} from "antd/es/upload/interface";
 import {previewAndCheckExcelInfo} from "@/services/DataLoom/dataController";
 import {AES_Encrypt} from '../../utils/AES'
@@ -59,12 +55,9 @@ const {Content, Sider} = Layout;
 
 const MyLayout = () => {
 
-  const params = useParams();
-  const [items, setItems] = useState<[]>()
   const [selectDatasource, setSelectDatasource] = useState<string>();
   const [datasource, setDatasource] = useState<API.DatasourceDTO>()
   const [configuration, setConfiguration] = useState<null>()
-  const [dataList, setDataList] = useState<Record<string, any>[]>()
   const [datasources, setDatasources] = useState<[]>()
   const [ApiDefinitions, setApiDefinitions] = useState<Record<string, any>[]>()
   const [ApiDefinition, setApiDefinition] = useState<API.ApiDefinition>()
@@ -82,7 +75,6 @@ const MyLayout = () => {
   const [jsonFields, setjsonFields] = useState<Record<string, any>[]>([]);
   const [isNewApiDefinition, setIsNewApiDefinition] = useState(false);
   const [rightDrawerValue, setrightDrawerValue] = useState<Record<string, any>>({});
-  const [formData, setFormData] = useState({});
   const [selectValue, setSelectValue] = useState('上传数据源');
   const [databaseVisible, setDatabaseVisible] = useState<boolean>(false);
   const [fileVisible, setFileVisible] = useState(false);

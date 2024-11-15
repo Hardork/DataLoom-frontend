@@ -32,6 +32,21 @@ export async function addDashboardChart(
   });
 }
 
+/** AI一键生成仪表盘(异步) POST /admin/dashboard/aiGenChart */
+export async function aiGenChart(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.aiGenChartParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBoolean>('/admin/dashboard/aiGenChart', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 删除图表 POST /admin/dashboard/deleteChart */
 export async function deleteChart(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

@@ -26,9 +26,6 @@ const AiTalk: React.FC = () => {
     type: undefined
   })
 
-  // useEffect(() => {
-  //
-  // }, [msg])
 
   useEffect(() => {
     const handleMessage = (event:any) => {

@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 此处后端没有提供注释 POST /admin/message/add */
+/** 增加消息 POST /admin/message/add */
 export async function addUserMessage(
   body: API.UserMessageAddRequest,
   options?: { [key: string]: any },
@@ -17,7 +17,7 @@ export async function addUserMessage(
   });
 }
 
-/** 此处后端没有提供注释 POST /admin/message/list */
+/** 显示所有未读消息 POST /admin/message/list */
 export async function listUnReadMessage(options?: { [key: string]: any }) {
   return request<API.BaseResponseListUserMessage>('/admin/message/list', {
     method: 'POST',
@@ -25,7 +25,7 @@ export async function listUnReadMessage(options?: { [key: string]: any }) {
   });
 }
 
-/** 此处后端没有提供注释 POST /admin/message/read */
+/** 已读消息 POST /admin/message/read */
 export async function hasReadMessage(options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/admin/message/read', {
     method: 'POST',

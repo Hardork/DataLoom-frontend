@@ -1,12 +1,13 @@
 import { useModel } from '@@/exports';
-import {Card, Col, Collapse, Input, message, Row, Space, Spin, Table} from 'antd';
+import {Button, Card, Col, Collapse, Dropdown, Input, message, Modal, Result, Row, Space, Spin, Table, Tag} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
 import {
+  DatabaseOutlined,
   LoadingOutlined,
   PlusOutlined,
-  SearchOutlined,
+  SearchOutlined
 } from "@ant-design/icons";
 import {
   addUserAskSqlHistory,
@@ -44,6 +45,7 @@ const AiAskData: React.FC = () => {
   const [curSQL, setCurSQL] = useState<string>('')
   const [result, setResult] = useState<Record<string, any>[]>()
   const [columns, setColumns] = useState()
+  const [status, setStatus] = useState<number>(0)
   const addFormIndex = [
     {
       name: 'dataId',
@@ -111,11 +113,14 @@ const AiAskData: React.FC = () => {
   // 加载对话记录
   const loadRecord = async () => {
     const chatRecordParam = {chatId: curModel?.chatId}
+    // 获取对应的数据源信息
+
     // 加载用户对话历史
     const chatRecordRes = await getUserSqlChatRecord(chatRecordParam)
     if (chatRecordRes.data) {
       setChatRecord(chatRecordRes.data)
     }
+
   }
 
   // 用户发送信息
@@ -149,6 +154,24 @@ const AiAskData: React.FC = () => {
       message.error(res.message)
     }
   }
+
+  const warning = async (getUserChatHistoryVO : API.GetUserChatHistoryVO) => {
+    Modal.confirm({
+      title: '删除图表',
+      content: '删除图表后，系统不提供数据恢复的功能！',
+      onOk: async () => {
+        // const res = await
+        // if (res.code === 0) {
+        //   message.success('删除成功')
+        //   // 重新加载
+        //   loadData()
+        // } else {
+        //   message.error('删除失败')
+        // }
+
+      }
+    });
+  };
 
   const scrollDomRef = useRef<HTMLDivElement>(null);
 
@@ -211,6 +234,15 @@ const AiAskData: React.FC = () => {
     }
   }, [curSQL])
 
+  // 渲染websocket消息
+  useEffect(() => {
+    if (submitting) { // 在submitting中，不断追加
+      const arr = chatRecord
+      arr[arr.length - 1].status = status
+      setChatRecord(arr)
+      autoScroll()
+    }
+  }, [status])
 
 
   // 建立连接
@@ -219,13 +251,16 @@ const AiAskData: React.FC = () => {
     const handleMessage = (event:any) => {
       // 处理收到的消息
       const res = JSON.parse(event.data)
+      console.log(res)
       if (res.type === 'start') { //会话开始
         // 增加系统回答框
         const addItem : any = {
           chatRole: 1,
           res: [],
           columns: [],
-          sql: ''
+          sql: '',
+          status: 'success',
+          loading: true
         }
 
         // 添加聊天框
@@ -233,8 +268,13 @@ const AiAskData: React.FC = () => {
       } else if (res.type === 'end') { //结束会话
         setSubmitting(false);
         setResult([])
+        setStatus(0)
         setColumns(undefined)
-      } else {
+      } else if (res.type === 'error') {
+        setSubmitting(false);
+        setStatus(1)
+      }
+      else {
         const t_columns =  res.columns.map((item: any) => {
           return {
             title: item,
@@ -268,39 +308,97 @@ const AiAskData: React.FC = () => {
     };
   }, []);
 
+  const editItems = (item:  API.GetUserChatHistoryVO) => [
+    {
+      label: <a onClick={() => {
+        warning(item)
+      }}>
+        删除
+      </a>,
+      key: 'delete',
+    }
+  ]
+
   return (
-    <div className="my-chat" style={{
-      margin: '-32px -40px'
-    }}>
+    <div
+      className="my-chat"
+      style={{
+        margin: '-32px -40px',
+      }}
+    >
       <WebSocketComponent userId={currentUser?.id}></WebSocketComponent>
       <Row gutter={16}>
         <Col span={5}>
-          <Card style={{minHeight: '93vh'}}>
-            <div><h3>智能问数</h3></div>
-            <Space direction="horizontal" style={{width: '100%'}} size={20}>
-              <div>
-                <Input placeholder="搜索历史对话" suffix={<SearchOutlined/>}/>
-              </div>
-              <a onClick={() => {
-                handleModalOpen(true)
-              }}><PlusOutlined/></a>
-            </Space>
-            <div className="margin-16"/>
+          <Card style={{ minHeight: '93vh' }}>
             <div>
+              <h3>智能问数</h3>
+            </div>
+            <Space
+              direction="horizontal"
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}
+              size={20}
+            >
+              <div>
+                <Input placeholder="搜索历史对话" suffix={<SearchOutlined />} />
+              </div>
+              <a
+                onClick={() => {
+                  handleModalOpen(true);
+                }}
+              >
+                <PlusOutlined />
+              </a>
+            </Space>
+            <div className="margin-16" />
+            <div
+              style={{
+                height: '70vh',
+                overflowY: 'auto',
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'grey',
+              }}
+            >
               <>
                 {chatHistory?.map((item, index) => (
                   <>
-                    <Card style={{width: '100%', marginTop: 16}} className={index === selectIndex ? 'active-item' : ''}
-                          hoverable loading={loading} onClick={() => {
-                      setCurModel(item)
-                      setSelectIndex(index)
-                    }}>
-
-                      <div className={index === selectIndex ? 'active-color' : ''}>
-                        <img src={currentUser?.userAvatar} style={{width: '30px', borderRadius: '50%'}}/>
-                        <span style={{marginLeft: '20px', fontSize: '14px'}}>{item.assistantName}</span>
-                        <div style={{marginLeft: '50px', fontSize: '12px'}}>
-                          <p>{item.functionDes}</p>
+                    <Card
+                      style={{ width: '100%', marginTop: 16 }}
+                      className={index === selectIndex ? 'active-item' : ''}
+                      hoverable
+                      loading={loading}
+                      onClick={() => {
+                        setCurModel(item);
+                        setSelectIndex(index);
+                      }}
+                    >
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between"
+                      }}>
+                        <div className={index === selectIndex ? 'active-color' : ''}>
+                          <img
+                            src={currentUser?.userAvatar}
+                            style={{ width: '30px', borderRadius: '50%' }}
+                          />
+                          <span style={{ marginLeft: '20px', fontSize: '14px' }}>
+                            {item.assistantName}
+                          </span>
+                          <div style={{ marginLeft: '50px', fontSize: '12px' }}>
+                            <p>{item.functionDes}</p>
+                          </div>
+                        </div>
+                        <div>
+                          {/*<Dropdown menu={{ items: editItems(item) }}>*/}
+                          {/*  <Button*/}
+                          {/*    size={'small'}*/}
+                          {/*    onClick={(event) => {*/}
+                          {/*      event.preventDefault();*/}
+                          {/*    }}*/}
+                          {/*  >*/}
+                          {/*    /!*TODO: 编辑、删除、重命名图表*!/*/}
+                          {/*    <img src={'/系统配置.svg'} alt="系统配置" />*/}
+                          {/*  </Button>*/}
+                          {/*</Dropdown>*/}
                         </div>
                       </div>
                     </Card>
@@ -310,249 +408,367 @@ const AiAskData: React.FC = () => {
             </div>
           </Card>
         </Col>
-        <Col span={19} style={{
-          position: "relative"
-        }}>
-          {curModel && <>
-            <Col span={24}>
-              <Card style={{height: '93vh', position: "relative"}}>
-                {/*助手信息*/}
-                <div style={{
-                  width: '100%',
-                  height: '84vh',
-                  overflowY: 'auto',
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: 'grey'
-                }} ref={scrollDomRef}>
-                  <div style={{width: '100%', textAlign: "center"}}>
-                    <h3 style={{fontWeight: "bold"}}>{curModel?.assistantName}</h3>
-                  </div>
-                  <div className="margin-16" />
-                  {/* 渲染历史对话 */}
-                  {
-                    curModel && <>
-                      <div>
-                        <Space direction="horizontal">
-                          <img src={'/model.png'} style={{width: '30px'}}/>
-                          <div style={{marginTop: '5px',padding: '10px' , background: '#f4f6f8', borderRadius: '10px'}}>
-                            {'你好，我是' + curModel?.assistantName + ',' + '我可以' + curModel?.functionDes}
-                          </div>
-                        </Space>
-                        <div className="margin-16" />
-                      </div>
-                    </>
-                  }
-                  {
-                    chatRecord === undefined && <>
-                      <ProSkeleton type="result" />
-                    </>
-                  }
-                  {
-                    chatRecord?.map(item => (
+        <Col
+          span={19}
+          style={{
+            position: 'relative',
+          }}
+        >
+          {curModel && (
+            <>
+              <Col span={24}>
+                <Card style={{ height: '93vh', position: 'relative' }}>
+                  {/*助手信息*/}
+                  <div
+                    style={{
+                      width: '100%',
+                      minHeight: '84vh',
+                      maxHeight: '84vh',
+                      overflowY: 'auto',
+                    }}
+                    ref={scrollDomRef}
+                  >
+                    <div style={{ width: '100%', textAlign: 'center' }}>
+                      <h3 style={{ fontWeight: 'bold' }}>{curModel?.assistantName}</h3>
+                      <Tag icon={<DatabaseOutlined />} color="#55acee">
+                        {curModel.datasourceName}
+                      </Tag>
+                    </div>
+
+                    <div className="margin-16" />
+                    {/* 渲染历史对话 */}
+                    {curModel && (
                       <>
                         <div>
                           <Space direction="horizontal">
-                            {item.chatRole === 0 && <div style={{display: "flex"}}>
-                              <img src={currentUser?.userAvatar} style={{width: '30px', height: '30px', borderRadius: '50%'}}/>
-                              <div style={{marginLeft: "10px" , padding: '10px', background: '#e7f7ff', borderRadius: '10px'}}>{item.content}</div>
-                            </div>}
-                            {item.chatRole === 1 && <div style={{display: "flex"}}>
-                              <img src={'/model.png'} style={{width: '30px', height: '30px'}}/>
-                              <div style={{marginLeft: "10px" , padding: '10px', background: '#f4f6f8', borderRadius: '10px'}}>
-                                <Table
-                                  style={{
-                                    minWidth: '300px'
-                                  }}
-                                  columns={item.columns}
-                                  dataSource={item.res}
-                                  pagination={false}
-                                  size={'small'}
-                                />
-                                <Collapse items={[
-                                  {
-                                    key: '1',
-                                    label: <>
-                                      <span style={{color: '#1677ff'}}>查询SQL</span>
-                                    </>,
-                                    children: <p>{item.sql}</p>
-                                  }
-                                ]} size={'small'} bordered={false} />
-                              </div>
-                              <div>
-                              </div>
-                            </div>}
+                            <img src={'/model.png'} style={{ width: '30px' }} />
+                            <div
+                              style={{
+                                marginTop: '5px',
+                                padding: '10px',
+                                background: '#f4f6f8',
+                                borderRadius: '10px',
+                              }}
+                            >
+                              {'你好，我是' +
+                                curModel?.assistantName +
+                                ',' +
+                                '我可以' +
+                                curModel?.functionDes}
+                            </div>
                           </Space>
                           <div className="margin-16" />
                         </div>
                       </>
-                    ))
-                  }
-                </div>
-
-                <div style={{position: "fixed", bottom: '3vh', width: '70%'}}>
-                  <Input
-                    placeholder="请输入内容"
-                    value={content}
-                    onChange={(e) => {
-                      setContent(e.target.value)
-                    }}
-                    onPressEnter={() => {
-                      sendQuestion()
-                    }}
-                    suffix={
+                    )}
+                    {chatRecord === undefined && (
                       <>
-                        {
-                          !submitting && <a onClick={() => {
-                            sendQuestion()
-                          }}><img src={'/send.png'} style={{width: '24px'}}/></a>
-                        }
-                        {
-                          submitting && <Spin indicator={antIcon} />
-                        }
+                        <ProSkeleton type="result" />
                       </>
-                    }
-                  />
-                </div>
-              </Card>
-            </Col>
-          </>}
-          {curModel === undefined && <>
-          <Col span={24}>
-            <Card style={{height: '93vh', position: "relative", backgroundColor: "#F6F7F9"}}>
-              <div style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center"
-              }}>
-                <div style={{
-                  maxWidth: "800px",
-                  minWidth: "500px",
-                  marginTop: "10vh",
-                  height: "100%",
-                  flexShrink: 1,
-                  justifyContent: "center"
-                }}>
-                  <div style={{
-                    maxWidth: "700px",
-                    textAlign: "left",
-                    padding: "0 16px 0 16px",
-                    marginBottom: "32px",
-                    boxSizing: "border-box"
-                  }}>
-                    <div style={{
-                      fontSize: "28px",
-                      marginBottom: "4px !important",
-                      lineHeight: "42px !important",
-                      whiteSpace: "nowrap"
-                    }}><p><span
-                      style={{
-                        color: "rgb(36, 84, 255)"
-                      }}><strong>问数</strong></span>
-                      <span
-                        style={{
-                          color: "rgb(0, 0, 0)"
-                        }}
-                      >用</span><span
-                        style={{
-                          color: "rgb(36, 84, 255)"
-                        }}
-                      ><strong>DATALOOM</strong></span></p></div>
-                    <div
-                      style={{
-                        fontSize: "16px !important",
-                        lineHeight: "26px !important",
-                        color: "var(--txt_icon_black_1, #1a2029)"
-                      }}
-                    >
-                      <p style={{
-                        lineHeight: 1
-                      }}><strong>数据检索无需复杂！试问LOOM，他会给你所有数据🚀</strong></p>
-                    </div>
+                    )}
+                    {chatRecord?.map((item) => (
+                      <>
+                        <div>
+                          <Space direction="horizontal">
+                            {item.chatRole === 0 && (
+                              <div style={{ display: 'flex' }}>
+                                <img
+                                  src={currentUser?.userAvatar}
+                                  style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                                />
+                                <div
+                                  style={{
+                                    marginLeft: '10px',
+                                    padding: '10px',
+                                    background: '#e7f7ff',
+                                    borderRadius: '10px',
+                                  }}
+                                >
+                                  {item.content}
+                                </div>
+                              </div>
+                            )}
+                            {item.chatRole === 1 && (
+                              <div style={{ display: 'flex' }}>
+                                {item.status === 1 ? (
+                                  <>
+                                    <Result status="error" title="查询异常" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <img
+                                      src={'/model.png'}
+                                      style={{ width: '30px', height: '30px' }}
+                                    />
+                                    <div
+                                      style={{
+                                        marginLeft: '10px',
+                                        padding: '10px',
+                                        background: '#f4f6f8',
+                                        borderRadius: '10px',
+                                      }}
+                                    >
+                                      <Table
+                                        style={{
+                                          minWidth: '300px',
+                                        }}
+                                        columns={item.columns}
+                                        dataSource={item.res}
+                                        pagination={false}
+                                        size={'small'}
+                                      />
+                                      <Collapse
+                                        items={[
+                                          {
+                                            key: '1',
+                                            label: (
+                                              <>
+                                                <span style={{ color: '#1677ff' }}>查询SQL</span>
+                                              </>
+                                            ),
+                                            children: <p>{item.sql}</p>,
+                                          },
+                                        ]}
+                                        size={'small'}
+                                        bordered={false}
+                                      />
+                                    </div>
+                                  </>
+                                )}
+                                <div></div>
+                              </div>
+                            )}
+                          </Space>
+                          <div className="margin-16" />
+                        </div>
+                      </>
+                    ))}
                   </div>
-                  <div style={{
-                    paddingBottom: "400px"
-                  }}>
-                    <Card style={{marginBottom: "10px"}}>
-                      <div style={{
-                        display: "inlineBlock",
-                        color: "var(--txt_icon_black_1, #1a2029)",
-                        fontFamily: "PingFang SC",
-                        fontWeight: 600,
-                        fontStyle: "normal",
-                        fontSize: "14px",
-                        lineHeight: "22px",
-                        textAlign: "left",
-                        flex: 1,
-                        maxHeight: "40px",
-                        overflowY: "hidden",
-                      }}>
-                        <span style={{
-                          color: "var(--txt_stroke_blue_1, #386fff)"
-                        }}>数据矿工</span>⚒️：提前有价值数据
-                      </div>
-                    </Card>
-                    <Card style={{marginBottom: "10px"}}>
-                      <div style={{
-                        display: "inlineBlock",
-                        color: "var(--txt_icon_black_1, #1a2029)",
-                        fontFamily: "PingFang SC",
-                        fontWeight: 600,
-                        fontStyle: "normal",
-                        fontSize: "14px",
-                        lineHeight: "22px",
-                        textAlign: "left",
-                        flex: 1,
-                        maxHeight: "40px",
-                        overflowY: "hidden",
-                      }}>
-                        <span style={{
-                          color: "var(--txt_stroke_blue_1, #386fff)"
-                        }}>实时观察</span>
-                        👀：请给我最近一周数据📊
-                      </div>
-                    </Card>
-                  </div>
-                  <div style={{
-                    width: "100%",
-                    minWidth: "872px",
-                    maxWidth: "872px",
-                    paddingBottom: "12px",
-                    boxSizing: "border-box",
-                    borderRadius: "12px",
-                    flex: "none",
-                    position: "relative"
-                  }}>
+
+                  <div
+                    style={{
+                      position: 'fixed',
+                      bottom: '3vh',
+                      width: '60%',
+                      borderRadius: '10px',
+                      backgroundColor: 'white',
+                      height: '5vh',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '2px 4px 10px 4px rgb(242, 242, 243)',
+                    }}
+                  >
                     <Input
                       placeholder="请输入内容"
                       value={content}
+                      bordered={false}
                       onChange={(e) => {
-                        setContent(e.target.value)
+                        setContent(e.target.value);
                       }}
                       onPressEnter={() => {
-                        sendQuestion()
+                        sendQuestion();
                       }}
                       suffix={
                         <>
-                          {
-                            !submitting && <a onClick={() => {
-                              sendQuestion()
-                            }}><img src={'/send.png'} style={{width: '24px'}}/></a>
-                          }
-                          {
-                            submitting && <Spin indicator={antIcon}/>
-                          }
+                          {!submitting && (
+                            <a
+                              onClick={() => {
+                                sendQuestion();
+                              }}
+                            >
+                              <img src={'/send.png'} style={{ width: '24px' }} />
+                            </a>
+                          )}
+                          {submitting && <Spin indicator={antIcon} />}
                         </>
                       }
                     />
                   </div>
-                </div>
-              </div>
-
-            </Card>
-          </Col>
-          </>}
-
+                </Card>
+              </Col>
+            </>
+          )}
+          {curModel === undefined && (
+            <>
+              <Col span={24}>
+                <Card style={{ height: '93vh', position: 'relative', backgroundColor: '#F6F7F9' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <div
+                      style={{
+                        maxWidth: '800px',
+                        minWidth: '500px',
+                        marginTop: '10vh',
+                        height: '100%',
+                        flexShrink: 1,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          maxWidth: '700px',
+                          textAlign: 'left',
+                          padding: '0 16px 0 16px',
+                          marginBottom: '32px',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: '28px',
+                            marginBottom: '4px !important',
+                            lineHeight: '42px !important',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <p>
+                            <span
+                              style={{
+                                color: 'rgb(36, 84, 255)',
+                              }}
+                            >
+                              <strong>问数</strong>
+                            </span>
+                            <span
+                              style={{
+                                color: 'rgb(0, 0, 0)',
+                              }}
+                            >
+                              用
+                            </span>
+                            <span
+                              style={{
+                                color: 'rgb(36, 84, 255)',
+                              }}
+                            >
+                              <strong>DATALOOM</strong>
+                            </span>
+                          </p>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: '16px !important',
+                            lineHeight: '26px !important',
+                            color: 'var(--txt_icon_black_1, #1a2029)',
+                          }}
+                        >
+                          <p
+                            style={{
+                              lineHeight: 1,
+                            }}
+                          >
+                            <strong>数据检索无需复杂！试问LOOM，他会给你所有数据🚀</strong>
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          paddingBottom: '400px',
+                        }}
+                      >
+                        <Card style={{ marginBottom: '10px' }}>
+                          <div
+                            style={{
+                              display: 'inlineBlock',
+                              color: 'var(--txt_icon_black_1, #1a2029)',
+                              fontFamily: 'PingFang SC',
+                              fontWeight: 600,
+                              fontStyle: 'normal',
+                              fontSize: '14px',
+                              lineHeight: '22px',
+                              textAlign: 'left',
+                              flex: 1,
+                              maxHeight: '40px',
+                              overflowY: 'hidden',
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: 'var(--txt_stroke_blue_1, #386fff)',
+                              }}
+                            >
+                              数据矿工
+                            </span>
+                            ⚒️：提前有价值数据
+                          </div>
+                        </Card>
+                        <Card style={{ marginBottom: '10px' }}>
+                          <div
+                            style={{
+                              display: 'inlineBlock',
+                              color: 'var(--txt_icon_black_1, #1a2029)',
+                              fontFamily: 'PingFang SC',
+                              fontWeight: 600,
+                              fontStyle: 'normal',
+                              fontSize: '14px',
+                              lineHeight: '22px',
+                              textAlign: 'left',
+                              flex: 1,
+                              maxHeight: '40px',
+                              overflowY: 'hidden',
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: 'var(--txt_stroke_blue_1, #386fff)',
+                              }}
+                            >
+                              实时观察
+                            </span>
+                            👀：请给我最近一周数据📊
+                          </div>
+                        </Card>
+                      </div>
+                      <div
+                        style={{
+                          width: '100%',
+                          minWidth: '872px',
+                          maxWidth: '872px',
+                          paddingBottom: '12px',
+                          boxSizing: 'border-box',
+                          borderRadius: '12px',
+                          flex: 'none',
+                          position: 'relative',
+                        }}
+                      >
+                        <Input
+                          placeholder="请输入内容"
+                          value={content}
+                          onChange={(e) => {
+                            setContent(e.target.value);
+                          }}
+                          onPressEnter={() => {
+                            sendQuestion();
+                          }}
+                          suffix={
+                            <>
+                              {!submitting && (
+                                <a
+                                  onClick={() => {
+                                    sendQuestion();
+                                  }}
+                                >
+                                  <img src={'/send.png'} style={{ width: '24px' }} />
+                                </a>
+                              )}
+                              {submitting && <Spin indicator={antIcon} />}
+                            </>
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            </>
+          )}
         </Col>
       </Row>
 
@@ -566,11 +782,11 @@ const AiAskData: React.FC = () => {
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
           console.log(value);
-          const res = await addUserAskSqlHistory({...value});
+          const res = await addUserAskSqlHistory({ ...value });
           if (res.code === 0) {
             message.success('新建成功');
             handleModalOpen(false);
-            loadData()
+            loadData();
           } else {
             message.error(res.message);
           }
