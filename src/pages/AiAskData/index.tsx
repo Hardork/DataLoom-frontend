@@ -597,8 +597,8 @@ const AiAskData: React.FC = () => {
                                 )}
                                 {item.status ===
                                   HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
-                                  <>{item.content}</>
-                                )}
+                                    <>{item.content}</>
+                                  )}
                               </div>
                             )}
                           </Space>
