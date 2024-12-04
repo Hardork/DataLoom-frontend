@@ -1,5 +1,5 @@
 import { useModel } from '@@/exports';
-import {Button, Card, Col, Collapse, Dropdown, Input, message, Modal, Result, Row, Space, Spin, Table, Tag} from 'antd';
+import { Card, Col, Collapse, Dropdown, Input, message, Modal, Result, Row, Space, Spin, Table, Tag} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import './index.css'
 import WebSocketComponent from "@/components/WebSocket";
@@ -10,7 +10,7 @@ import {
   SearchOutlined
 } from "@ant-design/icons";
 import {
-  addUserAskSqlHistory,
+  addUserAskSqlHistory, deleteUserAskSqlHistory,
   getChatById,
   getUserChatHistory,
   getUserSqlChatRecord, userChatForSql
@@ -18,6 +18,11 @@ import {
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea, ProSkeleton} from "@ant-design/pro-components";
 import {useLocation} from "umi";
 import {listUserDataSource} from "@/services/DataLoom/coreDataSourceController";
+// @ts-ignore
+import Show from "@/pages/AiAskData/component/show";
+// @ts-ignore
+import {AiAskDataMessage, HistoryStatusEnum} from "../../../types/AiAskData";
+
 /**
  * 我的图表页面
  * @constructor
@@ -36,15 +41,14 @@ const AiAskData: React.FC = () => {
   const [chatRecord, setChatRecord] = useState<API.GetUserSQLChatRecordVO[]>([])
   // 添加选项
   const [selectItem, setSelectItem] = useState([])
-  // 内容
-  const [content, setContent] = useState<string>('')
   // 选项卡
   const[selectIndex, setSelectIndex] = useState<number>(-1)
   // 提交状态
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [curSQL, setCurSQL] = useState<string>('')
   const [result, setResult] = useState<Record<string, any>[]>()
-  const [columns, setColumns] = useState()
+  const [columns, setColumns] = useState<any[]>([])
+  const [content, setContent] = useState<string>('')
   const [status, setStatus] = useState<number>(0)
   const addFormIndex = [
     {
@@ -160,14 +164,17 @@ const AiAskData: React.FC = () => {
       title: '删除图表',
       content: '删除图表后，系统不提供数据恢复的功能！',
       onOk: async () => {
-        // const res = await
-        // if (res.code === 0) {
-        //   message.success('删除成功')
-        //   // 重新加载
-        //   loadData()
-        // } else {
-        //   message.error('删除失败')
-        // }
+        console.log(getUserChatHistoryVO.chatId)
+        const res = await deleteUserAskSqlHistory({
+          chatId: getUserChatHistoryVO.chatId,
+        })
+        if (res.code === 0) {
+          message.success('删除成功')
+          // 重新加载
+          loadData()
+        } else {
+          message.error('删除失败,失败原因：' + res.message)
+        }
 
       }
     });
@@ -228,6 +235,16 @@ const AiAskData: React.FC = () => {
   useEffect(() => {
     if (submitting) { // 在submitting中，不断追加
       const arr = chatRecord
+      arr[arr.length - 1].content = content
+      setChatRecord(arr)
+      autoScroll()
+    }
+  }, [content])
+
+  // 渲染websocket消息
+  useEffect(() => {
+    if (submitting) { // 在submitting中，不断追加
+      const arr = chatRecord
       arr[arr.length - 1].sql = curSQL
       setChatRecord(arr)
       autoScroll()
@@ -250,40 +267,42 @@ const AiAskData: React.FC = () => {
     loadData();
     const handleMessage = (event:any) => {
       // 处理收到的消息
-      const res = JSON.parse(event.data)
+      const res:AiAskDataMessage = JSON.parse(event.data)
       console.log(res)
-      if (res.type === 'start') { //会话开始
+      if (res.type === HistoryStatusEnum.START) { //会话开始
         // 增加系统回答框
         const addItem : any = {
           chatRole: 1,
           res: [],
           columns: [],
           sql: '',
-          status: 'success',
-          loading: true
+          status: HistoryStatusEnum.START,
+          loading: true,
+          content: ''
         }
-
         // 添加聊天框
         setChatRecord(item => [...item, addItem])
-      } else if (res.type === 'end') { //结束会话
-        setSubmitting(false);
-        setResult([])
-        setStatus(0)
-        setColumns(undefined)
-      } else if (res.type === 'error') {
-        setSubmitting(false);
-        setStatus(1)
       }
-      else {
-        const t_columns =  res.columns.map((item: any) => {
+        else if (res.type === HistoryStatusEnum.ERROR) { // 会话异常
+        setSubmitting(false);
+        setStatus(HistoryStatusEnum.ERROR)
+      } else if (res.type === HistoryStatusEnum.ANALYSIS_COMPLETE) { // 分析数据源完毕
+        setStatus(HistoryStatusEnum.ANALYSIS_COMPLETE)
+        setContent(res.message)
+      } else if (res.type === HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE) { // 分析关联表完毕
+        setStatus(HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE)
+        setContent(res.message)
+      } else if (res.type === HistoryStatusEnum.END){ // 会话运行中
+        const t_columns =  res.data.columns.map((item: any) => {
           return {
             title: item,
             dataIndex: item
           }
         })
         setColumns(t_columns)
-        setResult(res.res);
-        setCurSQL(res.sql)
+        setResult(res.data.records);
+        setCurSQL(res.data.sql)
+        setSubmitting(false);
       }
     };
 
@@ -312,7 +331,7 @@ const AiAskData: React.FC = () => {
     {
       label: <a onClick={() => {
         warning(item)
-      }}>
+      }} style={{color: 'red'}}>
         删除
       </a>,
       key: 'delete',
@@ -388,17 +407,9 @@ const AiAskData: React.FC = () => {
                           </div>
                         </div>
                         <div>
-                          {/*<Dropdown menu={{ items: editItems(item) }}>*/}
-                          {/*  <Button*/}
-                          {/*    size={'small'}*/}
-                          {/*    onClick={(event) => {*/}
-                          {/*      event.preventDefault();*/}
-                          {/*    }}*/}
-                          {/*  >*/}
-                          {/*    /!*TODO: 编辑、删除、重命名图表*!/*/}
-                          {/*    <img src={'/系统配置.svg'} alt="系统配置" />*/}
-                          {/*  </Button>*/}
-                          {/*</Dropdown>*/}
+                          <Dropdown menu={{ items: editItems(item) }}>
+                            <img src={'/assets/more_grey.svg'} alt="系统配置" />
+                          </Dropdown>
                         </div>
                       </div>
                     </Card>
@@ -490,52 +501,68 @@ const AiAskData: React.FC = () => {
                             )}
                             {item.chatRole === 1 && (
                               <div style={{ display: 'flex' }}>
-                                {item.status === 1 ? (
+                                {item.status === HistoryStatusEnum.ERROR && (
                                   <>
                                     <Result status="error" title="查询异常" />
                                   </>
-                                ) : (
-                                  <>
-                                    <img
-                                      src={'/model.png'}
-                                      style={{ width: '30px', height: '30px' }}
-                                    />
-                                    <div
-                                      style={{
-                                        marginLeft: '10px',
-                                        padding: '10px',
-                                        background: '#f4f6f8',
-                                        borderRadius: '10px',
-                                      }}
-                                    >
-                                      <Table
-                                        style={{
-                                          minWidth: '300px',
-                                        }}
-                                        columns={item.columns}
-                                        dataSource={item.res}
-                                        pagination={false}
-                                        size={'small'}
-                                      />
-                                      <Collapse
-                                        items={[
-                                          {
-                                            key: '1',
-                                            label: (
-                                              <>
-                                                <span style={{ color: '#1677ff' }}>查询SQL</span>
-                                              </>
-                                            ),
-                                            children: <p>{item.sql}</p>,
-                                          },
-                                        ]}
-                                        size={'small'}
-                                        bordered={false}
-                                      />
-                                    </div>
-                                  </>
                                 )}
-                                <div></div>
+                                {
+                                  item.status === HistoryStatusEnum.END && (
+                                      <>
+                                        <img
+                                          src={'/model.png'}
+                                          style={{ width: '30px', height: '30px' }}
+                                        />
+                                        <div
+                                          style={{
+                                            marginLeft: '10px',
+                                            padding: '10px',
+                                            background: '#f4f6f8',
+                                            borderRadius: '10px',
+                                          }}
+                                        >
+                                          <Table
+                                            style={{
+                                              minWidth: '300px',
+                                            }}
+                                            columns={item.columns}
+                                            dataSource={item.res}
+                                            pagination={false}
+                                            size={'small'}
+                                          />
+                                          <Collapse
+                                            items={[
+                                              {
+                                                key: '1',
+                                                label: (
+                                                  <>
+                                                    <span style={{ color: '#1677ff' }}>查询SQL</span>
+                                                  </>
+                                                ),
+                                                children: <p>{item.sql}</p>,
+                                              },
+                                            ]}
+                                            size={'small'}
+                                            bordered={false}
+                                          />
+                                        </div>
+                                      </>
+                                  )
+                                }
+                                {
+                                  item.status === HistoryStatusEnum.ANALYSIS_COMPLETE && (
+                                    <>
+                                      {item.content}
+                                    </>
+                                  )
+                                }
+                                {
+                                  item.status === HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
+                                    <>
+                                      {item.content}
+                                    </>
+                                  )
+                                }
                               </div>
                             )}
                           </Space>
@@ -591,182 +618,7 @@ const AiAskData: React.FC = () => {
           )}
           {curModel === undefined && (
             <>
-              <Col span={24}>
-                <Card style={{ height: '93vh', position: 'relative', backgroundColor: '#F6F7F9' }}>
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <div
-                      style={{
-                        maxWidth: '800px',
-                        minWidth: '500px',
-                        marginTop: '10vh',
-                        height: '100%',
-                        flexShrink: 1,
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <div
-                        style={{
-                          maxWidth: '700px',
-                          textAlign: 'left',
-                          padding: '0 16px 0 16px',
-                          marginBottom: '32px',
-                          boxSizing: 'border-box',
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: '28px',
-                            marginBottom: '4px !important',
-                            lineHeight: '42px !important',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <p>
-                            <span
-                              style={{
-                                color: 'rgb(36, 84, 255)',
-                              }}
-                            >
-                              <strong>问数</strong>
-                            </span>
-                            <span
-                              style={{
-                                color: 'rgb(0, 0, 0)',
-                              }}
-                            >
-                              用
-                            </span>
-                            <span
-                              style={{
-                                color: 'rgb(36, 84, 255)',
-                              }}
-                            >
-                              <strong>DATALOOM</strong>
-                            </span>
-                          </p>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '16px !important',
-                            lineHeight: '26px !important',
-                            color: 'var(--txt_icon_black_1, #1a2029)',
-                          }}
-                        >
-                          <p
-                            style={{
-                              lineHeight: 1,
-                            }}
-                          >
-                            <strong>数据检索无需复杂！试问LOOM，他会给你所有数据🚀</strong>
-                          </p>
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          paddingBottom: '400px',
-                        }}
-                      >
-                        <Card style={{ marginBottom: '10px' }}>
-                          <div
-                            style={{
-                              display: 'inlineBlock',
-                              color: 'var(--txt_icon_black_1, #1a2029)',
-                              fontFamily: 'PingFang SC',
-                              fontWeight: 600,
-                              fontStyle: 'normal',
-                              fontSize: '14px',
-                              lineHeight: '22px',
-                              textAlign: 'left',
-                              flex: 1,
-                              maxHeight: '40px',
-                              overflowY: 'hidden',
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: 'var(--txt_stroke_blue_1, #386fff)',
-                              }}
-                            >
-                              数据矿工
-                            </span>
-                            ⚒️：提前有价值数据
-                          </div>
-                        </Card>
-                        <Card style={{ marginBottom: '10px' }}>
-                          <div
-                            style={{
-                              display: 'inlineBlock',
-                              color: 'var(--txt_icon_black_1, #1a2029)',
-                              fontFamily: 'PingFang SC',
-                              fontWeight: 600,
-                              fontStyle: 'normal',
-                              fontSize: '14px',
-                              lineHeight: '22px',
-                              textAlign: 'left',
-                              flex: 1,
-                              maxHeight: '40px',
-                              overflowY: 'hidden',
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: 'var(--txt_stroke_blue_1, #386fff)',
-                              }}
-                            >
-                              实时观察
-                            </span>
-                            👀：请给我最近一周数据📊
-                          </div>
-                        </Card>
-                      </div>
-                      <div
-                        style={{
-                          width: '100%',
-                          minWidth: '872px',
-                          maxWidth: '872px',
-                          paddingBottom: '12px',
-                          boxSizing: 'border-box',
-                          borderRadius: '12px',
-                          flex: 'none',
-                          position: 'relative',
-                        }}
-                      >
-                        <Input
-                          placeholder="请输入内容"
-                          value={content}
-                          onChange={(e) => {
-                            setContent(e.target.value);
-                          }}
-                          onPressEnter={() => {
-                            sendQuestion();
-                          }}
-                          suffix={
-                            <>
-                              {!submitting && (
-                                <a
-                                  onClick={() => {
-                                    sendQuestion();
-                                  }}
-                                >
-                                  <img src={'/send.png'} style={{ width: '24px' }} />
-                                </a>
-                              )}
-                              {submitting && <Spin indicator={antIcon} />}
-                            </>
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </Col>
+              <Show></Show>
             </>
           )}
         </Col>

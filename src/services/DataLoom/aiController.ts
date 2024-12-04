@@ -98,6 +98,20 @@ export async function chatWithTemp(body: API.AiTempChatRequest, options?: { [key
   });
 }
 
+/** 删除用户智能问数对话 DELETE /admin/Ai/delete/askSql/history/${param0} */
+export async function deleteUserAskSqlHistory(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: { chatId: number | undefined },
+  options?: { [p: string]: any },
+) {
+  const { chatId: param0, ...queryParams } = params;
+  return request<API.BaseResponseBoolean>(`/admin/Ai/delete/askSql/history/${param0}`, {
+    method: 'DELETE',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 查询用户选择对话的信息 POST /admin/Ai/get/chat */
 export async function getChatById(body: API.GetChatRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseGetUserChatHistoryVO>('/admin/Ai/get/chat', {

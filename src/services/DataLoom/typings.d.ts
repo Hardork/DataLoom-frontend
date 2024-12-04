@@ -1,9 +1,4 @@
 declare namespace API {
-  type AddChardDataRecordRequest = {
-    dataId?: number;
-    data?: Record<string, any>;
-  };
-
   type AddDashboardChartRequestDTO = {
     dashboardId: number;
     chartName: string;
@@ -206,12 +201,6 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponseDataPage = {
-    code?: number;
-    data?: DataPage;
-    message?: string;
-  };
-
   type BaseResponseDatasourceDTO = {
     code?: number;
     data?: DatasourceDTO;
@@ -278,12 +267,6 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponseListDataCollaboratorsVO = {
-    code?: number;
-    data?: DataCollaboratorsVO[];
-    message?: string;
-  };
-
   type BaseResponseListDatasourceTreeVO = {
     code?: number;
     data?: ListDatasourceTreeVO;
@@ -299,12 +282,6 @@ declare namespace API {
   type BaseResponseListGetUserSQLChatRecordVO = {
     code?: number;
     data?: GetUserSQLChatRecordVO[];
-    message?: string;
-  };
-
-  type BaseResponseListUserData = {
-    code?: number;
-    data?: UserData[];
     message?: string;
   };
 
@@ -368,18 +345,6 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponsePreviewExcelDataVO = {
-    code?: number;
-    data?: PreviewExcelDataVO;
-    message?: string;
-  };
-
-  type BaseResponseString = {
-    code?: number;
-    data?: string;
-    message?: string;
-  };
-
   type BaseResponseUser = {
     code?: number;
     data?: User;
@@ -421,11 +386,6 @@ declare namespace API {
     goal?: string;
     chartData?: string;
     chartType?: string;
-  };
-
-  type ChartData = {
-    id?: string;
-    data?: Record<string, any>;
   };
 
   type ChartEditRequest = {
@@ -607,28 +567,6 @@ declare namespace API {
     isDelete?: number;
   };
 
-  type DataCollaboratorsVO = {
-    userVO?: UserVO;
-    permission?: number;
-  };
-
-  type DataPage = {
-    current?: number;
-    size?: number;
-    total?: number;
-    dataList?: ChartData[];
-    tableFieldInfosList?: TableFieldInfo[];
-  };
-
-  type DataQueryRequest = {
-    current?: number;
-    pageSize?: number;
-    sortField?: string;
-    sortOrder?: string;
-    dataId?: number;
-    chartData?: ChartData;
-  };
-
   type DatasourceDTO = {
     id?: number;
     pid?: number;
@@ -657,11 +595,6 @@ declare namespace API {
     enableDataFill?: boolean;
   };
 
-  type DeleteChartDataRecordRequest = {
-    dataId?: number;
-    id?: string;
-  };
-
   type deleteChartParams = {
     dashboardId: number;
   };
@@ -678,14 +611,8 @@ declare namespace API {
     id?: number;
   };
 
-  type DeleteUserDataRequest = {
-    id?: number;
-  };
-
-  type EditChartDataRecordRequest = {
-    dataId?: number;
-    id?: string;
-    data?: Record<string, any>;
+  type deleteUserAskSqlHistoryParams = {
+    chatId: number;
   };
 
   type EditDashboardChartRequestDTO = {
@@ -784,18 +711,8 @@ declare namespace API {
     dashboardId: number;
   };
 
-  type getDataCollaboratorsParams = {
-    dataId: number;
-  };
-
   type getDataSourceParams = {
     datasourceId: number;
-  };
-
-  type getOtherUserDataParams = {
-    dataId: number;
-    type: number;
-    secret: string;
   };
 
   type getParams = {
@@ -970,14 +887,6 @@ declare namespace API {
     pages?: number;
   };
 
-  type PreviewExcelDataVO = {
-    sheetName?: string;
-    isValid?: boolean;
-    errorMessage?: string;
-    dataList?: ChartData[];
-    tableFieldInfosList?: TableFieldInfo[];
-  };
-
   type previewSqlParams = {
     datasourceId: number;
     sql: string;
@@ -1000,11 +909,6 @@ declare namespace API {
   type SeriesData = {
     title?: string;
     data?: number[];
-  };
-
-  type ShareUserDataRequest = {
-    id?: number;
-    permission?: number;
   };
 
   type SQLObj = {
@@ -1033,12 +937,6 @@ declare namespace API {
     isUnique?: number;
     checked?: boolean;
     jsonPath?: string;
-  };
-
-  type TableFieldInfo = {
-    name?: string;
-    originName?: string;
-    fieldType?: string;
   };
 
   type TaskDTO = {
@@ -1073,20 +971,6 @@ declare namespace API {
     currentDs?: CoreDatasetTable;
     parentSQLObj?: SQLObj;
     currentSQLObj?: SQLObj;
-  };
-
-  type uploadFileToMongoParams = {
-    uploadUserDataRequest: UploadUserDataRequest;
-  };
-
-  type uploadFileToMySQLParams = {
-    uploadUserDataRequest: UploadUserDataRequest;
-  };
-
-  type UploadUserDataRequest = {
-    dataName?: string;
-    description?: string;
-    publicAll?: boolean;
   };
 
   type User = {
@@ -1131,22 +1015,6 @@ declare namespace API {
     style?: string;
     otherRequire?: string;
     isOnline?: number;
-    createTime?: string;
-    updateTime?: string;
-    isDelete?: number;
-  };
-
-  type UserData = {
-    id?: number;
-    userId?: number;
-    dataName?: string;
-    description?: string;
-    uploadType?: number;
-    fieldTypeInfo?: string;
-    totalRecord?: number;
-    readSecretKey?: string;
-    writeSecretKey?: string;
-    approvalConfirm?: boolean;
     createTime?: string;
     updateTime?: string;
     isDelete?: number;

@@ -32,7 +32,6 @@ import {
   PlusOutlined,
   SearchOutlined
 } from "@ant-design/icons";
-import {useParams} from "react-router";
 import ProCard from "@ant-design/pro-card";
 import {
   addDatasource,
@@ -47,7 +46,6 @@ import moment from "moment";
 import {FormInstance, ProFormText, ProFormTextArea, ProTable, StepsForm} from "@ant-design/pro-components";
 import Dragger from 'antd/es/upload/Dragger';
 import {RcFile, UploadProps} from "antd/es/upload/interface";
-import {previewAndCheckExcelInfo} from "@/services/DataLoom/dataController";
 import {AES_Encrypt} from '../../utils/AES'
 
 const {Content, Sider} = Layout;
