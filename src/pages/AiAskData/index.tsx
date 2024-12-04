@@ -33,6 +33,7 @@ import {
   ProFormTextArea,
   ProSkeleton,
 } from '@ant-design/pro-components';
+// @ts-ignore
 import { useLocation } from 'umi';
 import { listUserDataSource } from '@/services/DataLoom/coreDataSourceController';
 // @ts-ignore
@@ -66,6 +67,7 @@ const AiAskData: React.FC = () => {
   const [result, setResult] = useState<Record<string, any>[]>();
   const [columns, setColumns] = useState<any[]>([]);
   const [content, setContent] = useState<string>('');
+  const [systemContent, setSystemContent] = useState<string>('');
   const [status, setStatus] = useState<number>(0);
   const addFormIndex = [
     {
@@ -265,11 +267,11 @@ const AiAskData: React.FC = () => {
     if (submitting) {
       // 在submitting中，不断追加
       const arr = chatRecord;
-      arr[arr.length - 1].content = content;
+      arr[arr.length - 1].content = systemContent;
       setChatRecord(arr);
       autoScroll();
     }
-  }, [content]);
+  }, [systemContent]);
 
   // 渲染websocket消息
   useEffect(() => {
@@ -301,7 +303,7 @@ const AiAskData: React.FC = () => {
       const res: AiAskDataMessage = JSON.parse(event.data);
       console.log(res);
       if (res.type === HistoryStatusEnum.START) {
-        //会话开始
+        // 会话开始
         // 增加系统回答框
         const addItem: any = {
           chatRole: 1,
@@ -321,12 +323,12 @@ const AiAskData: React.FC = () => {
       } else if (res.type === HistoryStatusEnum.ANALYSIS_COMPLETE) {
         // 分析数据源完毕
         setStatus(HistoryStatusEnum.ANALYSIS_COMPLETE);
-        setContent(res.message);
+        setSystemContent(res.message);
       } else if (res.type === HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE) {
         // 分析关联表完毕
         setStatus(HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE);
-        setContent(res.message);
-      } else if (res.type === HistoryStatusEnum.END) {
+        setSystemContent(res.message);
+      } else if (res.type === HistoryStatusEnum.ALL_COMPLETE) {
         // 会话运行中
         const t_columns = res.data.columns.map((item: any) => {
           return {
@@ -338,6 +340,13 @@ const AiAskData: React.FC = () => {
         setResult(res.data.records);
         setCurSQL(res.data.sql);
         setSubmitting(false);
+      } else if (res.type === HistoryStatusEnum.END){
+        setColumns([])
+        setSubmitting(false)
+        setCurSQL('')
+        setStatus(0)
+        setSystemContent('')
+        setResult([])
       }
     };
 
@@ -527,10 +536,10 @@ const AiAskData: React.FC = () => {
                         <div>
                           <Space direction="horizontal">
                             {item.chatRole === 0 && (
-                              <div style={{ display: 'flex' }}>
+                              <div style={{display: 'flex'}}>
                                 <img
                                   src={currentUser?.userAvatar}
-                                  style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                                  style={{width: '30px', height: '30px', borderRadius: '50%'}}
                                 />
                                 <div
                                   style={{
@@ -544,19 +553,20 @@ const AiAskData: React.FC = () => {
                                 </div>
                               </div>
                             )}
+
                             {item.chatRole === 1 && (
-                              <div style={{ display: 'flex' }}>
+                              <div style={{display: 'flex'}}>
+                                <img
+                                  src={'/model.png'}
+                                  style={{width: '30px', height: '30px'}}
+                                />
                                 {item.status === HistoryStatusEnum.ERROR && (
                                   <>
-                                    <Result status="error" title="查询异常" />
+                                    <Result status="error" title="查询异常"/>
                                   </>
                                 )}
-                                {item.status === HistoryStatusEnum.END && (
+                                {item.status === HistoryStatusEnum.ALL_COMPLETE && (
                                   <>
-                                    <img
-                                      src={'/model.png'}
-                                      style={{ width: '30px', height: '30px' }}
-                                    />
                                     <div
                                       style={{
                                         marginLeft: '10px',
@@ -580,7 +590,7 @@ const AiAskData: React.FC = () => {
                                             key: '1',
                                             label: (
                                               <>
-                                                <span style={{ color: '#1677ff' }}>查询SQL</span>
+                                                <span style={{color: '#1677ff'}}>查询SQL</span>
                                               </>
                                             ),
                                             children: <p>{item.sql}</p>,
@@ -593,16 +603,34 @@ const AiAskData: React.FC = () => {
                                   </>
                                 )}
                                 {item.status === HistoryStatusEnum.ANALYSIS_COMPLETE && (
-                                  <>{item.content}</>
-                                )}
-                                {item.status ===
-                                  HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
-                                    <>{item.content}</>
-                                  )}
+                                  <div
+                                  style={{
+                                  marginLeft: '10px',
+                                  padding: '10px',
+                                  background: '#f4f6f8',
+                                  borderRadius: '10px',
+                                }}
+                                 >
+                                    {item.content}
+                              </div>
+                            )}
+                            {item.status ===
+                              HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
+                                <div
+                                  style={{
+                                    marginLeft: '10px',
+                                    padding: '10px',
+                                    background: '#f4f6f8',
+                                    borderRadius: '10px',
+                                  }}
+                                >
+                                  {item.content}
+                                </div>
+                              )}
                               </div>
                             )}
                           </Space>
-                          <div className="margin-16" />
+                          <div className="margin-16"/>
                         </div>
                       </>
                     ))}

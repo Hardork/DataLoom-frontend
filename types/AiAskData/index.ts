@@ -17,6 +17,7 @@ export enum HistoryStatusEnum {
   START = 0,
   ANALYSIS_COMPLETE = 1,
   ANALYSIS_RELATE_TABLE_COMPLETE = 2,
-  END = 3,
-  ERROR = 4,
+  ALL_COMPLETE = 3,
+  END = 4,
+  ERROR = 5,
 }
