@@ -38,6 +38,21 @@ export async function editChart1(body: API.ChartEditRequest, options?: { [key: s
   });
 }
 
+/** 此处后端没有提供注释 POST /admin/chart/gen/async/mq/coreDataSet */
+export async function genChartByAiWithCoreDataSet(
+  body: API.GenChartByAiWithDataRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseChartResponse>('/admin/chart/gen/async/mq/coreDataSet', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 此处后端没有提供注释 POST /admin/chart/gen/async/mq/data */
 export async function genChartByAiWithDataAsyncMq(
   body: API.GenChartByAiWithDataRequest,
