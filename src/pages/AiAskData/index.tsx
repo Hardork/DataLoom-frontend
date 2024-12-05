@@ -318,8 +318,8 @@ const AiAskData: React.FC = () => {
         setChatRecord((item) => [...item, addItem]);
       } else if (res.type === HistoryStatusEnum.ERROR) {
         // 会话异常
-        setSubmitting(false);
         setStatus(HistoryStatusEnum.ERROR);
+        setSubmitting(false);
       } else if (res.type === HistoryStatusEnum.ANALYSIS_COMPLETE) {
         // 分析数据源完毕
         setStatus(HistoryStatusEnum.ANALYSIS_COMPLETE);
@@ -330,7 +330,7 @@ const AiAskData: React.FC = () => {
         setSystemContent(res.message);
       } else if (res.type === HistoryStatusEnum.ALL_COMPLETE) {
         // 会话运行中
-        const t_columns = res.data.columns.map((item: any) => {
+        const t_columns = res.data.columns?.map((item: any) => {
           return {
             title: item,
             dataIndex: item,
@@ -339,10 +339,10 @@ const AiAskData: React.FC = () => {
         setColumns(t_columns);
         setResult(res.data.records);
         setCurSQL(res.data.sql);
-        setSubmitting(false);
+        setStatus(HistoryStatusEnum.ALL_COMPLETE)
       } else if (res.type === HistoryStatusEnum.END){
-        setColumns([])
         setSubmitting(false)
+        setColumns([])
         setCurSQL('')
         setStatus(0)
         setSystemContent('')
@@ -536,10 +536,10 @@ const AiAskData: React.FC = () => {
                         <div>
                           <Space direction="horizontal">
                             {item.chatRole === 0 && (
-                              <div style={{display: 'flex'}}>
+                              <div style={{ display: 'flex' }}>
                                 <img
                                   src={currentUser?.userAvatar}
-                                  style={{width: '30px', height: '30px', borderRadius: '50%'}}
+                                  style={{ width: '30px', height: '30px', borderRadius: '50%' }}
                                 />
                                 <div
                                   style={{
@@ -555,26 +555,24 @@ const AiAskData: React.FC = () => {
                             )}
 
                             {item.chatRole === 1 && (
-                              <div style={{display: 'flex'}}>
-                                <img
-                                  src={'/model.png'}
-                                  style={{width: '30px', height: '30px'}}
-                                />
-                                {item.status === HistoryStatusEnum.ERROR && (
-                                  <>
-                                    <Result status="error" title="查询异常"/>
-                                  </>
-                                )}
-                                {item.status === HistoryStatusEnum.ALL_COMPLETE && (
-                                  <>
-                                    <div
-                                      style={{
-                                        marginLeft: '10px',
-                                        padding: '10px',
-                                        background: '#f4f6f8',
-                                        borderRadius: '10px',
-                                      }}
-                                    >
+                              <div style={{ display: 'flex' }}>
+                                <img src={'/model.png'} style={{ width: '30px', height: '30px' }} />
+                                <div
+                                  style={{
+                                    marginLeft: '10px',
+                                    padding: '10px',
+                                    background: '#f4f6f8',
+                                    borderRadius: '10px',
+                                  }}
+                                >
+                                  {item.status === HistoryStatusEnum.ERROR && (
+                                    <>
+                                      <Result status="error" title="查询异常" />
+                                    </>
+                                  )}
+                                  {(item.status === HistoryStatusEnum.ALL_COMPLETE ||
+                                    item.status === HistoryStatusEnum.END) && (
+                                    <>
                                       <Table
                                         style={{
                                           minWidth: '300px',
@@ -590,7 +588,7 @@ const AiAskData: React.FC = () => {
                                             key: '1',
                                             label: (
                                               <>
-                                                <span style={{color: '#1677ff'}}>查询SQL</span>
+                                                <span style={{ color: '#1677ff' }}>查询SQL</span>
                                               </>
                                             ),
                                             children: <p>{item.sql}</p>,
@@ -599,38 +597,22 @@ const AiAskData: React.FC = () => {
                                         size={'small'}
                                         bordered={false}
                                       />
-                                    </div>
-                                  </>
-                                )}
-                                {item.status === HistoryStatusEnum.ANALYSIS_COMPLETE && (
-                                  <div
-                                  style={{
-                                  marginLeft: '10px',
-                                  padding: '10px',
-                                  background: '#f4f6f8',
-                                  borderRadius: '10px',
-                                }}
-                                 >
-                                    {item.content}
-                              </div>
-                            )}
-                            {item.status ===
-                              HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
-                                <div
-                                  style={{
-                                    marginLeft: '10px',
-                                    padding: '10px',
-                                    background: '#f4f6f8',
-                                    borderRadius: '10px',
-                                  }}
-                                >
-                                  {item.content}
+                                    </>
+                                  )}
+                                  {item.status === HistoryStatusEnum.ANALYSIS_COMPLETE && (
+                                    <>{item.content}</>
+                                  )}
+                                  {item.status ===
+                                    HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
+                                      <>
+                                        {item.content}
+                                      </>
+                                    )}
                                 </div>
-                              )}
                               </div>
                             )}
                           </Space>
-                          <div className="margin-16"/>
+                          <div className="margin-16" />
                         </div>
                       </>
                     ))}
