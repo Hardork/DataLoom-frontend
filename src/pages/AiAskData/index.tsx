@@ -12,7 +12,7 @@ import {
   Space,
   Spin,
   Table,
-  Tag,
+  Tag, Timeline,
 } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import './index.css';
@@ -23,7 +23,7 @@ import {
   deleteUserAskSqlHistory,
   getChatById,
   getUserChatHistory,
-  getUserSqlChatRecord,
+  getUserSqlChatRecord, queryUserChatForSql,
   userChatForSql,
 } from '@/services/DataLoom/aiController';
 import {
@@ -39,7 +39,7 @@ import { listUserDataSource } from '@/services/DataLoom/coreDataSourceController
 // @ts-ignore
 import Show from '@/pages/AiAskData/component/show';
 // @ts-ignore
-import { AiAskDataMessage, HistoryStatusEnum } from '../../../types/AiAskData';
+import {AiAskDataMessage, CustomPage, HistoryStatusEnum} from '../../../types/AiAskData';
 
 /**
  * 我的图表页面
@@ -69,6 +69,8 @@ const AiAskData: React.FC = () => {
   const [content, setContent] = useState<string>('');
   const [systemContent, setSystemContent] = useState<string>('');
   const [status, setStatus] = useState<number>(0);
+  const [total, setTotal] = useState<number>();
+  const [timelineItems, setTimelineItems] = useState<any[]>([]);
   const addFormIndex = [
     {
       name: 'dataId',
@@ -194,9 +196,9 @@ const AiAskData: React.FC = () => {
       title: '删除图表',
       content: '删除图表后，系统不提供数据恢复的功能！',
       onOk: async () => {
-        console.log(getUserChatHistoryVO.chatId);
+        if (getUserChatHistoryVO.chatId === undefined) return;
         const res = await deleteUserAskSqlHistory({
-          chatId: getUserChatHistoryVO.chatId,
+          chatId: getUserChatHistoryVO.chatId
         });
         if (res.code === 0) {
           message.success('删除成功');
@@ -208,6 +210,28 @@ const AiAskData: React.FC = () => {
       },
     });
   };
+
+  const setCurItemLoading = (item: API.GetUserSQLChatRecordVO) => {
+    const arr = [...chatRecord];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].id === item.id) {
+        item.loading = true;
+      }
+    }
+    setChatRecord(arr)
+  }
+
+  // 设置分页数据
+  const setCurItemData = async (item:API.GetUserSQLChatRecordVO, data:CustomPage) => {
+    const arr = [...chatRecord];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].id === item.id) {
+        item.res = data.records
+        item.loading = false;
+      }
+    }
+    setChatRecord(arr)
+  }
 
   const scrollDomRef = useRef<HTMLDivElement>(null);
 
@@ -295,6 +319,17 @@ const AiAskData: React.FC = () => {
     }
   }, [status]);
 
+  // 渲染websocket消息
+  useEffect(() => {
+    if (submitting) {
+      // 在submitting中，不断追加
+      const arr = chatRecord;
+      arr[arr.length - 1].total = total;
+      setChatRecord(arr);
+      autoScroll();
+    }
+  }, [total]);
+
   // 建立连接
   useEffect(() => {
     loadData();
@@ -311,23 +346,39 @@ const AiAskData: React.FC = () => {
           columns: [],
           sql: '',
           status: HistoryStatusEnum.START,
-          loading: true,
+          loading: false,
           content: '',
         };
         // 添加聊天框
         setChatRecord((item) => [...item, addItem]);
+        setTimelineItems((item) => [...item, {
+          color: 'green',
+          children: <><span style={{fontWeight: 'bold'}}>理解问题</span></>
+        }]);
       } else if (res.type === HistoryStatusEnum.ERROR) {
         // 会话异常
         setStatus(HistoryStatusEnum.ERROR);
         setSubmitting(false);
+        setTimelineItems((item) => [...item, {
+          color: 'red',
+          children: <><span style={{fontWeight: 'bold'}}>发生异常</span></>
+        }]);
       } else if (res.type === HistoryStatusEnum.ANALYSIS_COMPLETE) {
         // 分析数据源完毕
         setStatus(HistoryStatusEnum.ANALYSIS_COMPLETE);
         setSystemContent(res.message);
+        setTimelineItems((item) => [...item, {
+          color: 'green',
+          children: <><span style={{fontWeight: 'bold'}}>分析数据源</span></>
+        }]);
       } else if (res.type === HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE) {
         // 分析关联表完毕
         setStatus(HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE);
         setSystemContent(res.message);
+        setTimelineItems((item) => [...item, {
+          color: 'green',
+          children: <><span style={{fontWeight: 'bold'}}>分析关联表</span></>
+        }]);
       } else if (res.type === HistoryStatusEnum.ALL_COMPLETE) {
         // 会话运行中
         const t_columns = res.data.columns?.map((item: any) => {
@@ -338,15 +389,18 @@ const AiAskData: React.FC = () => {
         });
         setColumns(t_columns);
         setResult(res.data.records);
+        setTotal(res.data.total)
         setCurSQL(res.data.sql);
         setStatus(HistoryStatusEnum.ALL_COMPLETE)
       } else if (res.type === HistoryStatusEnum.END){
         setSubmitting(false)
         setColumns([])
         setCurSQL('')
-        setStatus(0)
+        setStatus(HistoryStatusEnum.END)
         setSystemContent('')
         setResult([])
+        setTimelineItems([])
+        return;
       }
     };
 
@@ -565,6 +619,14 @@ const AiAskData: React.FC = () => {
                                     borderRadius: '10px',
                                   }}
                                 >
+                                  {(item.status !== HistoryStatusEnum.ALL_COMPLETE &&
+                                    item.status !== HistoryStatusEnum.END) && (
+                                    <div>
+                                      <Timeline
+                                        items={timelineItems}
+                                      />
+                                    </div>
+                                  )}
                                   {item.status === HistoryStatusEnum.ERROR && (
                                     <>
                                       <Result status="error" title="查询异常" />
@@ -579,7 +641,21 @@ const AiAskData: React.FC = () => {
                                         }}
                                         columns={item.columns}
                                         dataSource={item.res}
-                                        pagination={false}
+                                        pagination={{onChange: async (page, size) => {
+                                            // TODO: 查询对应分页的数据
+                                            setCurItemLoading(item)
+                                            const params = {
+                                              chatHistoryId: item.id,
+                                              pageNo: page,
+                                              size: size
+                                            }
+                                            const res = await queryUserChatForSql(params)
+                                            if (res.code === 0) {
+                                              // @ts-ignore
+                                              setCurItemData(item, res.data)
+                                            }
+                                        }, total: item.total}}
+                                        loading={item.loading === undefined ? false : item.loading}
                                         size={'small'}
                                       />
                                       <Collapse
@@ -599,15 +675,6 @@ const AiAskData: React.FC = () => {
                                       />
                                     </>
                                   )}
-                                  {item.status === HistoryStatusEnum.ANALYSIS_COMPLETE && (
-                                    <>{item.content}</>
-                                  )}
-                                  {item.status ===
-                                    HistoryStatusEnum.ANALYSIS_RELATE_TABLE_COMPLETE && (
-                                      <>
-                                        {item.content}
-                                      </>
-                                    )}
                                 </div>
                               </div>
                             )}

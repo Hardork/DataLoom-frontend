@@ -45,16 +45,11 @@ import {
 import { AES_Encrypt } from '../../utils/AES'
 import {addDatasource} from "@/services/DataLoom/coreDataSourceController";
 
-
-
-
-
 export default () => {
 
   const { initialState, setInitialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
   const [originalData, setOriginalData] = useState<API.UserData[]>()
-  const [showDeleteOpen, setShowDeleteOpen] = useState(false)
   const [data, setData] = useState<[]>()
   const [change, setChange] = useState(false)
   const [shareLink, setShareLink] = useState<string>();
@@ -343,7 +338,7 @@ export default () => {
   const [file, setFile] = useState<RcFile>()
   const [databaseVisible, setDatabaseVisible] = useState<boolean>(false);
   const [columns, setColumns] = useState<[]>()
-  const [previewData, setPreviewData] = useState<API.ChartData[]>()
+  const [previewData, setPreviewData] = useState<any[]>()
 
 
   // 定义字段类型与图标的映射关系
@@ -484,7 +479,6 @@ export default () => {
           showSizeChanger: false,
         }}
         showActions="hover"
-        // rowSelection={{}}
         grid={{ gutter: 16, column: 3 }}
         onItem={(record: any) => {
           return {

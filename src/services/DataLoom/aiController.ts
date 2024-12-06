@@ -86,6 +86,21 @@ export async function userChatForSql(
   });
 }
 
+/** 智能问数分页查询 POST /admin/Ai/chat/sql/page */
+export async function queryUserChatForSql(
+  body: API.ChatForSQLPageRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseCustomPageMapStringObject>('/admin/Ai/chat/sql/page', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 此处后端没有提供注释 POST /admin/Ai/chat/temp */
 export async function chatWithTemp(body: API.AiTempChatRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/admin/Ai/chat/temp', {
@@ -101,8 +116,8 @@ export async function chatWithTemp(body: API.AiTempChatRequest, options?: { [key
 /** 删除用户智能问数对话 DELETE /admin/Ai/delete/askSql/history/${param0} */
 export async function deleteUserAskSqlHistory(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: { chatId: number | undefined },
-  options?: { [p: string]: any },
+  params: API.deleteUserAskSqlHistoryParams,
+  options?: { [key: string]: any },
 ) {
   const { chatId: param0, ...queryParams } = params;
   return request<API.BaseResponseBoolean>(`/admin/Ai/delete/askSql/history/${param0}`, {
@@ -145,6 +160,23 @@ export async function getUserChatHistory(options?: { [key: string]: any }) {
     method: 'GET',
     ...(options || {}),
   });
+}
+
+/** 智能问数单条对话分页查询 GET /admin/Ai/get/singleHistory/pageData/${param0}/${param1} */
+export async function getSingleHistoryPageData(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getSingleHistoryPageDataParams,
+  options?: { [key: string]: any },
+) {
+  const { chatHistoryId: param0, pageNo: param1, ...queryParams } = params;
+  return request<API.BaseResponseCustomPageMapStringObject>(
+    `/admin/Ai/get/singleHistory/pageData/${param0}/${param1}`,
+    {
+      method: 'GET',
+      params: { ...queryParams },
+      ...(options || {}),
+    },
+  );
 }
 
 /** 用户获取AI对话历史 POST /admin/Ai/get/sql/chatRecord */

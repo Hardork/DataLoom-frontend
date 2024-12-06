@@ -35,7 +35,7 @@ const AnalysisPopover = (props: Props) => {
       // 如果更新过了，直接获取数据
       if (props.chart.analysisLastFlag) {
         setLoading(true)
-        if (!props.chart.i) {
+        if (props.chart.i === undefined) {
           return;
         }
         const res = await getChartAnalysis({chartId: props.chart.i});

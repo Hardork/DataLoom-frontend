@@ -195,6 +195,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseCustomPageMapStringObject = {
+    code?: number;
+    data?: CustomPageMapStringObject;
+    message?: string;
+  };
+
   type BaseResponseDashboard = {
     code?: number;
     data?: Dashboard;
@@ -442,6 +448,12 @@ declare namespace API {
     isDelete?: number;
   };
 
+  type ChatForSQLPageRequest = {
+    chatHistoryId?: number;
+    pageNo?: number;
+    size?: number;
+  };
+
   type ChatForSQLRequest = {
     chatId?: number;
     question?: string;
@@ -455,6 +467,7 @@ declare namespace API {
     content?: string;
     execMessage?: string;
     status?: number;
+    isOverSize?: boolean;
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
@@ -553,6 +566,15 @@ declare namespace API {
     extraData?: string;
     taskStatus?: string;
     jobId?: number;
+  };
+
+  type CustomPageMapStringObject = {
+    records?: Record<string, any>[];
+    columns?: string[];
+    sql?: string;
+    total?: number;
+    size?: number;
+    current?: number;
   };
 
   type Dashboard = {
@@ -669,11 +691,11 @@ declare namespace API {
   };
 
   type getChartAnalysisFluxParams = {
-    chartId: number;
+    chartId: string;
   };
 
   type getChartAnalysisParams = {
-    chartId: number;
+    chartId: string;
   };
 
   type GetChartAnalysisVO = {
@@ -719,6 +741,11 @@ declare namespace API {
     id: number;
   };
 
+  type getSingleHistoryPageDataParams = {
+    chatHistoryId: number;
+    pageNo: number;
+  };
+
   type GetTableFieldsDTO = {
     datasourceId: number;
     tableName: string;
@@ -755,10 +782,12 @@ declare namespace API {
     content?: string;
     columns?: ColumnsVO[];
     res?: Record<string, any>[];
+    total?: number;
     sql?: string;
     chatId?: number;
     modelId?: number;
     status?: number;
+    loading?: boolean
   };
 
   type getUserVOByIdParams = {
@@ -986,8 +1015,8 @@ declare namespace API {
     createTime?: string;
     updateTime?: string;
     isDelete?: number;
-    svipexpirationTime?: string;
     vipexpirationTime?: string;
+    svipexpirationTime?: string;
   };
 
   type UserAddChatRequest = {
