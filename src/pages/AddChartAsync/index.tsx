@@ -1,4 +1,3 @@
-import {genChartByAiAsyncUsingPOST} from '@/services/DataLoom/chartController';
 import { UploadOutlined } from '@ant-design/icons';
 import {Button, Card, Col, Form, Input, message, Row, Select, Space, Upload} from 'antd';
 import TextArea from 'antd/es/input/TextArea';
@@ -18,34 +17,12 @@ const AddChartAsync: React.FC = () => {
   const { currentUser } = initialState ?? {};
 
 
-
   /**
    * 提交
    * @param values
    */
   const onFinish = async (values: any) => {
-    // 避免重复提交
-    if (submitting) {
-      return;
-    }
-    setSubmitting(true);
-    // 对接后端，上传数据
-    const params = {
-      ...values,
-      file: undefined,
-    };
-    try {
-      const res = await genChartByAiAsyncUsingPOST(params, {}, values.file.file.originFileObj);
-      if (!res?.data) {
-        message.error('分析失败, ' + res.message);
-      } else {
-        message.success('分析成功, 稍后请在历史分析中查看分析结果');
-        form.resetFields();
-      }
-    } catch (e: any) {
-      message.error('分析失败，' + e.message);
-    }
-    setSubmitting(false);
+
   };
 
   return (
