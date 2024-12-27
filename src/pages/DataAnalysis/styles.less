@@ -18,7 +18,7 @@
     overflow: hidden;
     
     &.collapsed {
-      width: 0;
+      width: 80px;
     }
     
     &-header {
@@ -28,6 +28,7 @@
       font-weight: 500;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
       border-bottom: 1px solid #eaedff;
       background: #fff;
@@ -41,6 +42,17 @@
         color: #1a1a1a;
         font-weight: 600;
         font-size: 18px;
+        transition: opacity 0.3s;
+      }
+
+      .collapse-button {
+        padding: 8px;
+        
+        &:hover {
+          color: #2A3FFF;
+          background: rgba(42, 63, 255, 0.1);
+          border-radius: 4px;
+        }
       }
     }
   }

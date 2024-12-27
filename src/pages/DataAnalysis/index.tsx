@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Menu } from 'antd';
-import { BarChartOutlined, HistoryOutlined } from '@ant-design/icons';
-import UserCenter from './components/UserCenter';
+import { Menu, Button } from 'antd';
+import { BarChartOutlined, HistoryOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import UserCenter from '@/components/UserCenter';
 import DataAnalysisContent from '@/components/DataAnalysisContent';
 import ChatInput from '@/components/ChatInput'; 
 import ChatDisplay from '@/components/ChatDisplay'; 
@@ -21,6 +21,7 @@ const DataAnalysis: React.FC = () => {
   const [showDataAnalysis, setShowDataAnalysis] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleProfileClick = () => {};
   const handleSettingsClick = () => {};
@@ -76,17 +77,24 @@ const DataAnalysis: React.FC = () => {
 
   return (
     <div className="data-analysis-layout">
-      <div className="data-analysis-sidebar">
+      <div className={`data-analysis-sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="data-analysis-sidebar-header">
-          <span>DataLoom</span>
+          {!collapsed && <span>DataLoom</span>}
+          <Button
+            type="text"
+            className="collapse-button"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(prev => !prev)}
+          />
         </div>
         
         <Menu
           mode="inline"
           className="data-analysis-menu"
           selectedKeys={[selectedSessionId]}
-          openKeys={openKeys}
+          openKeys={collapsed ? [] : openKeys}
           onOpenChange={setOpenKeys}
+          inlineCollapsed={collapsed}
         >
           <Menu.Item 
             key="askData" 
@@ -133,6 +141,7 @@ const DataAnalysis: React.FC = () => {
           onProfileClick={handleProfileClick}
           onSettingsClick={handleSettingsClick}
           onLogoutClick={handleLogoutClick}
+          collapsed={collapsed}
         />
       </div>
 
@@ -144,7 +153,14 @@ const DataAnalysis: React.FC = () => {
           />
         ) : (
             <div className="data-analysis-chat-area">
-                <ChatDisplay messages={messages}/>
+                <ChatDisplay 
+                  messages={messages} 
+                  currentSession={{
+                    title: "新对话",
+                    createTime: new Date().toLocaleString(),
+                    messageCount: messages.length
+                  }}
+                />
                 <ChatInput onSendMessage={handleSendMessage} loading={loading} />
             </div>
         )}

@@ -18,6 +18,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, loading }) => {
     }
   };
 
+  const handlePressEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // 阻止默认的回车行为
+      handleSend();
+    }
+  };
+
   return (
     <div className="chat-input-wrapper">
       <div className="chat-input-container">
@@ -31,7 +38,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, loading }) => {
         <Input.TextArea
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
-          onPressEnter={handleSend}
+          onPressEnter={handlePressEnter}
           placeholder="输入消息..."
           autoSize={{ minRows: 1, maxRows: 4 }}
           className="chat-textarea"

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Avatar } from 'antd';
-import { UserOutlined, RobotOutlined } from '@ant-design/icons';
+import { Avatar, Divider } from 'antd';
+import { UserOutlined, RobotOutlined, FieldTimeOutlined, FileTextOutlined } from '@ant-design/icons';
 import './styles.less';
 
 interface Message {
@@ -12,9 +12,14 @@ interface Message {
 
 interface ChatDisplayProps {
   messages: Message[];
+  currentSession?: {
+    title: string;
+    createTime: string;
+    messageCount?: number;
+  };
 }
 
-const ChatDisplay: React.FC<ChatDisplayProps> = ({ messages }) => {
+const ChatDisplay: React.FC<ChatDisplayProps> = ({ messages, currentSession }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -27,6 +32,24 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ messages }) => {
 
   return (
     <div className="chat-display">
+      {currentSession && (
+        <div className="chat-header">
+          <div className="chat-title">
+            <h2>{currentSession.title}</h2>
+          </div>
+          <div className="chat-info">
+            <span className="chat-info-item">
+              <FieldTimeOutlined /> {currentSession.createTime}
+            </span>
+            {currentSession.messageCount && (
+              <span className="chat-info-item">
+                <FileTextOutlined /> {currentSession.messageCount} 条对话
+              </span>
+            )}
+          </div>
+          <Divider style={{ margin: '12px 0' }} />
+        </div>
+      )}
       <div className="chat-messages">
         {messages.map((message) => (
           <div
