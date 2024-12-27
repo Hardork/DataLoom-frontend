@@ -1,0 +1,124 @@
+.analysis {
+    &-content {
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: transparent;
+    }
+  
+    &-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+  
+    &-title {
+      font-size: 32px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+  
+    &-subtitle {
+      font-size: 16px;
+      color: #666;
+    }
+  
+    &-divider {
+      font-size: 14px;
+      color: #999;
+      margin: 40px 0;
+    }
+  
+    &-cases {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+  
+    &-case {
+      &-card {
+        position: relative;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #eaedff;
+        background: #fff;
+        transition: all 0.3s ease;
+  
+        &:hover {
+          background: #f7f7f7;
+          
+          .analysis-case-use {
+            opacity: 1;
+          }
+        }
+      }
+  
+      &-title {
+        font-size: 18px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+      }
+  
+      &-type {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 16px;
+        background: #f5f6ff;
+        color: #2A3FFF;
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
+  
+      &-prompt {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+  
+      &-file {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #999;
+        font-size: 13px;
+  
+        .anticon {
+          font-size: 16px;
+        }
+      }
+  
+      &-use {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: #2A3FFF;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+  
+        &:hover {
+          background: darken(#2A3FFF, 5%);
+        }
+  
+        .anticon {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+@media (max-width: 768px) {
+  .analysis-cases {
+    grid-template-columns: 1fr;
+  }
+}

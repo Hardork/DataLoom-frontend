@@ -29,16 +29,16 @@ export async function getInitialState(): Promise<{
     return undefined;
   };
   // 如果不是登录页面，执行
-  const { location } = history;
-  if (location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
-    const webSocket = new WebSocket('ws://localhost:8081/api/websocket/' + currentUser?.id);
-    return {
-      settings: defaultSettings,
-      currentUser,
-      webSocket
-    };
-  }
+  // const { location } = history;
+  // if (location.pathname !== loginPath) {
+  //   const currentUser = await fetchUserInfo();
+  //   const webSocket = new WebSocket('ws://localhost:8081/api/websocket/' + currentUser?.id);
+  //   return {
+  //     settings: defaultSettings,
+  //     currentUser,
+  //     webSocket
+  //   };
+  // }
   // 如果是登录页面不返回当前登录用户的信息
   return {
     settings: defaultSettings,

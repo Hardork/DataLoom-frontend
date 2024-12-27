@@ -1,0 +1,63 @@
+.data-analysis {
+    &-user {
+      &-center {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        border-top: 1px solid #eaedff;
+        background: #fff;
+        transition: all 0.3s ease;
+  
+        &:hover {
+          background: #f8f9ff;
+        }
+  
+        .ant-avatar {
+          background: #2A3FFF;
+        }
+      }
+  
+      &-name {
+        color: #1a1a1a;
+        font-size: 14px;
+        font-weight: 500;
+      }
+  
+      &-dropdown {
+        .ant-dropdown-menu {
+          padding: 4px;
+          border-radius: 8px;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+          
+          &-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 2px 0;
+  
+            &:hover {
+              background: #f5f6ff;
+            }
+  
+            .anticon {
+              color: #666;
+            }
+  
+            &:hover .anticon {
+              color: #2A3FFF;
+            }
+          }
+  
+          &-item-divider {
+            background-color: #eaedff;
+            margin: 4px 0;
+          }
+        }
+      }
+    }
+  }
